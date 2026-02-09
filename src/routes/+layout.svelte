@@ -20,7 +20,6 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
-	<html data-theme="emerald" />
 </svelte:head>
 
 <div class="min-h-screen bg-base-200">

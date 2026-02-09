@@ -1,0 +1,106 @@
+<script lang="ts">
+	import { fly } from 'svelte/transition';
+	import { MapPin, Clock, Package, ChevronRight } from '@lucide/svelte';
+	import type { Drop } from '$lib/types';
+	import { formatTime } from '$lib/types';
+
+	interface Props {
+		drop: Drop;
+		onSelect: () => void;
+		delay?: number;
+		soldOut?: boolean;
+		upcoming?: boolean;
+	}
+
+	let { drop, onSelect, delay = 0, soldOut = false, upcoming = false }: Props = $props();
+
+	const urgency = $derived(!soldOut && !upcoming && drop.remainingBoxes <= 5);
+</script>
+
+<button
+	in:fly={{ y: 10, delay, duration: 300 }}
+	onclick={onSelect}
+	class="w-full bg-base-100 rounded-2xl border border-base-300 shadow-sm overflow-hidden text-left active:scale-[0.98] transition-transform {soldOut
+		? 'opacity-60'
+		: ''}"
+>
+	<div class="flex items-stretch">
+		<!-- Emoji banner -->
+		<div
+			class="w-20 flex items-center justify-center shrink-0 {soldOut
+				? 'bg-gray-100'
+				: upcoming
+					? 'bg-blue-50'
+					: 'bg-gradient-to-b from-green-50 to-emerald-100'}"
+		>
+			<span class="text-[2rem]">{drop.emoji}</span>
+		</div>
+
+		<!-- Content -->
+		<div class="flex-1 p-3.5 min-w-0">
+			<div class="flex items-start justify-between gap-2">
+				<div class="min-w-0">
+					<div class="flex items-center gap-2">
+						<p class="text-[0.9rem] truncate font-semibold">
+							{drop.location}
+						</p>
+						{#if urgency}
+							<span
+								class="bg-amber-100 text-amber-700 text-[0.6rem] px-1.5 py-0.5 rounded-full shrink-0 font-semibold"
+							>
+								{drop.remainingBoxes} left!
+							</span>
+						{/if}
+						{#if soldOut}
+							<span
+								class="bg-gray-100 text-gray-500 text-[0.6rem] px-1.5 py-0.5 rounded-full shrink-0 font-semibold"
+							>
+								Sold out
+							</span>
+						{/if}
+						{#if upcoming}
+							<span
+								class="bg-blue-100 text-blue-600 text-[0.6rem] px-1.5 py-0.5 rounded-full shrink-0 font-semibold"
+							>
+								Soon
+							</span>
+						{/if}
+					</div>
+					<p class="text-[0.75rem] text-base-content/60 mt-0.5 line-clamp-1">
+						{drop.description}
+					</p>
+				</div>
+				<ChevronRight class="w-4 h-4 text-base-content/60 shrink-0 mt-1" />
+			</div>
+
+			<div class="flex items-center gap-3 mt-2 text-[0.7rem] text-base-content/60">
+				<span class="flex items-center gap-1">
+					<Clock class="w-3 h-3" />
+					{formatTime(drop.windowStart)}-{formatTime(drop.windowEnd)}
+				</span>
+				<span class="flex items-center gap-1">
+					<MapPin class="w-3 h-3" />
+					{drop.locationDetail}
+				</span>
+			</div>
+
+			<div class="flex items-center justify-between mt-2">
+				<div class="flex items-center gap-1.5">
+					<Package class="w-3 h-3 text-primary" />
+					<span class="text-[0.75rem] font-semibold">
+						{#if soldOut}
+							0 left
+						{:else if upcoming}
+							{drop.totalBoxes} boxes
+						{:else}
+							{drop.remainingBoxes} of {drop.totalBoxes} left
+						{/if}
+					</span>
+				</div>
+				<span class="text-[0.8rem] text-primary font-bold">
+					${drop.priceMin}-${drop.priceMax}
+				</span>
+			</div>
+		</div>
+	</div>
+</button>

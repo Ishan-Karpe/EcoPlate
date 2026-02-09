@@ -376,7 +376,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 4. Create State Store and Root Layout
+- [x] 4. Create State Store and Root Layout
 
   **What to do**:
   - Create `src/lib/stores/app.svelte.ts` using Svelte 5 runes:
