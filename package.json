@@ -21,8 +21,10 @@
 		"vite": "^7.3.1"
 	},
 	"dependencies": {
+		"@lucide/svelte": "^0.563.1",
 		"@tailwindcss/vite": "^4.1.12",
 		"daisyui": "^5.5.18",
+		"svelte-sonner": "^1.0.7",
 		"tailwindcss": "^4.1.12"
 	}
 }

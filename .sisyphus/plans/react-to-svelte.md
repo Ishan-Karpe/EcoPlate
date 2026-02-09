@@ -222,7 +222,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 2. Configure DaisyUI + Theme + CSS Variable Bridge
+- [x] 2. Configure DaisyUI + Theme + CSS Variable Bridge
 
   **What to do**:
   - Install DaisyUI v5: `npm install daisyui@latest`
@@ -312,7 +312,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 3. Migrate Types, Mock Data, and Utilities
+- [x] 3. Migrate Types, Mock Data, and Utilities
 
   **What to do**:
   - Create `src/lib/types.ts` from `ecoplate-types.ts`:
