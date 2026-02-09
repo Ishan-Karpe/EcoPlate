@@ -61,13 +61,13 @@ Replace the React EcoPlate prototype with an identical SvelteKit implementation 
 - Vitest test suite for stores, utilities, and key components
 
 ### Definition of Done
-- [ ] `npm run build` completes with zero errors
-- [ ] `npm run dev` serves app at localhost:5173
-- [ ] All 11 routes render correctly
-- [ ] Full user flow (browse → reserve → pickup → rate → account) works
-- [ ] Admin flow (login → dashboard → create/redeem/no-shows) works
-- [ ] Visual appearance matches React version (verified via Playwright screenshots)
-- [ ] All tests pass (`npm test`)
+- [x] `npm run build` completes with zero errors
+- [x] `npm run dev` serves app at localhost:5173
+- [x] All 11 routes render correctly
+- [x] Full user flow (browse → reserve → pickup → rate → account) works
+- [x] Admin flow (login → dashboard → create/redeem/no-shows) works
+- [x] Visual appearance matches React version (verified via Playwright screenshots)
+- [x] All tests pass (`npm test`)
 
 ### Must Have
 - Svelte 5 rune syntax everywhere (`$state`, `$derived`, `$effect`, `$props`)
@@ -473,7 +473,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 5. Migrate StudentLanding Page (/)
+- [x] 5. Migrate StudentLanding Page (/)
 
   **What to do**:
   - Create `src/routes/+page.svelte` as the landing page
@@ -563,7 +563,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 6. Migrate DropDetail Page (/drop/[id])
+- [x] 6. Migrate DropDetail Page (/drop/[id])
 
   **What to do**:
   - Create `src/routes/drop/[id]/+page.svelte`
@@ -637,7 +637,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 7. Migrate ReserveConfirm Page (/drop/[id]/reserve)
+- [x] 7. Migrate ReserveConfirm Page (/drop/[id]/reserve)
 
   **What to do**:
   - Create `src/routes/drop/[id]/reserve/+page.svelte`
@@ -700,7 +700,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 8. Migrate PickupCode Page (/pickup/[id])
+- [x] 8. Migrate PickupCode Page (/pickup/[id])
 
   **What to do**:
   - Create `src/routes/pickup/[id]/+page.svelte`
@@ -785,7 +785,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 9. Migrate PostRating Page (/rating)
+- [x] 9. Migrate PostRating Page (/rating)
 
   **What to do**:
   - Create `src/routes/rating/+page.svelte`
@@ -866,7 +866,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 10. Migrate AccountPrompt Page (/account)
+- [x] 10. Migrate AccountPrompt Page (/account)
 
   **What to do**:
   - Create `src/routes/account/+page.svelte`
@@ -925,7 +925,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 11. Migrate AdminLogin Page (/admin)
+- [x] 11. Migrate AdminLogin Page (/admin)
 
   **What to do**:
   - Create `src/routes/admin/+page.svelte`
@@ -984,7 +984,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 12. Migrate AdminDashboard Page (/admin/dashboard)
+- [x] 12. Migrate AdminDashboard Page (/admin/dashboard)
 
   **What to do**:
   - Create `src/routes/admin/dashboard/+page.svelte`
@@ -1063,7 +1063,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 13. Migrate AdminCreateDrop Page (/admin/create)
+- [x] 13. Migrate AdminCreateDrop Page (/admin/create)
 
   **What to do**:
   - Create `src/routes/admin/create/+page.svelte`
@@ -1121,7 +1121,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 14. Migrate AdminRedeem Page (/admin/redeem)
+- [x] 14. Migrate AdminRedeem Page (/admin/redeem)
 
   **What to do**:
   - Create `src/routes/admin/redeem/+page.svelte`
@@ -1169,7 +1169,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 15. Migrate AdminNoShows Page (/admin/no-shows)
+- [x] 15. Migrate AdminNoShows Page (/admin/no-shows)
 
   **What to do**:
   - Create `src/routes/admin/no-shows/+page.svelte`
@@ -1215,7 +1215,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 16. Wire All Navigation and Guards
+- [x] 16. Wire All Navigation and Guards
 
   **What to do**:
   - Verify all `goto()` calls are correct across all pages
@@ -1272,7 +1272,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 17. Full Integration Tests with Playwright
+- [x] 17. Full Integration Tests with Playwright
 
   **What to do**:
   - Create Playwright test file for full user flows
@@ -1349,7 +1349,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 18. Write Component Tests with Vitest
+- [x] 18. Write Component Tests with Vitest
 
   **What to do**:
   - Install testing dependencies: `npm install -D vitest @testing-library/svelte jsdom`
@@ -1408,7 +1408,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ---
 
-- [ ] 19. Final Build Verification and Cleanup
+- [x] 19. Final Build Verification and Cleanup
 
   **What to do**:
   - Run `npm run build` and verify zero errors
@@ -1520,11 +1520,11 @@ npx tsc --noEmit     # Expected: No TypeScript errors
 ```
 
 ### Final Checklist
-- [ ] All "Must Have" present (Svelte 5 runes, SvelteKit routing, DaisyUI, transitions)
-- [ ] All "Must NOT Have" absent (no motion library, no shadcn, no legacy Svelte patterns)
-- [ ] All 11 routes render correctly
-- [ ] Full student flow works (browse → reserve → pickup → rate → account)
-- [ ] Full admin flow works (login → dashboard → actions → logout)
-- [ ] Visual appearance matches React version
-- [ ] All tests pass
-- [ ] Production build succeeds
+- [x] All "Must Have" present (Svelte 5 runes, SvelteKit routing, DaisyUI, transitions)
+- [x] All "Must NOT Have" absent (no motion library, no shadcn, no legacy Svelte patterns)
+- [x] All 11 routes render correctly
+- [x] Full student flow works (browse → reserve → pickup → rate → account)
+- [x] Full admin flow works (login → dashboard → actions → logout)
+- [x] Visual appearance matches React version
+- [x] All tests pass
+- [x] Production build succeeds
