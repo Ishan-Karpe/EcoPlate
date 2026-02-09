@@ -46,7 +46,7 @@
 
 {#if drop}
 	<div class="min-h-screen bg-base-200 flex flex-col">
-		<div class="px-5 pt-12 pb-2">
+		<div class="px-5 pt-12 pb-2 max-w-4xl mx-auto w-full">
 			<button
 				onclick={handleBack}
 				class="flex items-center gap-1 text-base-content/60 text-[0.875rem] mb-3"
@@ -56,15 +56,16 @@
 			</button>
 		</div>
 
-		<div class="flex-1 px-5 py-2 space-y-4 overflow-y-auto pb-4">
-			<div
-				in:fly={{ y: 15, duration: 300 }}
-				class="h-40 rounded-2xl relative flex items-center justify-center {soldOut
-					? 'bg-gray-100'
-					: upcoming
-						? 'bg-gradient-to-br from-blue-50 to-indigo-100'
-						: 'bg-gradient-to-br from-green-50 to-emerald-100'}"
-			>
+		<div class="flex-1 px-5 py-2 overflow-y-auto pb-4 max-w-4xl mx-auto w-full">
+			<div class="lg:grid lg:grid-cols-2 lg:gap-6 space-y-4 lg:space-y-0">
+				<div
+					in:fly={{ y: 15, duration: 300 }}
+					class="h-40 lg:h-64 rounded-2xl relative flex items-center justify-center {soldOut
+						? 'bg-gray-100'
+						: upcoming
+							? 'bg-gradient-to-br from-blue-50 to-indigo-100'
+							: 'bg-gradient-to-br from-green-50 to-emerald-100'}"
+				>
 				<div class="text-center">
 					<div class="text-[3rem] mb-1">{drop.emoji}</div>
 					<p
@@ -167,6 +168,7 @@
 					</div>
 				{/if}
 			</div>
+		</div>
 
 			{#if soldOut}
 				<div in:fly={{ y: 10, delay: 200, duration: 300 }} class="space-y-3">
@@ -210,10 +212,10 @@
 		</div>
 
 		{#if !soldOut && !upcoming}
-			<div in:fly={{ y: 20, delay: 200, duration: 300 }} class="px-5 pb-8 pt-3">
+			<div in:fly={{ y: 20, delay: 200, duration: 300 }} class="px-5 pb-8 pt-3 max-w-4xl mx-auto w-full">
 				<button
 					onclick={handleReserve}
-					class="btn btn-primary btn-lg w-full shadow-lg shadow-primary/25"
+					class="btn btn-primary btn-lg w-full lg:w-auto lg:px-12 lg:mx-auto lg:flex shadow-lg shadow-primary/25"
 				>
 					Reserve My Box
 					<ChevronRight class="w-5 h-5" />
@@ -225,8 +227,8 @@
 		{/if}
 
 		{#if upcoming}
-			<div class="px-5 pb-8 pt-3">
-				<button disabled class="btn btn-info btn-lg w-full btn-disabled">
+			<div class="px-5 pb-8 pt-3 max-w-4xl mx-auto w-full">
+				<button disabled class="btn btn-info btn-lg w-full lg:w-auto lg:px-12 lg:mx-auto lg:flex btn-disabled">
 					Reservations open at {formatTime(drop.windowStart)}
 				</button>
 			</div>

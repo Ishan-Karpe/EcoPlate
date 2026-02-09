@@ -37,7 +37,7 @@
 </script>
 
 <div class="min-h-screen bg-base-200 flex flex-col">
-	<div class="px-5 pt-12 pb-4">
+	<div class="px-5 pt-12 pb-4 max-w-3xl mx-auto w-full">
 		<button
 			onclick={handleBack}
 			class="flex items-center gap-1 text-base-content/60 text-[0.875rem] mb-4"
@@ -45,13 +45,13 @@
 			<ArrowLeft class="w-4 h-4" />
 			Dashboard
 		</button>
-		<h1 class="text-[1.5rem] font-bold">Redeem Pickup</h1>
-		<p class="text-base-content/60 text-[0.875rem] mt-1">
+		<h1 class="text-[1.5rem] lg:text-[1.75rem] font-bold">Redeem Pickup</h1>
+		<p class="text-base-content/60 text-[0.875rem] lg:text-[1rem] mt-1">
 			Enter or scan the student's 6-digit code
 		</p>
 	</div>
 
-	<div class="flex-1 px-5 py-6 flex flex-col items-center">
+	<div class="flex-1 px-5 py-6 flex flex-col items-center max-w-3xl mx-auto w-full">
 		<div in:fly={{ y: 15, duration: 300 }} class="w-full max-w-sm">
 			<div class="bg-base-100 rounded-2xl border border-base-300 p-6 text-center space-y-4">
 				<div class="w-14 h-14 bg-accent rounded-xl flex items-center justify-center mx-auto">

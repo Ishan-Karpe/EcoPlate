@@ -41,49 +41,51 @@
 </script>
 
 <div class="min-h-screen bg-base-200 flex flex-col">
-	<div class="bg-primary text-primary-content px-5 pt-12 pb-6 rounded-b-[2rem]">
-		<div class="flex items-center justify-between mb-4">
-			<div class="flex items-center gap-2">
-				<div class="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
-					<Leaf class="w-5 h-5" />
+	<div class="bg-primary text-primary-content px-5 pt-12 pb-6 lg:rounded-none rounded-b-[2rem]">
+		<div class="max-w-6xl mx-auto">
+			<div class="flex items-center justify-between mb-4">
+				<div class="flex items-center gap-2">
+					<div class="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
+						<Leaf class="w-5 h-5" />
+					</div>
+					<span class="text-[1.125rem] lg:text-[1.375rem] font-bold">EcoPlate Staff</span>
 				</div>
-				<span class="text-[1.125rem] font-bold">EcoPlate Staff</span>
+				<button
+					onclick={handleLogout}
+					class="flex items-center gap-1 text-white/70 text-[0.8rem] px-3 py-1.5 rounded-full border border-white/20"
+				>
+					<ArrowLeft class="w-3.5 h-3.5" />
+					Exit
+				</button>
 			</div>
-			<button
-				onclick={handleLogout}
-				class="flex items-center gap-1 text-white/70 text-[0.8rem] px-3 py-1.5 rounded-full border border-white/20"
-			>
-				<ArrowLeft class="w-3.5 h-3.5" />
-				Exit
-			</button>
-		</div>
 
-		<div class="flex gap-2 mt-2">
-			<a
-				href="/admin/create"
-				class="flex-1 bg-white/20 backdrop-blur rounded-xl py-3 flex items-center justify-center gap-1.5 active:bg-white/30 transition-colors"
-			>
-				<Plus class="w-4 h-4" />
-				<span class="text-[0.8rem] font-semibold">New Drop</span>
-			</a>
-			<a
-				href="/admin/redeem"
-				class="flex-1 bg-white/20 backdrop-blur rounded-xl py-3 flex items-center justify-center gap-1.5 active:bg-white/30 transition-colors"
-			>
-				<ScanLine class="w-4 h-4" />
-				<span class="text-[0.8rem] font-semibold">Redeem</span>
-			</a>
-			<a
-				href="/admin/no-shows"
-				class="flex-1 bg-white/20 backdrop-blur rounded-xl py-3 flex items-center justify-center gap-1.5 active:bg-white/30 transition-colors"
-			>
-				<UserX class="w-4 h-4" />
-				<span class="text-[0.8rem] font-semibold">No-shows</span>
-			</a>
+			<div class="flex gap-2 mt-2 lg:gap-4">
+				<a
+					href="/admin/create"
+					class="flex-1 lg:flex-none lg:px-8 bg-white/20 backdrop-blur rounded-xl py-3 flex items-center justify-center gap-1.5 active:bg-white/30 transition-colors"
+				>
+					<Plus class="w-4 h-4" />
+					<span class="text-[0.8rem] font-semibold">New Drop</span>
+				</a>
+				<a
+					href="/admin/redeem"
+					class="flex-1 lg:flex-none lg:px-8 bg-white/20 backdrop-blur rounded-xl py-3 flex items-center justify-center gap-1.5 active:bg-white/30 transition-colors"
+				>
+					<ScanLine class="w-4 h-4" />
+					<span class="text-[0.8rem] font-semibold">Redeem</span>
+				</a>
+				<a
+					href="/admin/no-shows"
+					class="flex-1 lg:flex-none lg:px-8 bg-white/20 backdrop-blur rounded-xl py-3 flex items-center justify-center gap-1.5 active:bg-white/30 transition-colors"
+				>
+					<UserX class="w-4 h-4" />
+					<span class="text-[0.8rem] font-semibold">No-shows</span>
+				</a>
+			</div>
 		</div>
 	</div>
 
-	<div class="px-5 py-5 space-y-4 flex-1 overflow-y-auto pb-8">
+	<div class="px-5 py-5 space-y-4 flex-1 overflow-y-auto pb-8 max-w-6xl mx-auto w-full">
 		{#if activeDrops.length > 0}
 			<div in:fly={{ y: 10, duration: 300 }}>
 				<p class="text-[0.8rem] text-base-content/60 mb-2 font-semibold">Active Drops Tonight</p>
@@ -113,7 +115,7 @@
 			</div>
 		{/if}
 
-		<div in:fly={{ y: 15, delay: 50, duration: 300 }} class="grid grid-cols-3 gap-2">
+		<div in:fly={{ y: 15, delay: 50, duration: 300 }} class="grid grid-cols-3 lg:grid-cols-6 gap-2 lg:gap-4">
 			<div class="bg-base-100 rounded-xl border border-base-300 p-3">
 				<div class="flex items-center gap-1.5 mb-1">
 					<Package class="w-3.5 h-3.5 text-primary" />

@@ -72,7 +72,7 @@
 	</div>
 {:else}
 	<div class="min-h-screen bg-base-200 flex flex-col">
-		<div class="px-5 pt-12 pb-4">
+		<div class="px-5 pt-12 pb-4 max-w-5xl mx-auto w-full">
 			<button
 				onclick={handleBack}
 				class="flex items-center gap-1 text-base-content/60 text-[0.875rem] mb-4"
@@ -80,11 +80,11 @@
 				<ArrowLeft class="w-4 h-4" />
 				Dashboard
 			</button>
-			<h1 class="text-[1.5rem] font-bold">Create Tonight's Drop</h1>
-			<p class="text-base-content/60 text-[0.875rem] mt-1">Set up Rescue Boxes for students</p>
+			<h1 class="text-[1.5rem] lg:text-[1.75rem] font-bold">Create Tonight's Drop</h1>
+			<p class="text-base-content/60 text-[0.875rem] lg:text-[1rem] mt-1">Set up Rescue Boxes for students</p>
 		</div>
 
-		<div class="flex-1 px-5 py-4 space-y-4 overflow-y-auto">
+		<div class="flex-1 px-5 py-4 space-y-4 overflow-y-auto max-w-5xl mx-auto w-full">
 			<div
 				in:fly={{ y: 10, duration: 300 }}
 				class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4"
@@ -129,7 +129,7 @@
 				</div>
 			{/if}
 
-			<div in:fly={{ y: 10, delay: 100, duration: 300 }} class="space-y-4">
+			<div in:fly={{ y: 10, delay: 100, duration: 300 }} class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 				<div class="bg-base-100 rounded-xl border border-base-300 p-4">
 					<label class="flex items-center gap-2 text-[0.8rem] text-base-content/60 mb-2">
 						<MapPin class="w-3.5 h-3.5" />
@@ -204,7 +204,7 @@
 					</select>
 				</div>
 
-				<div class="bg-base-100 rounded-xl border border-base-300 p-4">
+				<div class="bg-base-100 rounded-xl border border-base-300 p-4 lg:col-span-2">
 					<label class="text-[0.8rem] text-base-content/60 mb-2 block">
 						What's in tonight's box? (optional)
 					</label>
@@ -218,10 +218,10 @@
 			</div>
 		</div>
 
-		<div class="px-5 pb-8 pt-4">
+		<div class="px-5 pb-8 pt-4 max-w-5xl mx-auto w-full">
 			<button
 				onclick={handleSubmit}
-				class="w-full bg-primary text-primary-content py-4 rounded-2xl text-[1.125rem] shadow-lg shadow-primary/25 active:scale-[0.98] transition-transform font-bold"
+				class="w-full lg:w-auto lg:px-16 lg:mx-auto lg:flex bg-primary text-primary-content py-4 rounded-2xl text-[1.125rem] shadow-lg shadow-primary/25 active:scale-[0.98] transition-transform font-bold"
 			>
 				Post Drop
 			</button>

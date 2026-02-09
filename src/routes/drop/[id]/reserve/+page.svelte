@@ -70,7 +70,7 @@
 
 {#if drop}
 	<div class="min-h-screen bg-base-200 flex flex-col">
-		<div class="px-5 pt-12 pb-4">
+		<div class="px-5 pt-12 pb-4 max-w-3xl mx-auto w-full">
 			<button
 				onclick={handleBack}
 				class="flex items-center gap-1 text-base-content/60 text-[0.875rem] mb-4"
@@ -78,13 +78,13 @@
 				<ArrowLeft class="w-4 h-4" />
 				Back
 			</button>
-			<h1 class="text-[1.5rem] font-bold">Confirm your box</h1>
-			<p class="text-base-content/60 text-[0.875rem] mt-1">
+			<h1 class="text-[1.5rem] lg:text-[1.75rem] font-bold">Confirm your box</h1>
+			<p class="text-base-content/60 text-[0.875rem] lg:text-[1rem] mt-1">
 				You're about to rescue a meal. Nice.
 			</p>
 		</div>
 
-		<div class="flex-1 px-5 py-4 space-y-4 overflow-y-auto">
+		<div class="flex-1 px-5 py-4 space-y-4 overflow-y-auto max-w-3xl mx-auto w-full">
 			<div
 				in:fly={{ y: 10, duration: 300 }}
 				class="bg-base-100 rounded-2xl border border-base-300 p-5 space-y-4"
@@ -196,10 +196,10 @@
 			</div>
 		</div>
 
-		<div in:fly={{ y: 20, delay: 150, duration: 300 }} class="px-5 pb-8 pt-2">
+		<div in:fly={{ y: 20, delay: 150, duration: 300 }} class="px-5 pb-8 pt-2 max-w-3xl mx-auto w-full">
 			<button
 				onclick={handleConfirm}
-				class="btn btn-primary btn-lg w-full shadow-lg shadow-primary/25"
+				class="btn btn-primary btn-lg w-full lg:w-auto lg:px-12 lg:mx-auto lg:flex shadow-lg shadow-primary/25"
 			>
 				{paymentMethod === 'credit'
 					? 'Use 1 Credit & Reserve'
@@ -207,7 +207,7 @@
 						? `Pay $${drop.priceMin} & Reserve`
 						: 'Confirm Reservation'}
 			</button>
-			<p class="text-center text-[0.7rem] text-base-content/60 mt-2">
+			<p class="text-center text-[0.7rem] lg:text-[0.8rem] text-base-content/60 mt-2">
 				{paymentMethod === 'pay_at_pickup'
 					? "Pay at pickup. No-show? Box goes to someone else."
 					: 'Confirmed instantly. Cancel before window for a refund.'}

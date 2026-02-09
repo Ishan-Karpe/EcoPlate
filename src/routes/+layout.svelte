@@ -23,9 +23,7 @@
 </svelte:head>
 
 <div class="min-h-screen bg-base-200">
-	<div class="mx-auto max-w-md">
-		{@render children()}
-	</div>
+	{@render children()}
 </div>
 
 <Toaster richColors position="top-center" />

@@ -40,13 +40,13 @@
 
 {#if step === 'plans'}
 	<div class="min-h-screen bg-base-200 flex flex-col">
-		<div class="px-5 pt-12 flex justify-end">
+		<div class="px-5 pt-12 flex justify-end max-w-2xl mx-auto w-full">
 			<button onclick={handleDismiss} class="p-2 rounded-full bg-base-300 text-base-content/60">
 				<X class="w-5 h-5" />
 			</button>
 		</div>
 
-		<div class="flex-1 px-5 py-4 flex flex-col">
+		<div class="flex-1 px-5 py-4 flex flex-col max-w-2xl mx-auto w-full">
 			<div in:fly={{ y: 10, duration: 300 }} class="text-center mb-6">
 				<h1 class="text-[1.375rem] font-bold">Choose your plan</h1>
 				<p class="text-base-content/60 text-[0.875rem] mt-1">
@@ -205,13 +205,13 @@
 	</div>
 {:else}
 	<div class="min-h-screen bg-base-200 flex flex-col">
-		<div class="px-5 pt-12 flex justify-end">
+		<div class="px-5 pt-12 flex justify-end max-w-2xl mx-auto w-full">
 			<button onclick={handleDismiss} class="p-2 rounded-full bg-base-300 text-base-content/60">
 				<X class="w-5 h-5" />
 			</button>
 		</div>
 
-		<div class="flex-1 px-5 py-4 flex flex-col">
+		<div class="flex-1 px-5 py-4 flex flex-col max-w-2xl mx-auto w-full">
 			<div in:fly={{ y: 15, duration: 300 }} class="text-center mb-8">
 				<div class="text-[3.5rem] mb-3">&#127793;</div>
 				<h1 class="text-[1.5rem] mb-2 font-bold">You just rescued your first box!</h1>

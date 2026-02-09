@@ -24,7 +24,7 @@
 </script>
 
 <div class="min-h-screen bg-base-200 flex flex-col">
-	<div class="px-5 pt-12 pb-4">
+	<div class="px-5 pt-12 pb-4 max-w-5xl mx-auto w-full">
 		<button
 			onclick={handleBack}
 			class="flex items-center gap-1 text-base-content/60 text-[0.875rem] mb-4"
@@ -32,13 +32,13 @@
 			<ArrowLeft class="w-4 h-4" />
 			Dashboard
 		</button>
-		<h1 class="text-[1.5rem] font-bold">No-show Management</h1>
-		<p class="text-base-content/60 text-[0.875rem] mt-1">
+		<h1 class="text-[1.5rem] lg:text-[1.75rem] font-bold">No-show Management</h1>
+		<p class="text-base-content/60 text-[0.875rem] lg:text-[1rem] mt-1">
 			Track unclaimed reservations and apply policies
 		</p>
 	</div>
 
-	<div class="flex-1 px-5 py-4 space-y-4 overflow-y-auto pb-8">
+	<div class="flex-1 px-5 py-4 space-y-4 overflow-y-auto pb-8 max-w-5xl mx-auto w-full">
 		<div in:fly={{ y: 10, duration: 300 }} class="bg-base-200 rounded-xl p-4 space-y-3">
 			<div class="flex items-center gap-2">
 				<Shield class="w-4 h-4 text-primary" />

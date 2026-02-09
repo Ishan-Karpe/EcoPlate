@@ -29,7 +29,7 @@
 </script>
 
 <div class="min-h-screen bg-base-200 flex flex-col">
-	<div class="px-5 pt-12 pb-4">
+	<div class="px-5 pt-12 pb-4 max-w-2xl mx-auto w-full">
 		<button
 			onclick={handleBack}
 			class="flex items-center gap-1 text-base-content/60 text-[0.875rem] mb-6"
@@ -39,7 +39,7 @@
 		</button>
 	</div>
 
-	<div class="flex-1 px-5 flex flex-col items-center justify-center">
+	<div class="flex-1 px-5 flex flex-col items-center justify-center max-w-2xl mx-auto w-full">
 		<div in:fly={{ y: 20, duration: 300 }} class="w-full max-w-sm text-center">
 			<div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
 				<Leaf class="w-8 h-8 text-primary" />

@@ -82,19 +82,21 @@
 	<div class="min-h-screen bg-base-200 flex flex-col">
 		<div
 			in:scale={{ duration: 300 }}
-			class="bg-primary text-primary-content px-5 pt-14 pb-8 rounded-b-[2rem] text-center"
+			class="bg-primary text-primary-content px-5 pt-14 pb-8 lg:rounded-none rounded-b-[2rem] text-center"
 		>
-			<div
-				in:scale={{ delay: 200, duration: 300 }}
-				class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3"
-			>
-				<CheckCircle2 class="w-8 h-8" />
+			<div class="max-w-3xl mx-auto">
+				<div
+					in:scale={{ delay: 200, duration: 300 }}
+					class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3"
+				>
+					<CheckCircle2 class="w-8 h-8" />
+				</div>
+				<h1 class="text-[1.375rem] lg:text-[1.625rem] font-bold">You rescued a meal!</h1>
+				<p class="text-white/80 text-[0.875rem] lg:text-[1rem] mt-1">Show this code at the pickup window</p>
 			</div>
-			<h1 class="text-[1.375rem] font-bold">You rescued a meal!</h1>
-			<p class="text-white/80 text-[0.875rem] mt-1">Show this code at the pickup window</p>
 		</div>
 
-		<div class="flex-1 px-5 py-6 space-y-4">
+		<div class="flex-1 px-5 py-6 space-y-4 max-w-3xl mx-auto w-full">
 			<div
 				in:fly={{ y: 10, delay: 250, duration: 300 }}
 				class="rounded-xl p-3 flex items-center justify-center gap-2 {minutesLeft <= 15
@@ -191,16 +193,16 @@
 			</div>
 		</div>
 
-		<div in:fly={{ y: 20, delay: 500, duration: 300 }} class="px-5 pb-8 pt-2 space-y-2">
+		<div in:fly={{ y: 20, delay: 500, duration: 300 }} class="px-5 pb-8 pt-2 space-y-2 max-w-3xl mx-auto w-full">
 			<button
 				onclick={handlePickedUp}
-				class="btn btn-primary btn-lg w-full shadow-lg shadow-primary/25"
+				class="btn btn-primary btn-lg w-full lg:w-auto lg:px-12 lg:mx-auto lg:flex shadow-lg shadow-primary/25"
 			>
 				I Picked Up My Box
 			</button>
 			<button
 				onclick={() => (showCancelConfirm = true)}
-				class="btn btn-ghost btn-block"
+				class="btn btn-ghost btn-block lg:w-auto lg:px-12 lg:mx-auto lg:flex"
 			>
 				<X class="w-4 h-4" />
 				Cancel Reservation

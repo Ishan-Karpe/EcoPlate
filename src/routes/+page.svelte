@@ -28,33 +28,35 @@
 <div class="min-h-screen bg-base-200 flex flex-col">
 	<div
 		in:fly={{ y: -20, duration: 300 }}
-		class="bg-primary text-primary-content px-5 pt-12 pb-6 rounded-b-[2rem]"
+		class="bg-primary text-primary-content px-5 pt-12 pb-6 lg:rounded-none rounded-b-[2rem]"
 	>
-		<div class="flex items-center justify-between mb-1">
-			<div class="flex items-center gap-2">
-				<div class="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
-					<Leaf class="w-5 h-5" />
+		<div class="max-w-6xl mx-auto">
+			<div class="flex items-center justify-between mb-1">
+				<div class="flex items-center gap-2">
+					<div class="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
+						<Leaf class="w-5 h-5" />
+					</div>
+					<span class="text-[1.25rem] lg:text-[1.5rem] tracking-tight font-bold">EcoPlate</span>
 				</div>
-				<span class="text-[1.25rem] tracking-tight font-bold">EcoPlate</span>
+				<button
+					onclick={handleAdminAccess}
+					class="btn btn-ghost btn-sm text-white/60 border border-white/20"
+				>
+					Staff
+				</button>
 			</div>
-			<button
-				onclick={handleAdminAccess}
-				class="btn btn-ghost btn-sm text-white/60 border border-white/20"
-			>
-				Staff
-			</button>
-		</div>
-		<p class="text-white/80 text-[0.875rem] mt-2">
-			Freshly rescued meals. $3-$5 dinner. Right on campus.
-		</p>
-		<div class="flex items-center gap-4 mt-3 text-[0.75rem] text-white/60">
-			<span>&#127793; 357 meals rescued</span>
-			<span>&#183;</span>
-			<span>&#11088; 4.3 avg rating</span>
+			<p class="text-white/80 text-[0.875rem] lg:text-[1rem] mt-2">
+				Freshly rescued meals. $3-$5 dinner. Right on campus.
+			</p>
+			<div class="flex items-center gap-4 mt-3 text-[0.75rem] lg:text-[0.875rem] text-white/60">
+				<span>&#127793; 357 meals rescued</span>
+				<span>&#183;</span>
+				<span>&#11088; 4.3 avg rating</span>
+			</div>
 		</div>
 	</div>
 
-	<div class="flex-1 px-5 py-5 space-y-5 overflow-y-auto pb-8">
+	<div class="flex-1 px-5 py-5 space-y-5 overflow-y-auto pb-8 max-w-6xl mx-auto w-full">
 		{#if activeDrops.length > 0}
 			<div in:fly={{ y: 15, delay: 100, duration: 300 }}>
 				<div class="flex items-center gap-2 mb-3">
@@ -63,7 +65,7 @@
 						Available now ({activeDrops.length})
 					</span>
 				</div>
-				<div class="space-y-3">
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
 					{#each activeDrops as drop, i (drop.id)}
 						<DropCard {drop} onSelect={() => handleSelectDrop(drop)} delay={150 + i * 70} />
 					{/each}
@@ -79,7 +81,7 @@
 						Starting soon ({upcomingDrops.length})
 					</span>
 				</div>
-				<div class="space-y-3">
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
 					{#each upcomingDrops as drop, i (drop.id)}
 						<DropCard
 							{drop}
@@ -100,7 +102,7 @@
 						Sold out ({soldOutDrops.length})
 					</span>
 				</div>
-				<div class="space-y-3">
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
 					{#each soldOutDrops as drop, i (drop.id)}
 						<DropCard
 							{drop}
