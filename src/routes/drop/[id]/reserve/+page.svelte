@@ -10,6 +10,12 @@
 	const drop = $derived(appState.getDropById(dropId));
 	const user = $derived(appState.user);
 
+	$effect(() => {
+		if (!drop) {
+			goto('/');
+		}
+	});
+
 	let paymentMethod = $state<'card' | 'credit' | 'pay_at_pickup'>(
 		user.membership && user.creditsRemaining > 0 ? 'credit' : 'pay_at_pickup'
 	);
@@ -210,6 +216,6 @@
 	</div>
 {:else}
 	<div class="min-h-screen bg-base-200 flex items-center justify-center">
-		<p class="text-base-content/60">Drop not found</p>
+		<span class="loading loading-spinner loading-lg text-primary"></span>
 	</div>
 {/if}

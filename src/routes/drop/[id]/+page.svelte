@@ -5,13 +5,14 @@
 	import { ArrowLeft, MapPin, Clock, Package, ChevronRight, ShieldCheck, Bell } from '@lucide/svelte';
 	import { appState } from '$lib/stores/app.svelte';
 	import { formatTime } from '$lib/types';
-	import { onMount } from 'svelte';
 
 	const dropId = $derived(page.params.id);
 	const drop = $derived(appState.getDropById(dropId));
 
-	onMount(() => {
-		if (drop) {
+	$effect(() => {
+		if (!drop) {
+			goto('/');
+		} else {
 			appState.selectDrop(drop);
 		}
 	});
@@ -236,6 +237,6 @@
 	</div>
 {:else}
 	<div class="min-h-screen bg-base-200 flex items-center justify-center">
-		<p class="text-base-content/60">Drop not found</p>
+		<span class="loading loading-spinner loading-lg text-primary"></span>
 	</div>
 {/if}

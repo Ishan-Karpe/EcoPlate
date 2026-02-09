@@ -1,12 +1,21 @@
 <script lang="ts">
 	import { fly, fade, scale } from 'svelte/transition';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { MapPin, Clock, CheckCircle2, Copy, Check, X, Timer, AlertTriangle } from '@lucide/svelte';
 	import { appState } from '$lib/stores/app.svelte';
 	import { formatTime } from '$lib/types';
 
+	const pickupId = $derived(page.params.id);
 	const reservation = $derived(appState.reservation);
 	const drop = $derived(appState.selectedDrop);
+
+	// Guard: redirect if no valid reservation for this ID
+	$effect(() => {
+		if (!reservation || reservation.id !== pickupId) {
+			goto('/');
+		}
+	});
 
 	let copied = $state(false);
 	let showCancelConfirm = $state(false);
@@ -203,7 +212,8 @@
 		</div>
 	</div>
 {:else}
+	<!-- Guard will redirect, show nothing while redirecting -->
 	<div class="min-h-screen bg-base-200 flex items-center justify-center">
-		<p class="text-base-content/60">No active reservation</p>
+		<span class="loading loading-spinner loading-lg text-primary"></span>
 	</div>
 {/if}
