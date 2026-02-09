@@ -1,3 +1,4 @@
+import { toast } from 'svelte-sonner';
 import { MOCK_DROPS, MOCK_USER, MOCK_STATS } from '$lib/data';
 import type { Drop, Reservation, UserState, AdminStats } from '$lib/types';
 import { generatePickupCode } from '$lib/types';
@@ -47,6 +48,12 @@ export const appState = {
 
 	clearSelectedDrop() {
 		selectedDrop = null;
+	},
+
+	joinWaitlist() {
+		toast.success("You're on the waitlist!", {
+			description: "We'll notify you if a box opens up at this location."
+		});
 	},
 
 	confirmReservation(paymentMethod: 'card' | 'credit' | 'pay_at_pickup') {
@@ -110,6 +117,9 @@ export const appState = {
 		}
 
 		reservation = null;
+		toast.success('Reservation cancelled', {
+			description: 'Your box has been released for someone else.'
+		});
 	},
 
 	markPickedUp() {
@@ -157,6 +167,17 @@ export const appState = {
 		}
 
 		user = updated;
+		toast.success(
+			plan === 'none'
+				? 'Account created!'
+				: `${plan === 'basic' ? 'Basic' : 'Premium'} plan activated!`,
+			{
+				description:
+					plan === 'none'
+						? "You'll get drop notifications and impact tracking."
+						: `You now have ${plan === 'basic' ? 7 : 15} Rescue Credits this month.`
+			}
+		);
 	},
 
 	dismissAccount() {

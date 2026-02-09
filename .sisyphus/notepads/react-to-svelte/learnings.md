@@ -103,3 +103,88 @@ tsconfig.json             (TypeScript config)
 3. **Import Pattern**: data.ts uses `import type` to avoid runtime dependencies on types
 4. **Reusability**: Types are ready for store creation (Task 4) and component usage (Tasks 5+)
 
+
+## Task 4: Centralized State Store with Svelte 5 Runes - Completed
+
+### State Store Architecture
+- **File**: `src/lib/stores/app.svelte.ts`
+- **Pattern**: Module-level $state runes with exported object interface
+- **State Variables**: 8 reactive variables (drops, selectedDrop, reservation, user, validCodes, expiredCodes, recentRedemptions, stats)
+
+### Svelte 5 Runes Pattern
+```typescript
+// Module-level $state declarations
+let drops = $state<Drop[]>(MOCK_DROPS);
+let selectedDrop = $state<Drop | null>(null);
+// ... more state variables
+
+// Exported object with getters and methods
+export const appState = {
+  get drops() { return drops; },
+  selectDrop(drop: Drop) { selectedDrop = drop; },
+  // ... more getters and methods
+};
+```
+
+### Key Implementation Details
+1. **No Svelte 4 Patterns**: Zero usage of `writable()`, `derived()`, or `$:` reactive declarations
+2. **Getters for State Access**: All state variables exposed via getter functions for proper reactivity tracking
+3. **Direct Mutation in Methods**: Methods directly mutate module-level $state variables (reactive by default)
+4. **Toast Integration**: Import `toast` from `svelte-sonner` for user feedback (joinWaitlist, cancelReservation, signUp)
+5. **Type Safety**: All state variables and methods are fully typed with TypeScript
+
+### Action Methods Ported (14 total)
+**Student Flow (10 methods)**:
+- `selectDrop()`: Set selected drop for detail view
+- `clearSelectedDrop()`: Clear selection
+- `joinWaitlist()`: Add to waitlist with toast notification
+- `confirmReservation()`: Create reservation, generate pickup code, update inventory
+- `cancelReservation()`: Release box, expire code, refund credit, show toast
+- `markPickedUp()`: Update reservation status to picked_up
+- `submitRating()`: Store rating and increment pickup count
+- `skipRating()`: Skip rating, just increment pickups
+- `signUp()`: Create account with membership plan, show toast
+- `dismissAccount()`: Mark user as not first-time
+
+**Admin Flow (4 methods)**:
+- `createDrop()`: Add new drop with random emoji, update stats
+- `redeemCode()`: Mark code as redeemed, add to recent redemptions, update stats
+- `getDropById()`: Find drop by ID (utility)
+- `isValidCode()` / `isExpiredCode()`: Code validation utilities
+
+### Root Layout Enhancements
+- **Container**: `max-w-md mx-auto` for mobile-first centered layout
+- **Toaster**: svelte-sonner component with richColors and top-center position
+- **View Transitions API**: Native page transition animations via `onNavigate` hook
+- **Theme**: Preserved existing emerald theme and app.css import
+
+### Dependencies Verified
+- ✅ `svelte-sonner@1.0.7`: Toast notifications
+- ✅ `@lucide/svelte@0.563.1`: Icon library (for future components)
+
+### TypeScript Compilation
+- Full `npx tsc --noEmit` passes with zero errors
+- All state variables and methods properly typed
+- No `any` types used
+
+### Observations for Future Tasks
+1. **Store Import Pattern**: Components will import `{ appState }` from `$lib/stores/app.svelte`
+2. **Reactivity**: Accessing state via getters (e.g., `appState.drops`) automatically subscribes to changes
+3. **Method Calls**: Components call methods directly (e.g., `appState.selectDrop(drop)`)
+4. **No Screen State**: SvelteKit routing eliminates need for React's screen state management
+5. **Toast Position**: Toaster already in root layout, components just call `toast.success()`
+
+### Differences from React Version
+1. **No useCallback**: Svelte doesn't need memoization for event handlers
+2. **No useState**: Replaced with $state runes (more ergonomic)
+3. **No Context Provider**: Module-level state is globally accessible
+4. **Simpler Mutations**: Direct assignment instead of setter functions
+5. **Type Inference**: TypeScript infers types from $state generics
+
+### Lessons for Component Migration (Tasks 5-15)
+1. Import appState at component top: `import { appState } from '$lib/stores/app.svelte';`
+2. Access state in templates: `{#each appState.drops as drop}`
+3. Call methods in event handlers: `onclick={() => appState.selectDrop(drop)}`
+4. No prop drilling needed - all components can access global state
+5. Toast notifications already wired up - just trigger actions
+

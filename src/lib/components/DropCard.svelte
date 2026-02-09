@@ -20,12 +20,11 @@
 <button
 	in:fly={{ y: 10, delay, duration: 300 }}
 	onclick={onSelect}
-	class="w-full bg-base-100 rounded-2xl border border-base-300 shadow-sm overflow-hidden text-left active:scale-[0.98] transition-transform {soldOut
+	class="card card-compact bg-base-100 shadow-sm w-full text-left active:scale-[0.98] transition-transform {soldOut
 		? 'opacity-60'
 		: ''}"
 >
 	<div class="flex items-stretch">
-		<!-- Emoji banner -->
 		<div
 			class="w-20 flex items-center justify-center shrink-0 {soldOut
 				? 'bg-gray-100'
@@ -36,34 +35,21 @@
 			<span class="text-[2rem]">{drop.emoji}</span>
 		</div>
 
-		<!-- Content -->
-		<div class="flex-1 p-3.5 min-w-0">
+		<div class="card-body p-3.5 min-w-0">
 			<div class="flex items-start justify-between gap-2">
 				<div class="min-w-0">
 					<div class="flex items-center gap-2">
-						<p class="text-[0.9rem] truncate font-semibold">
+						<h3 class="card-title text-[0.9rem] truncate">
 							{drop.location}
-						</p>
+						</h3>
 						{#if urgency}
-							<span
-								class="bg-amber-100 text-amber-700 text-[0.6rem] px-1.5 py-0.5 rounded-full shrink-0 font-semibold"
-							>
-								{drop.remainingBoxes} left!
-							</span>
+							<span class="badge badge-warning badge-sm">{drop.remainingBoxes} left!</span>
 						{/if}
 						{#if soldOut}
-							<span
-								class="bg-gray-100 text-gray-500 text-[0.6rem] px-1.5 py-0.5 rounded-full shrink-0 font-semibold"
-							>
-								Sold out
-							</span>
+							<span class="badge badge-ghost badge-sm">Sold out</span>
 						{/if}
 						{#if upcoming}
-							<span
-								class="bg-blue-100 text-blue-600 text-[0.6rem] px-1.5 py-0.5 rounded-full shrink-0 font-semibold"
-							>
-								Soon
-							</span>
+							<span class="badge badge-info badge-sm">Soon</span>
 						{/if}
 					</div>
 					<p class="text-[0.75rem] text-base-content/60 mt-0.5 line-clamp-1">
@@ -84,7 +70,7 @@
 				</span>
 			</div>
 
-			<div class="flex items-center justify-between mt-2">
+			<div class="card-actions justify-between items-center mt-2">
 				<div class="flex items-center gap-1.5">
 					<Package class="w-3 h-3 text-primary" />
 					<span class="text-[0.75rem] font-semibold">
@@ -97,7 +83,7 @@
 						{/if}
 					</span>
 				</div>
-				<span class="text-[0.8rem] text-primary font-bold">
+				<span class="badge badge-primary badge-outline font-bold">
 					${drop.priceMin}-${drop.priceMax}
 				</span>
 			</div>

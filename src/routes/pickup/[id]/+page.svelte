@@ -51,34 +51,30 @@
 	<div class="min-h-screen bg-base-200 flex flex-col items-center justify-center px-5">
 		<div
 			in:scale={{ duration: 300 }}
-			class="bg-base-100 rounded-2xl border border-base-300 p-6 w-full max-w-sm text-center space-y-4"
+			class="card bg-base-100 shadow-xl w-full max-w-sm"
 		>
-			<div class="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
-				<AlertTriangle class="w-7 h-7 text-amber-600" />
-			</div>
-			<h2 class="text-[1.25rem] font-bold">Cancel reservation?</h2>
-			<p class="text-[0.875rem] text-base-content/60">
-				Your box will be released back for other students to claim.
-				{#if reservation?.paymentMethod === 'credit'}
-					Your Rescue Credit will be returned.
-				{/if}
-				{#if reservation?.paymentMethod === 'card'}
-					Your payment will be refunded.
-				{/if}
-			</p>
-			<div class="space-y-2 pt-2">
-				<button
-					onclick={handleCancel}
-					class="w-full bg-error text-error-content py-3 rounded-xl text-[0.9375rem] active:scale-[0.98] transition-transform font-semibold"
-				>
-					Yes, cancel reservation
-				</button>
-				<button
-					onclick={() => (showCancelConfirm = false)}
-					class="w-full bg-base-200 text-base-content/60 py-3 rounded-xl text-[0.9375rem] font-medium"
-				>
-					Keep my reservation
-				</button>
+			<div class="card-body items-center text-center">
+				<div class="w-14 h-14 bg-warning/20 rounded-full flex items-center justify-center">
+					<AlertTriangle class="w-7 h-7 text-warning" />
+				</div>
+				<h2 class="card-title">Cancel reservation?</h2>
+				<p class="text-base-content/60">
+					Your box will be released back for other students to claim.
+					{#if reservation?.paymentMethod === 'credit'}
+						Your Rescue Credit will be returned.
+					{/if}
+					{#if reservation?.paymentMethod === 'card'}
+						Your payment will be refunded.
+					{/if}
+				</p>
+				<div class="card-actions flex-col w-full pt-2">
+					<button onclick={handleCancel} class="btn btn-error btn-block">
+						Yes, cancel reservation
+					</button>
+					<button onclick={() => (showCancelConfirm = false)} class="btn btn-ghost btn-block">
+						Keep my reservation
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -198,13 +194,13 @@
 		<div in:fly={{ y: 20, delay: 500, duration: 300 }} class="px-5 pb-8 pt-2 space-y-2">
 			<button
 				onclick={handlePickedUp}
-				class="w-full bg-primary text-primary-content py-4 rounded-2xl text-[1.125rem] shadow-lg shadow-primary/25 active:scale-[0.98] transition-transform font-bold"
+				class="btn btn-primary btn-lg w-full shadow-lg shadow-primary/25"
 			>
 				I Picked Up My Box
 			</button>
 			<button
 				onclick={() => (showCancelConfirm = true)}
-				class="w-full bg-base-100 border border-base-300 text-base-content/60 py-3 rounded-xl text-[0.875rem] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform font-medium"
+				class="btn btn-ghost btn-block"
 			>
 				<X class="w-4 h-4" />
 				Cancel Reservation

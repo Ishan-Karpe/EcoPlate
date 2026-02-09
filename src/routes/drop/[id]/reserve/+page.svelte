@@ -199,7 +199,7 @@
 		<div in:fly={{ y: 20, delay: 150, duration: 300 }} class="px-5 pb-8 pt-2">
 			<button
 				onclick={handleConfirm}
-				class="w-full bg-primary text-primary-content py-4 rounded-2xl text-[1.125rem] shadow-lg shadow-primary/25 active:scale-[0.98] transition-transform font-bold"
+				class="btn btn-primary btn-lg w-full shadow-lg shadow-primary/25"
 			>
 				{paymentMethod === 'credit'
 					? 'Use 1 Credit & Reserve'

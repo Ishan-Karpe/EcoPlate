@@ -213,7 +213,7 @@
 			<div in:fly={{ y: 20, delay: 200, duration: 300 }} class="px-5 pb-8 pt-3">
 				<button
 					onclick={handleReserve}
-					class="w-full bg-primary text-primary-content py-4 rounded-2xl text-[1.125rem] flex items-center justify-center gap-2 shadow-lg shadow-primary/25 active:scale-[0.98] transition-transform font-bold"
+					class="btn btn-primary btn-lg w-full shadow-lg shadow-primary/25"
 				>
 					Reserve My Box
 					<ChevronRight class="w-5 h-5" />
@@ -226,10 +226,7 @@
 
 		{#if upcoming}
 			<div class="px-5 pb-8 pt-3">
-				<button
-					disabled
-					class="w-full bg-blue-200 text-blue-500 py-4 rounded-2xl text-[1rem] cursor-not-allowed font-semibold"
-				>
+				<button disabled class="btn btn-info btn-lg w-full btn-disabled">
 					Reservations open at {formatTime(drop.windowStart)}
 				</button>
 			</div>

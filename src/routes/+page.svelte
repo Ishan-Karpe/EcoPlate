@@ -39,7 +39,7 @@
 			</div>
 			<button
 				onclick={handleAdminAccess}
-				class="text-white/60 text-[0.75rem] px-3 py-1 rounded-full border border-white/20"
+				class="btn btn-ghost btn-sm text-white/60 border border-white/20"
 			>
 				Staff
 			</button>
