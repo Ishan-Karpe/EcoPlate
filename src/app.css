@@ -1,21 +1,54 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: light --default, dark;
+}
+
+[data-theme="light"] {
+  --color-base-100: #ffffff;
+  --color-base-200: #f8faf8;
+  --color-base-300: #f0f4f0;
+  --color-base-content: #1a2e1a;
+  
+  --color-primary: #16a34a;
+  --color-primary-content: #ffffff;
+  
+  --color-secondary: #f0fdf4;
+  --color-secondary-content: #166534;
+  
+  --color-accent: #dcfce7;
+  --color-accent-content: #14532d;
+  
+  --color-neutral: #1a2e1a;
+  --color-neutral-content: #ffffff;
+  
+  --color-info: #3b82f6;
+  --color-info-content: #ffffff;
+  
+  --color-success: #16a34a;
+  --color-success-content: #ffffff;
+  
+  --color-warning: #f59e0b;
+  --color-warning-content: #ffffff;
+  
+  --color-error: #dc2626;
+  --color-error-content: #ffffff;
+}
 
 :root {
-  /* Bridge shadcn tokens to DaisyUI */
-  --primary: var(--color-primary);
-  --primary-foreground: var(--color-primary-content);
-  --background: var(--color-base-200);
-  --foreground: var(--color-base-content);
-  --card: var(--color-base-100);
-  --card-foreground: var(--color-base-content);
-  --muted: var(--color-base-300);
-  --muted-foreground: color-mix(in srgb, var(--color-base-content) 60%, transparent);
-  --accent: var(--color-accent);
-  --accent-foreground: var(--color-accent-content);
-  --destructive: var(--color-error);
-  --destructive-foreground: var(--color-error-content);
-  --border: var(--color-base-300);
-  --secondary: var(--color-secondary);
-  --secondary-foreground: var(--color-secondary-content);
+  --primary: #16a34a;
+  --primary-foreground: #ffffff;
+  --background: #f8faf8;
+  --foreground: #1a2e1a;
+  --card: #ffffff;
+  --card-foreground: #1a2e1a;
+  --muted: #f0f4f0;
+  --muted-foreground: #5c7a5c;
+  --accent: #dcfce7;
+  --accent-foreground: #14532d;
+  --secondary: #f0fdf4;
+  --secondary-foreground: #166534;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: rgba(22, 101, 52, 0.12);
+  --ring: #16a34a;
 }
