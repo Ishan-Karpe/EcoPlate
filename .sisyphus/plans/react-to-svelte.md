@@ -161,7 +161,7 @@ Wave 4 (Integration - After Waves 2 & 3):
 
 ## TODOs
 
-- [ ] 1. Scaffold SvelteKit Project
+- [x] 1. Scaffold SvelteKit Project
 
   **What to do**:
   - Archive existing React src/ to .archive/react-src/ for reference

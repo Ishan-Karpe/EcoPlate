@@ -1,0 +1,21 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+:root {
+  /* Bridge shadcn tokens to DaisyUI */
+  --primary: var(--color-primary);
+  --primary-foreground: var(--color-primary-content);
+  --background: var(--color-base-200);
+  --foreground: var(--color-base-content);
+  --card: var(--color-base-100);
+  --card-foreground: var(--color-base-content);
+  --muted: var(--color-base-300);
+  --muted-foreground: color-mix(in srgb, var(--color-base-content) 60%, transparent);
+  --accent: var(--color-accent);
+  --accent-foreground: var(--color-accent-content);
+  --destructive: var(--color-error);
+  --destructive-foreground: var(--color-error-content);
+  --border: var(--color-base-300);
+  --secondary: var(--color-secondary);
+  --secondary-foreground: var(--color-secondary-content);
+}
