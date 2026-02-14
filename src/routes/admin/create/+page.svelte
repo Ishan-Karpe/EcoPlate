@@ -1,17 +1,7 @@
 <script lang="ts">
 	import { fly, fade, scale } from 'svelte/transition';
 	import { goto } from '$app/navigation';
-	import {
-		ArrowLeft,
-		Package,
-		MapPin,
-		Clock,
-		DollarSign,
-		Sparkles,
-		CheckCircle2,
-		AlertTriangle,
-		ArrowUpRight
-	} from '@lucide/svelte';
+	import { CheckCircle2, ArrowLeft, Sparkles, ArrowUpRight, AlertTriangle, MapPin, Package, Clock, DollarSign } from '@lucide/svelte';
 	import { appState } from '$lib/stores/app.svelte';
 	import { toast } from 'svelte-sonner';
 
@@ -108,7 +98,7 @@
 					class="rounded-xl p-3 flex items-start gap-2 {canIncrease
 						? 'bg-green-50 border border-green-200'
 						: 'bg-amber-50 border border-amber-200'}"
-				>
+					>
 					{#if canIncrease}
 						<ArrowUpRight class="w-4 h-4 text-green-600 mt-0.5 shrink-0" />
 					{:else}
@@ -204,17 +194,17 @@
 					</select>
 				</div>
 
-				<div class="bg-base-100 rounded-xl border border-base-300 p-4 lg:col-span-2">
-					<label class="text-[0.8rem] text-base-content/60 mb-2 block">
-						What's in tonight's box? (optional)
-					</label>
+			<div class="bg-base-100 rounded-xl border border-base-300 p-4 lg:col-span-2">
+				<label class="text-[0.8rem] text-base-content/60 mb-2 block">
+					What's in tonight's box? (optional)
 					<textarea
 						bind:value={description}
 						placeholder="e.g., Pasta bar leftovers, grilled chicken, roasted veggies"
 						rows="3"
-						class="textarea textarea-bordered w-full resize-none"
+						class="textarea textarea-bordered w-full resize-none mt-2"
 					></textarea>
-				</div>
+				</label>
+			</div>
 			</div>
 		</div>
 

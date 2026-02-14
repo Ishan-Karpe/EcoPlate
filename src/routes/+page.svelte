@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { fly, fade } from 'svelte/transition';
 	import { goto } from '$app/navigation';
-	import { Leaf, MapPin, Clock, Package, ChevronRight, AlertCircle } from '@lucide/svelte';
+	import { onMount } from 'svelte';
+	import { Leaf, Clock, AlertCircle } from '@lucide/svelte';
 	import { appState } from '$lib/stores/app.svelte';
 	import { formatTime } from '$lib/types';
 	import type { Drop } from '$lib/types';
 	import DropCard from '$lib/components/DropCard.svelte';
+	import SkeletonCard from '$lib/components/SkeletonCard.svelte';
 
 	const activeDrops = $derived(
 		appState.drops.filter((d) => d.status === 'active' && d.remainingBoxes > 0)
@@ -14,6 +16,15 @@
 		appState.drops.filter((d) => d.status === 'active' && d.remainingBoxes === 0)
 	);
 	const upcomingDrops = $derived(appState.drops.filter((d) => d.status === 'upcoming'));
+	let loading = $state(true);
+
+	onMount(() => {
+		const timer = setTimeout(() => {
+			loading = false;
+		}, 500);
+
+		return () => clearTimeout(timer);
+	});
 
 	function handleSelectDrop(drop: Drop) {
 		appState.selectDrop(drop);
@@ -57,7 +68,17 @@
 	</div>
 
 	<div class="flex-1 px-5 py-5 space-y-5 overflow-y-auto pb-8 max-w-6xl mx-auto w-full">
-		{#if activeDrops.length > 0}
+		{#if loading}
+			<div in:fade={{ duration: 250 }}>
+				<div class="flex items-center gap-2 mb-3">
+					<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+					<span class="text-[0.8rem] text-primary font-semibold tracking-wider uppercase">
+						Loading drops...
+					</span>
+				</div>
+				<SkeletonCard count={3} />
+			</div>
+		{:else if activeDrops.length > 0}
 			<div in:fly={{ y: 15, delay: 100, duration: 300 }}>
 				<div class="flex items-center gap-2 mb-3">
 					<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>

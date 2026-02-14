@@ -1,0 +1,49 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - button "Toggle theme" [ref=e4] [cursor=pointer]:
+    - img [ref=e5]
+    - generic [ref=e11]: System
+  - generic [ref=e13]:
+    - button "All drops" [ref=e15]:
+      - img [ref=e16]
+      - text: All drops
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: 🍝
+          - paragraph [ref=e23]: Packed fresh tonight
+        - generic [ref=e24]:
+          - generic [ref=e25]:
+            - heading "North Dining Hall" [level=2] [ref=e26]
+            - paragraph [ref=e27]: Pasta bar leftovers, grilled chicken, roasted vegetables, and a dinner roll. Packed fresh at 8 PM.
+          - generic [ref=e28]:
+            - generic [ref=e29]:
+              - img [ref=e30]
+              - generic [ref=e33]:
+                - paragraph [ref=e34]: Pickup location
+                - paragraph [ref=e35]: Side entrance, Window B
+            - generic [ref=e36]:
+              - img [ref=e37]
+              - generic [ref=e40]:
+                - paragraph [ref=e41]: Pickup window
+                - paragraph [ref=e42]: 8:30 PM-10:00 PM
+          - generic [ref=e43]:
+            - generic [ref=e44]:
+              - img [ref=e45]
+              - generic [ref=e49]: 12 of 35 boxes left
+            - generic [ref=e50]: $3-$5
+          - generic [ref=e52]:
+            - generic [ref=e53]: 23 reserved
+            - generic [ref=e54]: 12 available
+      - generic [ref=e57]:
+        - img [ref=e58]
+        - generic [ref=e61]: Food handled by campus dining staff
+    - generic [ref=e62]:
+      - button "Reserve My Box" [ref=e63] [cursor=pointer]:
+        - text: Reserve My Box
+        - img [ref=e64]
+      - paragraph [ref=e66]: No account needed. Reserve in one tap.
+  - region "Notifications alt+T"
+```

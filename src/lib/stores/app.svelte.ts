@@ -1,12 +1,82 @@
 import { toast } from 'svelte-sonner';
+import { browser } from '$app/environment';
 import { MOCK_DROPS, MOCK_USER, MOCK_STATS } from '$lib/data';
 import type { Drop, Reservation, UserState, AdminStats } from '$lib/types';
 import { generatePickupCode } from '$lib/types';
 
-let drops = $state<Drop[]>(MOCK_DROPS);
+// ============================================================================
+// localStorage Helpers (SSR-safe)
+// ============================================================================
+
+function persistToLocalStorage(key: string, value: unknown): void {
+	if (!browser) return;
+	try {
+		localStorage.setItem(key, JSON.stringify(value));
+	} catch (e) {
+		console.warn(`Failed to persist ${key} to localStorage:`, e);
+	}
+}
+
+function loadFromLocalStorage<T>(key: string, fallback: T): T {
+	if (!browser) return fallback;
+	try {
+		const item = localStorage.getItem(key);
+		return item ? JSON.parse(item) : fallback;
+	} catch (e) {
+		console.warn(`Failed to load ${key} from localStorage:`, e);
+		return fallback;
+	}
+}
+
+function clearLocalStorage(): void {
+	if (!browser) return;
+	try {
+		localStorage.removeItem('ecoplate-user');
+		localStorage.removeItem('ecoplate-reservation');
+		localStorage.removeItem('ecoplate-theme');
+		localStorage.removeItem('ecoplate-has-completed-first-pickup');
+		localStorage.removeItem('ecoplate-drops');
+	} catch (e) {
+		console.warn('Failed to clear localStorage:', e);
+	}
+}
+
+// ============================================================================
+// Debounce Helper for Write Batching
+// ============================================================================
+
+const persistenceTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
+
+function debouncedPersist(key: string, value: unknown, delayMs = 500): void {
+	const existingTimeout = persistenceTimeouts.get(key);
+	if (existingTimeout) {
+		clearTimeout(existingTimeout);
+	}
+
+	const timeout = setTimeout(() => {
+		persistToLocalStorage(key, value);
+		persistenceTimeouts.delete(key);
+	}, delayMs);
+
+	persistenceTimeouts.set(key, timeout);
+}
+
+// ============================================================================
+// State Initialization (with localStorage fallback)
+// ============================================================================
+
+let drops = $state<Drop[]>(loadFromLocalStorage<Drop[]>('ecoplate-drops', MOCK_DROPS));
 let selectedDrop = $state<Drop | null>(null);
-let reservation = $state<Reservation | null>(null);
-let user = $state<UserState>(MOCK_USER);
+let reservation = $state<Reservation | null>(
+	loadFromLocalStorage<Reservation | null>('ecoplate-reservation', null)
+);
+let user = $state<UserState>(loadFromLocalStorage<UserState>('ecoplate-user', MOCK_USER));
+let theme = $state<'light' | 'dark' | 'system'>(
+	loadFromLocalStorage<'light' | 'dark' | 'system'>('ecoplate-theme', 'system')
+);
+let hasCompletedFirstPickup = $state<boolean>(
+	loadFromLocalStorage<boolean>('ecoplate-has-completed-first-pickup', false)
+);
 let validCodes = $state<string[]>([]);
 let expiredCodes = $state<string[]>(['EXP123', 'OLD456']);
 let recentRedemptions = $state<{ code: string; time: string }[]>([
@@ -15,6 +85,37 @@ let recentRedemptions = $state<{ code: string; time: string }[]>([
 	{ code: 'T5W8JL', time: '8:39 PM' }
 ]);
 let stats = $state<AdminStats>(MOCK_STATS);
+
+// ============================================================================
+// Persistence Effects (debounced writes)
+// ============================================================================
+
+$effect.root(() => {
+	$effect(() => {
+		// Persist user state whenever it changes
+		debouncedPersist('ecoplate-user', user);
+	});
+
+	$effect(() => {
+		// Persist reservation state whenever it changes
+		debouncedPersist('ecoplate-reservation', reservation);
+	});
+
+	$effect(() => {
+		// Persist drops state whenever it changes
+		debouncedPersist('ecoplate-drops', drops);
+	});
+
+	$effect(() => {
+		// Persist theme preference
+		persistToLocalStorage('ecoplate-theme', theme);
+	});
+
+	$effect(() => {
+		// Persist first pickup completion flag
+		persistToLocalStorage('ecoplate-has-completed-first-pickup', hasCompletedFirstPickup);
+	});
+});
 
 export const appState = {
 	get drops() {
@@ -40,6 +141,18 @@ export const appState = {
 	},
 	get stats() {
 		return stats;
+	},
+	get theme() {
+		return theme;
+	},
+	set theme(value: 'light' | 'dark' | 'system') {
+		theme = value;
+	},
+	get hasCompletedFirstPickup() {
+		return hasCompletedFirstPickup;
+	},
+	set hasCompletedFirstPickup(value: boolean) {
+		hasCompletedFirstPickup = value;
 	},
 
 	selectDrop(drop: Drop) {
@@ -92,6 +205,8 @@ export const appState = {
 		}
 
 		stats = { ...stats, totalReservations: stats.totalReservations + 1 };
+
+		hasCompletedFirstPickup = true;
 
 		return newReservation;
 	},
@@ -254,5 +369,26 @@ export const appState = {
 
 	isExpiredCode(code: string): boolean {
 		return expiredCodes.includes(code);
+	},
+
+	resetState() {
+		clearLocalStorage();
+		drops = MOCK_DROPS;
+		user = MOCK_USER;
+		reservation = null;
+		theme = 'system';
+		hasCompletedFirstPickup = false;
+		selectedDrop = null;
+		validCodes = [];
+		expiredCodes = ['EXP123', 'OLD456'];
+		recentRedemptions = [
+			{ code: 'XK7M2P', time: '8:15 PM' },
+			{ code: 'B4N9QR', time: '8:27 PM' },
+			{ code: 'T5W8JL', time: '8:39 PM' }
+		];
+		stats = MOCK_STATS;
+		toast.success('State reset', {
+			description: 'All data has been cleared and reset to defaults.'
+		});
 	}
 };

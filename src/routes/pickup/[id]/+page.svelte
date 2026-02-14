@@ -2,7 +2,7 @@
 	import { fly, fade, scale } from 'svelte/transition';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { MapPin, Clock, CheckCircle2, Copy, Check, X, Timer, AlertTriangle } from '@lucide/svelte';
+	import { AlertTriangle, Check, CheckCircle2, Clock, Copy, MapPin, Timer, X } from '@lucide/svelte';
 	import { appState } from '$lib/stores/app.svelte';
 	import { formatTime } from '$lib/types';
 
@@ -37,6 +37,10 @@
 	}
 
 	function handlePickedUp() {
+		if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+			navigator.vibrate(50);
+		}
+
 		appState.markPickedUp();
 		goto('/rating');
 	}
@@ -133,7 +137,7 @@
 					Your pickup code
 				</p>
 				<div class="flex items-center justify-center gap-3">
-					<p class="text-[2.5rem] tracking-[0.15em] text-primary font-extrabold font-mono">
+					<p class="pickup-code-bounce text-[2.5rem] tracking-[0.15em] text-primary font-extrabold font-mono">
 						{reservation.pickupCode}
 					</p>
 					<button
@@ -209,9 +213,22 @@
 			</button>
 		</div>
 	</div>
-{:else}
-	<!-- Guard will redirect, show nothing while redirecting -->
-	<div class="min-h-screen bg-base-200 flex items-center justify-center">
-		<span class="loading loading-spinner loading-lg text-primary"></span>
-	</div>
 {/if}
+
+<style>
+	.pickup-code-bounce {
+		animation: pickup-code-bounce 0.7s ease-out;
+	}
+
+	@keyframes pickup-code-bounce {
+		0% {
+			transform: scale(0.92);
+		}
+		55% {
+			transform: scale(1.06);
+		}
+		100% {
+			transform: scale(1);
+		}
+	}
+</style>

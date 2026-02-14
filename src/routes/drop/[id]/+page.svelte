@@ -2,12 +2,12 @@
 	import { fly, fade, scale } from 'svelte/transition';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { ArrowLeft, MapPin, Clock, Package, ChevronRight, ShieldCheck, Bell } from '@lucide/svelte';
+	import { ArrowLeft, Bell, ChevronRight, Clock, MapPin, Package, ShieldCheck } from '@lucide/svelte';
 	import { appState } from '$lib/stores/app.svelte';
 	import { formatTime } from '$lib/types';
 
 	const dropId = $derived(page.params.id);
-	const drop = $derived(appState.getDropById(dropId));
+	const drop = $derived(dropId ? appState.getDropById(dropId) : undefined);
 
 	$effect(() => {
 		if (!drop) {
@@ -233,9 +233,5 @@
 				</button>
 			</div>
 		{/if}
-	</div>
-{:else}
-	<div class="min-h-screen bg-base-200 flex items-center justify-center">
-		<span class="loading loading-spinner loading-lg text-primary"></span>
 	</div>
 {/if}

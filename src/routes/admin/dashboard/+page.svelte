@@ -1,21 +1,7 @@
 <script lang="ts">
 	import { fly, fade } from 'svelte/transition';
 	import { goto } from '$app/navigation';
-	import {
-		Package,
-		CheckCircle2,
-		TrendingUp,
-		Star,
-		Plus,
-		ScanLine,
-		ArrowLeft,
-		Leaf,
-		BarChart3,
-		UserX,
-		Bookmark,
-		AlertTriangle,
-		ArrowUpRight
-	} from '@lucide/svelte';
+	import { Leaf, ArrowLeft, Plus, ScanLine, UserX, Package, CheckCircle2, Bookmark, TrendingUp, Star, AlertTriangle, ArrowUpRight, BarChart3 } from '@lucide/svelte';
 	import { appState } from '$lib/stores/app.svelte';
 	import { formatTime } from '$lib/types';
 	import { onMount } from 'svelte';

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import { MapPin, Clock, Package, ChevronRight } from '@lucide/svelte';
+	import { ChevronRight, Clock, MapPin, Package } from '@lucide/svelte';
 	import type { Drop } from '$lib/types';
 	import { formatTime } from '$lib/types';
 

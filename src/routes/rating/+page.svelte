@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fly, fade, scale } from 'svelte/transition';
 	import { goto } from '$app/navigation';
-	import { Star, PartyPopper } from '@lucide/svelte';
+	import { PartyPopper, Star } from '@lucide/svelte';
 	import { appState } from '$lib/stores/app.svelte';
 
 	let selectedRating = $state<number | null>(null);
@@ -27,7 +27,7 @@
 {#if submitted && selectedRating}
 	<div class="min-h-screen bg-base-200 flex flex-col items-center justify-center px-5">
 		<div in:scale={{ duration: 300 }} class="text-center max-w-md mx-auto">
-			<div class="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+			<div class="success-pulse w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
 				<PartyPopper class="w-10 h-10 text-primary" />
 			</div>
 			<h2 class="text-[1.375rem] mb-2 font-bold">Thanks for the feedback!</h2>
@@ -91,9 +91,26 @@
 		<div in:fade={{ delay: 600, duration: 300 }} class="px-5 pb-8 text-center max-w-2xl mx-auto w-full">
 			<div class="bg-accent rounded-xl p-3">
 				<p class="text-[0.8rem] lg:text-[0.875rem] text-accent-content">
-					&#127757; You just saved ~1 lb of food from going to waste. That's 1.5 kg of CO2 prevented.
+					&#127757; You just saved ~1 lb of food from going to waste. That's about 1.5 kg CO2 prevented
+					(roughly 6 miles not driven and about 2 short showers of water saved).
 				</p>
 			</div>
 		</div>
 	</div>
 {/if}
+
+<style>
+	.success-pulse {
+		animation: success-pulse-ring 1s ease-out;
+		box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45);
+	}
+
+	@keyframes success-pulse-ring {
+		0% {
+			box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45);
+		}
+		100% {
+			box-shadow: 0 0 0 24px rgba(34, 197, 94, 0);
+		}
+	}
+</style>

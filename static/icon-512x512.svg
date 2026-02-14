@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="EcoPlate app icon large">
+  <defs>
+    <linearGradient id="eco-bg-512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22c55e" />
+      <stop offset="100%" stop-color="#15803d" />
+    </linearGradient>
+    <linearGradient id="eco-leaf-512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4" />
+      <stop offset="100%" stop-color="#bbf7d0" />
+    </linearGradient>
+  </defs>
+  <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#eco-bg-512)" />
+  <path d="M273 116c-89 0-162 74-162 166 0 65 41 118 98 138 11 4 20-5 18-16-13-58 15-124 73-160 15-10 36-19 60-23-16 26-37 49-63 69-36 28-65 71-73 120-3 12 8 22 20 18 90-25 155-108 155-203 0-61-54-109-126-109z" fill="url(#eco-leaf-512)" />
+  <path d="M225 362c27-48 77-91 140-118" fill="none" stroke="#16a34a" stroke-width="22" stroke-linecap="round" />
+</svg>

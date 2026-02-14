@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="EcoPlate maskable icon">
+  <defs>
+    <linearGradient id="eco-bg-mask" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22c55e" />
+      <stop offset="100%" stop-color="#166534" />
+    </linearGradient>
+    <linearGradient id="eco-leaf-mask" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f7fee7" />
+      <stop offset="100%" stop-color="#bbf7d0" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="#166534" />
+  <circle cx="256" cy="256" r="224" fill="url(#eco-bg-mask)" />
+  <path d="M274 121c-89 0-162 74-162 166 0 65 41 118 98 138 11 4 20-5 18-16-13-58 15-124 73-160 15-10 36-19 60-23-16 26-37 49-63 69-36 28-65 71-73 120-3 12 8 22 20 18 90-25 155-108 155-203 0-61-54-109-126-109z" fill="url(#eco-leaf-mask)" />
+  <path d="M226 367c27-48 77-91 140-118" fill="none" stroke="#16a34a" stroke-width="22" stroke-linecap="round" />
+</svg>

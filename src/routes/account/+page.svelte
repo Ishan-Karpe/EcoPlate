@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { fly, fade } from 'svelte/transition';
+	import { untrack } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { Bell, CreditCard, TrendingUp, X, Check, Zap, Shield } from '@lucide/svelte';
+	import { X, Check, Zap, Shield, Bell, CreditCard, TrendingUp } from '@lucide/svelte';
 	import { appState } from '$lib/stores/app.svelte';
 	import { toast } from 'svelte-sonner';
 
@@ -9,7 +10,8 @@
 	const isFirstPickup = $derived(user.isFirstTime);
 
 	let selectedPlan = $state<'none' | 'basic' | 'premium'>('none');
-	let step = $state<'intro' | 'plans'>(isFirstPickup ? 'intro' : 'plans');
+	// Capture initial value non-reactively to avoid warning
+	let step = $state<'intro' | 'plans'>(untrack(() => appState.user.isFirstTime ? 'intro' : 'plans'));
 
 	interface Perk {
 		title: string;

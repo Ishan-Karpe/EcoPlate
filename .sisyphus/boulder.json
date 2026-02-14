@@ -1,9 +1,10 @@
 {
-  "active_plan": "/home/ishan/EcoPlate/.sisyphus/plans/react-to-svelte.md",
-  "started_at": "2026-02-09T02:57:12.520Z",
+  "active_plan": "/home/ishan/EcoPlate/.sisyphus/plans/ecoplate-pwa.md",
+  "started_at": "2026-02-14T03:03:41.552Z",
   "session_ids": [
-    "ses_3bfd5d38bffeqnjlTDQr6W1QqF"
+    "ses_3bfd5d38bffeqnjlTDQr6W1QqF",
+    "ses_3a593e290ffeRs6muDOLpiRsH1"
   ],
-  "plan_name": "react-to-svelte",
+  "plan_name": "ecoplate-pwa",
   "agent": "atlas"
 }

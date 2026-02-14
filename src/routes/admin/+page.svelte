@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fly, fade } from 'svelte/transition';
 	import { goto } from '$app/navigation';
-	import { Leaf, ArrowLeft, ShieldCheck } from '@lucide/svelte';
+	import { ArrowLeft, Leaf, ShieldCheck } from '@lucide/svelte';
 
 	let pin = $state('');
 	let error = $state(false);

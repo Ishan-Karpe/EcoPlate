@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fly, fade, scale } from 'svelte/transition';
 	import { goto } from '$app/navigation';
-	import { ArrowLeft, CheckCircle2, XCircle, Search, Clock, AlertTriangle } from '@lucide/svelte';
+	import { ArrowLeft, Search, CheckCircle2, Clock, XCircle, AlertTriangle } from '@lucide/svelte';
 	import { appState } from '$lib/stores/app.svelte';
 
 	const validCodes = $derived(appState.validCodes);

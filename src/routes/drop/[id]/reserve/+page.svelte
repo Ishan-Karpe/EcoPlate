@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { fly, fade } from 'svelte/transition';
+	import { untrack } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { MapPin, Clock, ArrowLeft, ShieldCheck, CreditCard, Wallet, Banknote } from '@lucide/svelte';
+	import { ArrowLeft, Banknote, Clock, CreditCard, MapPin, ShieldCheck, Wallet } from '@lucide/svelte';
 	import { appState } from '$lib/stores/app.svelte';
 	import { formatTime } from '$lib/types';
 
 	const dropId = $derived(page.params.id);
-	const drop = $derived(appState.getDropById(dropId));
+	const drop = $derived(dropId ? appState.getDropById(dropId) : undefined);
 	const user = $derived(appState.user);
 
 	$effect(() => {
@@ -16,8 +17,12 @@
 		}
 	});
 
+	// Capture initial value non-reactively to avoid warning
 	let paymentMethod = $state<'card' | 'credit' | 'pay_at_pickup'>(
-		user.membership && user.creditsRemaining > 0 ? 'credit' : 'pay_at_pickup'
+		untrack(() => {
+			const u = appState.user;
+			return u.membership && u.creditsRemaining > 0 ? 'credit' : 'pay_at_pickup';
+		})
 	);
 
 	const hasCredits = $derived(user.membership && user.creditsRemaining > 0);
@@ -55,11 +60,19 @@
 	]);
 
 	const steps = ["You'll get a 6-digit pickup code", 'Show it to staff at the pickup window', 'Grab your box and enjoy!'];
+	let showCelebration = $state(false);
 
 	function handleConfirm() {
+		if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+			navigator.vibrate(50);
+		}
+
 		const reservation = appState.confirmReservation(paymentMethod);
 		if (reservation) {
-			goto(`/pickup/${reservation.id}`);
+			showCelebration = true;
+			setTimeout(() => {
+				goto(`/pickup/${reservation.id}`);
+			}, 700);
 		}
 	}
 
@@ -70,6 +83,17 @@
 
 {#if drop}
 	<div class="min-h-screen bg-base-200 flex flex-col">
+		{#if showCelebration}
+			<div class="pointer-events-none fixed inset-0 z-[70] overflow-hidden" aria-hidden="true">
+				{#each Array.from({ length: 16 }) as _, i}
+					<span
+						class="confetti-piece"
+						style={`left: ${5 + i * 6}%; animation-delay: ${i * 30}ms;`}
+					></span>
+				{/each}
+			</div>
+		{/if}
+
 		<div class="px-5 pt-12 pb-4 max-w-3xl mx-auto w-full">
 			<button
 				onclick={handleBack}
@@ -214,8 +238,43 @@
 			</p>
 		</div>
 	</div>
-{:else}
-	<div class="min-h-screen bg-base-200 flex items-center justify-center">
-		<span class="loading loading-spinner loading-lg text-primary"></span>
-	</div>
 {/if}
+
+<style>
+	.confetti-piece {
+		position: absolute;
+		top: -1rem;
+		width: 0.5rem;
+		height: 0.8rem;
+		background: hsl(calc(120 + var(--hue-shift, 0)), 70%, 55%);
+		opacity: 0;
+		transform: translateY(0) rotate(0deg);
+		animation: confetti-fall 0.95s ease-out forwards;
+	}
+
+	.confetti-piece:nth-child(odd) {
+		background: #22c55e;
+	}
+
+	.confetti-piece:nth-child(3n) {
+		background: #16a34a;
+	}
+
+	.confetti-piece:nth-child(4n) {
+		background: #86efac;
+	}
+
+	@keyframes confetti-fall {
+		0% {
+			opacity: 0;
+			transform: translateY(0) rotate(0deg);
+		}
+		10% {
+			opacity: 1;
+		}
+		100% {
+			opacity: 0;
+			transform: translateY(105vh) rotate(520deg);
+		}
+	}
+</style>

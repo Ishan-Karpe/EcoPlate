@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fly, fade } from 'svelte/transition';
 	import { goto } from '$app/navigation';
-	import { ArrowLeft, UserX, AlertTriangle, RotateCcw, Gift, Shield } from '@lucide/svelte';
+	import { ArrowLeft, Shield, AlertTriangle, RotateCcw, Gift, UserX } from '@lucide/svelte';
 
 	interface NoShowEntry {
 		code: string;
