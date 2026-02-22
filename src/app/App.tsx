@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Leaf, TrendingUp, User } from "lucide-react";
+import { TrendingUp, User, Home, QrCode } from "lucide-react";
 import { StudentLanding } from "./components/student-landing";
 import { DropDetail } from "./components/drop-detail";
 import { ReserveConfirm } from "./components/reserve-confirm";
@@ -14,6 +14,8 @@ import { AdminDashboard } from "./components/admin-dashboard";
 import { AdminCreateDrop } from "./components/admin-create-drop";
 import { AdminRedeem } from "./components/admin-redeem";
 import { AdminNoShows } from "./components/admin-no-shows";
+import { WaitlistPopup } from "./components/waitlist-popup";
+import { Onboarding } from "./components/onboarding";
 import {
   Screen,
   Drop,
@@ -106,6 +108,8 @@ export default function App() {
   const [user, setUser] = useState<UserState>(MOCK_USER);
   const [stats, setStats] = useState(MOCK_STATS);
   const [waitlistedDropIds, setWaitlistedDropIds] = useState<Set<string>>(new Set());
+  // Waitlist popup — shown to all students; hidden only when staff bypass
+  const [showWaitlist, setShowWaitlist] = useState(true);
 
   // No-shows (loaded when admin navigates to that screen)
   const [noShows, setNoShows] = useState<api.NoShowEntry[]>([]);
@@ -524,15 +528,23 @@ export default function App() {
 
   // ── Bottom nav ─────────────────────────────────────────────────────────────
 
-  const showBottomNav = !ADMIN_SCREENS.includes(screen);
+  const showBottomNav = !ADMIN_SCREENS.includes(screen) && screen !== "onboarding";
 
   const handleNavTab = (tab: Screen) => setScreen(tab);
 
   const navTabs: { id: Screen; label: string; icon: React.ReactNode }[] = [
-    { id: "landing", label: "Home", icon: <Leaf className="w-5 h-5" /> },
-    { id: "student-insights", label: "Insights", icon: <TrendingUp className="w-5 h-5" /> },
-    { id: "student-settings", label: "Profile", icon: <User className="w-5 h-5" /> },
+    { id: "landing", label: "Home", icon: <Home className="w-5 h-5" /> },
+    { id: "student-insights", label: "Impact", icon: <TrendingUp className="w-5 h-5" /> },
   ];
+
+  // Handle pickup tab separately since it depends on state
+  const handlePickupNav = useCallback(() => {
+    if (reservation && selectedDrop) {
+      setScreen("pickup-code");
+    } else {
+      toast("No active reservation", { description: "Reserve a Rescue Box first!" });
+    }
+  }, [reservation, selectedDrop]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -632,6 +644,18 @@ export default function App() {
             onMarkNoShow={handleMarkNoShow}
           />
         );
+      case "onboarding":
+        return (
+          <Onboarding
+            onComplete={(plan) => {
+              if (plan !== "none") {
+                handleUpdatePlan(plan);
+              }
+              setScreen("landing");
+            }}
+            onSkip={() => setScreen("landing")}
+          />
+        );
       default:
         return null;
     }
@@ -697,6 +721,56 @@ export default function App() {
                 </button>
               );
             })}
+            <button
+              onClick={handlePickupNav}
+              className="flex-1 flex flex-col items-center py-3 gap-1 relative transition-colors active:bg-green-50"
+            >
+              <span style={{ color: screen === "pickup-code" ? "#006838" : "#7A6B5A", transition: "color 0.15s" }}>
+                <QrCode className="w-5 h-5" />
+              </span>
+              <span
+                style={{
+                  fontSize: "0.62rem",
+                  fontWeight: screen === "pickup-code" ? 700 : 500,
+                  color: screen === "pickup-code" ? "#006838" : "#7A6B5A",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                Pickup
+              </span>
+              {/* Active dot indicator when reservation exists */}
+              {reservation && screen !== "pickup-code" && (
+                <div
+                  className="absolute top-2 right-1/2 translate-x-3 w-1.5 h-1.5 rounded-full"
+                  style={{ backgroundColor: "#006838" }}
+                />
+              )}
+            </button>
+            <button
+              onClick={() => handleNavTab("student-settings")}
+              className="flex-1 flex flex-col items-center py-3 gap-1 relative transition-colors active:bg-green-50"
+            >
+              <span style={{ color: screen === "student-settings" ? "#006838" : "#7A6B5A", transition: "color 0.15s" }}>
+                <User className="w-5 h-5" />
+              </span>
+              <span
+                style={{
+                  fontSize: "0.62rem",
+                  fontWeight: screen === "student-settings" ? 700 : 500,
+                  color: screen === "student-settings" ? "#006838" : "#7A6B5A",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                Profile
+              </span>
+              {screen === "student-settings" && (
+                <motion.div
+                  layoutId="nav-bar"
+                  className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full"
+                  style={{ backgroundColor: "#006838" }}
+                />
+              )}
+            </button>
           </div>
           <div style={{ height: "env(safe-area-inset-bottom, 0px)" }} />
         </div>
@@ -707,6 +781,19 @@ export default function App() {
         richColors
         toastOptions={{ style: { fontFamily: "inherit" } }}
       />
+
+      {/* Priority waitlist popup — blocks student access until launch */}
+      <AnimatePresence>
+        {showWaitlist && !ADMIN_SCREENS.includes(screen) && (
+          <WaitlistPopup
+            onStaffAccess={() => {
+              setShowWaitlist(false);
+              setScreen("admin-login");
+            }}
+            onClose={() => setShowWaitlist(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

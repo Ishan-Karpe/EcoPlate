@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { useState } from "react";
-import { Leaf, ArrowLeft, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { EcoplateLogo_Icon } from "./ecoplate-logo";
 
 interface AdminLoginProps {
   onLogin: () => void;
@@ -40,10 +41,9 @@ export function AdminLogin({ onLogin, onBack }: AdminLoginProps) {
           className="w-full max-w-sm text-center"
         >
           <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-            style={{ backgroundColor: "#E8F5EE" }}
+            className="w-16 h-16 flex items-center justify-center mx-auto mb-4"
           >
-            <Leaf className="w-8 h-8" style={{ color: "#006838" }} />
+            <EcoplateLogo_Icon size={64} />
           </div>
           <h1 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#1C2B1C" }}>
             EcoPlate Staff

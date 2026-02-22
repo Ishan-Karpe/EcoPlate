@@ -2,6 +2,7 @@ import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
 import * as kv from "./kv_store.tsx";
+import nodemailer from "npm:nodemailer";
 
 const app = new Hono();
 const BASE = "/make-server-b2407c0b";
@@ -465,6 +466,272 @@ app.post(`${BASE}/redeem`, async (c) => {
   } catch (e) {
     console.log("Error redeeming code:", e);
     return c.json({ error: `Failed to redeem code: ${e}` }, 500);
+  }
+});
+
+// ─── Waitlist email signup ────────────────────────────────────────────────────
+
+function buildWaitlistEmail(firstName: string, email: string, position: number): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>You're on the EcoPlate waitlist</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F9F6F1;font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F9F6F1;">
+  <tr>
+    <td align="center" style="padding:48px 20px 64px;">
+
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;">
+
+        <!-- LOGO HEADER -->
+        <tr>
+          <td style="background-color:#006838;border-radius:20px 20px 0 0;padding:32px 40px 28px;">
+            <table cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="background-color:rgba(255,255,255,0.15);border-radius:10px;width:38px;height:38px;text-align:center;vertical-align:middle;font-size:18px;font-weight:900;color:#fff;letter-spacing:-1px;">
+                  EP
+                </td>
+                <td style="padding-left:10px;vertical-align:middle;">
+                  <span style="color:#ffffff;font-size:20px;font-weight:800;letter-spacing:-0.02em;">EcoPlate</span>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:10px 0 0;color:rgba(255,255,255,0.6);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;">UCI Campus Food Rescue</p>
+          </td>
+        </tr>
+
+        <!-- HERO MESSAGE -->
+        <tr>
+          <td style="background-color:#ffffff;padding:36px 40px 8px;">
+            <h1 style="margin:0 0 10px;font-size:26px;font-weight:800;color:#1C2B1C;line-height:1.2;letter-spacing:-0.02em;">
+              You're confirmed, ${firstName}.
+            </h1>
+            <p style="margin:0 0 28px;font-size:15px;color:#7A6B5A;line-height:1.65;">
+              Welcome to the EcoPlate waitlist. We'll notify
+              <span style="color:#006838;font-weight:600;">${email}</span>
+              the moment we go live at Brandywine and Anteatery on the UCI campus.
+            </p>
+          </td>
+        </tr>
+
+        <!-- POSITION BADGE -->
+        <tr>
+          <td style="background-color:#ffffff;padding:0 40px 32px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#E8F5EE;border-radius:14px;">
+              <tr>
+                <td style="padding:20px 24px;">
+                  <table cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                      <td style="width:48px;height:48px;background-color:#006838;border-radius:12px;text-align:center;vertical-align:middle;">
+                        <span style="color:#ffffff;font-size:15px;font-weight:800;">#${position}</span>
+                      </td>
+                      <td style="padding-left:16px;vertical-align:middle;">
+                        <p style="margin:0;font-size:14px;font-weight:700;color:#1C2B1C;">Your position in the waitlist</p>
+                        <p style="margin:4px 0 0;font-size:12px;color:#5A9E78;line-height:1.4;">Earlier spots receive first access and introductory $3 pricing</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- DIVIDER -->
+        <tr>
+          <td style="background-color:#ffffff;padding:0 40px;">
+            <hr style="border:none;border-top:1px solid #F0EBE3;margin:0 0 28px;">
+          </td>
+        </tr>
+
+        <!-- PERKS SECTION -->
+        <tr>
+          <td style="background-color:#ffffff;padding:0 40px 8px;">
+            <p style="margin:0 0 16px;font-size:11px;font-weight:700;color:#8B6F47;letter-spacing:0.08em;text-transform:uppercase;">What you unlock as an early member</p>
+          </td>
+        </tr>
+
+        <!-- Perk 1 -->
+        <tr>
+          <td style="background-color:#ffffff;padding:0 40px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
+              <tr>
+                <td style="width:6px;vertical-align:top;padding-top:5px;">
+                  <div style="width:6px;height:6px;background-color:#006838;border-radius:50%;"></div>
+                </td>
+                <td style="padding-left:12px;font-size:13px;color:#2D3A2D;line-height:1.55;">
+                  <strong style="color:#1C2B1C;">Priority pickup window</strong> — access tonight's Rescue Boxes before the general public
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Perk 2 -->
+        <tr>
+          <td style="background-color:#ffffff;padding:0 40px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px;">
+              <tr>
+                <td style="width:6px;vertical-align:top;padding-top:5px;">
+                  <div style="width:6px;height:6px;background-color:#006838;border-radius:50%;"></div>
+                </td>
+                <td style="padding-left:12px;font-size:13px;color:#2D3A2D;line-height:1.55;">
+                  <strong style="color:#1C2B1C;">Instant drop alerts</strong> — notified the moment a box goes live at Brandywine or Anteatery
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Perk 3 -->
+        <tr>
+          <td style="background-color:#ffffff;padding:0 40px 32px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="width:6px;vertical-align:top;padding-top:5px;">
+                  <div style="width:6px;height:6px;background-color:#006838;border-radius:50%;"></div>
+                </td>
+                <td style="padding-left:12px;font-size:13px;color:#2D3A2D;line-height:1.55;">
+                  <strong style="color:#1C2B1C;">Introductory $3 pricing</strong> — locked in for your first 60 days of pickup
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- WHAT HAPPENS NEXT -->
+        <tr>
+          <td style="background-color:#ffffff;padding:0 40px 36px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F9F6F1;border-radius:14px;border:1px solid #EDE8E0;">
+              <tr>
+                <td style="padding:22px 24px;">
+                  <p style="margin:0 0 16px;font-size:11px;font-weight:700;color:#4A3728;letter-spacing:0.08em;text-transform:uppercase;">What happens next</p>
+
+                  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;">
+                    <tr>
+                      <td style="width:22px;height:22px;background-color:#006838;border-radius:50%;text-align:center;vertical-align:middle;">
+                        <span style="color:#fff;font-size:10px;font-weight:800;">1</span>
+                      </td>
+                      <td style="padding-left:12px;font-size:12px;color:#7A6B5A;line-height:1.5;">Your spot is confirmed — no further action needed</td>
+                    </tr>
+                  </table>
+
+                  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;">
+                    <tr>
+                      <td style="width:22px;height:22px;background-color:#006838;border-radius:50%;text-align:center;vertical-align:middle;">
+                        <span style="color:#fff;font-size:10px;font-weight:800;">2</span>
+                      </td>
+                      <td style="padding-left:12px;font-size:12px;color:#7A6B5A;line-height:1.5;">Dining hall managers are onboarding this quarter at UCI</td>
+                    </tr>
+                  </table>
+
+                  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                      <td style="width:22px;height:22px;background-color:#006838;border-radius:50%;text-align:center;vertical-align:middle;">
+                        <span style="color:#fff;font-size:10px;font-weight:800;">3</span>
+                      </td>
+                      <td style="padding-left:12px;font-size:12px;color:#7A6B5A;line-height:1.5;">You'll receive 48-hour early access before the public launch</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- FOOTER -->
+        <tr>
+          <td style="background-color:#F0EBE3;border-radius:0 0 20px 20px;padding:24px 40px;">
+            <p style="margin:0;font-size:11px;color:#B0A898;line-height:1.7;text-align:center;">
+              You're receiving this because you joined the waitlist at ecoplate.uci.edu.<br>
+              No spam — ever. Unsubscribe any time by replying to this email.
+            </p>
+            <p style="margin:10px 0 0;font-size:10px;color:#C4BAB0;text-align:center;letter-spacing:0.03em;">
+              &copy; 2026 EcoPlate &middot; UCI Campus Food Rescue Program
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>`;
+}
+
+app.post(`${BASE}/waitlist-signup`, async (c) => {
+  try {
+    const { email, name } = await c.req.json();
+    if (!email || !email.includes("@")) {
+      return c.json({ error: "Invalid email address" }, 400);
+    }
+    const normalised = email.trim().toLowerCase();
+    const key = `waitlist-signup:${normalised}`;
+    const existing = await kv.get(key);
+    if (existing) {
+      // Return their original position
+      const all = await kv.getByPrefix("waitlist-signup:");
+      return c.json({ alreadyRegistered: true, count: all.length });
+    }
+    const firstName = ((name ?? "").trim().split(" ")[0]) || "there";
+    await kv.set(key, {
+      email: normalised,
+      name: (name ?? "").trim(),
+      joinedAt: new Date().toISOString(),
+    });
+    const all = await kv.getByPrefix("waitlist-signup:");
+    const position = all.length;
+
+    // Send confirmation email via Gmail SMTP (nodemailer)
+    const gmailAppPassword = Deno.env.get("GMAIL_APP_PASSWORD");
+    if (gmailAppPassword) {
+      try {
+        const emailHtml = buildWaitlistEmail(firstName, normalised, position);
+        const transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: "ecoplate.info@gmail.com",
+            pass: gmailAppPassword,
+          },
+        });
+        await transporter.sendMail({
+          from: '"EcoPlate" <ecoplate.info@gmail.com>',
+          to: normalised,
+          subject: `You're on the waitlist — position #${position} at EcoPlate`,
+          html: emailHtml,
+        });
+        console.log("Waitlist confirmation email sent to:", normalised);
+      } catch (emailErr) {
+        console.log("Email send error (non-fatal):", emailErr);
+      }
+    }
+
+    return c.json({ success: true, position, count: position });
+  } catch (e) {
+    console.log("Error saving waitlist signup:", e);
+    return c.json({ error: `Failed to save signup: ${e}` }, 500);
+  }
+});
+
+app.get(`${BASE}/waitlist-count`, async (c) => {
+  try {
+    const signups = await kv.getByPrefix("waitlist-signup:");
+    return c.json({ count: signups.length });
+  } catch (e) {
+    return c.json({ error: `Failed to fetch count: ${e}` }, 500);
+  }
+});
+
+app.get(`${BASE}/waitlist-signups`, async (c) => {
+  try {
+    const signups = await kv.getByPrefix("waitlist-signup:");
+    return c.json({ signups, count: signups.length });
+  } catch (e) {
+    return c.json({ error: `Failed to fetch signups: ${e}` }, 500);
   }
 });
 

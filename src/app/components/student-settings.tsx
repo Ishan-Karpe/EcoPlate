@@ -5,10 +5,13 @@ import {
   CreditCard,
   Bell,
   ChevronRight,
+  ChevronDown,
   CheckCircle2,
   Leaf,
   Shield,
   Zap,
+  Info,
+  Users,
 } from "lucide-react";
 import { UserState } from "./ecoplate-types";
 
@@ -21,7 +24,8 @@ interface StudentSettingsProps {
 const PLANS: {
   id: "none" | "basic" | "premium";
   name: string;
-  price: string;
+  monthlyPrice: string;
+  annualPrice: string;
   credits: number;
   earlyAccess: boolean;
   features: string[];
@@ -29,15 +33,17 @@ const PLANS: {
   {
     id: "none",
     name: "Guest",
-    price: "Free",
+    monthlyPrice: "Free",
+    annualPrice: "Free",
     credits: 0,
     earlyAccess: false,
-    features: ["Reserve boxes at listed price", "Standard drop access"],
+    features: ["Browse available drops", "Pay per box at listed price ($3\u20135)"],
   },
   {
     id: "basic",
-    name: "Rescue Basic",
-    price: "$15 / mo",
+    name: "Rescue Member",
+    monthlyPrice: "$15 / mo",
+    annualPrice: "$12 / mo",
     credits: 7,
     earlyAccess: false,
     features: ["7 Rescue Credits per month", "Use credits at checkout", "Reservation history"],
@@ -45,16 +51,26 @@ const PLANS: {
   {
     id: "premium",
     name: "Rescue Premium",
-    price: "$30 / mo",
-    credits: 15,
+    monthlyPrice: "$50 / mo",
+    annualPrice: "$40 / mo",
+    credits: 10,
     earlyAccess: true,
     features: [
-      "15 Rescue Credits per month",
+      "10 Rescue Credits per month",
       "Early access to drops",
       "Priority waitlist position",
-      "Everything in Basic",
+      "Everything in Member",
     ],
   },
+];
+
+const COMPARISON = [
+  { feature: "Browse & reserve", guest: true, basic: true, premium: true },
+  { feature: "Monthly credits", guest: "\u2014", basic: "7", premium: "10" },
+  { feature: "Pay per box ($3\u20135)", guest: true, basic: true, premium: true },
+  { feature: "Early access (30 min)", guest: false, basic: false, premium: true },
+  { feature: "Priority waitlist", guest: false, basic: false, premium: true },
+  { feature: "Impact tracking", guest: false, basic: true, premium: true },
 ];
 
 export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: StudentSettingsProps) {
@@ -66,6 +82,9 @@ export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: Student
   const [showDetails, setShowDetails] = useState(false);
   const [saved, setSaved] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ name?: string; email?: string }>({});
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
+  const [showWhyUpgrade, setShowWhyUpgrade] = useState(false);
+  const [showEarlyAccessTip, setShowEarlyAccessTip] = useState(false);
 
   const currentPlanId = user.membership?.plan ?? "none";
   const planChanged = selectedPlan !== currentPlanId;
@@ -161,8 +180,8 @@ export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: Student
                 </p>
                 <p style={{ fontSize: "0.73rem", color: "#7A6B5A", marginTop: 1 }}>
                   {user.membership
-                    ? `${user.membership.plan === "basic" ? "Rescue Basic" : "Rescue Premium"} · ${user.creditsRemaining} credits left`
-                    : "Free account · No active plan"}
+                    ? `${user.membership.plan === "basic" ? "Rescue Member" : "Rescue Premium"} \u00b7 ${user.creditsRemaining} credits left`
+                    : "Free account \u00b7 No active plan"}
                 </p>
               </div>
               <div
@@ -196,6 +215,48 @@ export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: Student
           </motion.div>
         )}
 
+        {/* Billing cycle toggle */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="flex items-center justify-center gap-1 p-1 rounded-full mx-auto w-fit"
+          style={{ backgroundColor: "#EDE8E1" }}
+        >
+          <button
+            onClick={() => setBillingCycle("monthly")}
+            className="px-4 py-1.5 rounded-full transition-all"
+            style={{
+              backgroundColor: billingCycle === "monthly" ? "white" : "transparent",
+              color: billingCycle === "monthly" ? "#1C2B1C" : "#7A6B5A",
+              fontSize: "0.78rem",
+              fontWeight: 600,
+              boxShadow: billingCycle === "monthly" ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
+            }}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setBillingCycle("annual")}
+            className="px-4 py-1.5 rounded-full transition-all flex items-center gap-1"
+            style={{
+              backgroundColor: billingCycle === "annual" ? "white" : "transparent",
+              color: billingCycle === "annual" ? "#1C2B1C" : "#7A6B5A",
+              fontSize: "0.78rem",
+              fontWeight: 600,
+              boxShadow: billingCycle === "annual" ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
+            }}
+          >
+            Annual
+            <span
+              className="px-1.5 py-0.5 rounded-full"
+              style={{ backgroundColor: "#E8F5EE", color: "#006838", fontSize: "0.58rem", fontWeight: 700 }}
+            >
+              Save 20%
+            </span>
+          </button>
+        </motion.div>
+
         {/* Membership plan selection */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -218,19 +279,33 @@ export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: Student
             {PLANS.map((plan) => {
               const isCurrent = plan.id === currentPlanId;
               const isSelected = plan.id === selectedPlan;
+              const isGuest = plan.id === "none";
+              const isMostPopular = plan.id === "basic";
+              const price = billingCycle === "annual" ? plan.annualPrice : plan.monthlyPrice;
+
               return (
                 <button
                   key={plan.id}
                   onClick={() => setSelectedPlan(plan.id)}
-                  className="w-full text-left rounded-2xl p-4 transition-all active:scale-[0.99]"
+                  className="w-full text-left rounded-2xl p-4 transition-all active:scale-[0.99] relative"
                   style={{
-                    backgroundColor: isSelected ? "#E8F5EE" : "white",
-                    border: `2px solid ${isSelected ? "#006838" : "rgba(0,104,56,0.1)"}`,
+                    backgroundColor: isSelected ? (isGuest ? "#F5F1EB" : "#E8F5EE") : isGuest ? "#FAFAF8" : "white",
+                    border: `2px solid ${isSelected ? "#006838" : isGuest ? "rgba(0,0,0,0.06)" : "rgba(0,104,56,0.1)"}`,
                     boxShadow: isSelected ? "0 2px 12px rgba(0,104,56,0.1)" : "0 1px 4px rgba(0,0,0,0.04)",
+                    opacity: isGuest && !isSelected ? 0.85 : 1,
                   }}
                 >
+                  {/* Most Popular badge */}
+                  {isMostPopular && (
+                    <div
+                      className="absolute -top-2.5 left-4 px-2.5 py-0.5 rounded-full"
+                      style={{ backgroundColor: "#006838", color: "white", fontSize: "0.6rem", fontWeight: 700 }}
+                    >
+                      Most Popular
+                    </div>
+                  )}
+
                   <div className="flex items-start gap-3">
-                    {/* Radio */}
                     <div
                       className="w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 shrink-0"
                       style={{
@@ -243,7 +318,7 @@ export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: Student
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p style={{ fontSize: "0.9rem", fontWeight: 700, color: "#1C2B1C" }}>
+                        <p style={{ fontSize: isGuest ? "0.85rem" : "0.9rem", fontWeight: 700, color: "#1C2B1C" }}>
                           {plan.name}
                         </p>
                         {isCurrent && (
@@ -261,7 +336,11 @@ export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: Student
                         )}
                         {plan.earlyAccess && (
                           <span
-                            className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full"
+                            role="button"
+                            tabIndex={0}
+                            onClick={(e) => { e.stopPropagation(); setShowEarlyAccessTip(!showEarlyAccessTip); }}
+                            onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setShowEarlyAccessTip(!showEarlyAccessTip); } }}
+                            className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full cursor-pointer"
                             style={{
                               backgroundColor: "#FEF3C7",
                               color: "#92400E",
@@ -271,17 +350,39 @@ export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: Student
                           >
                             <Zap className="w-2.5 h-2.5" />
                             Early Access
+                            <Info className="w-2.5 h-2.5 ml-0.5" />
                           </span>
                         )}
                       </div>
 
-                      <p style={{ fontSize: "1rem", fontWeight: 900, color: "#006838", marginTop: 2 }}>
-                        {plan.price}
+                      {/* Early access tooltip */}
+                      {plan.earlyAccess && showEarlyAccessTip && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mt-1 px-2.5 py-1.5 rounded-lg"
+                          style={{ backgroundColor: "#FEF3C7", border: "1px solid #FCD34D" }}
+                        >
+                          <p style={{ fontSize: "0.68rem", color: "#92400E" }}>
+                            Reserve 30 minutes before general release. Be first in line for every drop.
+                          </p>
+                        </motion.div>
+                      )}
+
+                      <p style={{ fontSize: isGuest ? "0.9rem" : "1rem", fontWeight: 900, color: "#006838", marginTop: 2 }}>
+                        {price}
                       </p>
 
                       {plan.credits > 0 && (
                         <p style={{ fontSize: "0.72rem", color: "#8B6F47", fontWeight: 600, marginTop: 1 }}>
-                          {plan.credits} Rescue Credits/month — use like cash at checkout
+                          {plan.credits} Rescue Credits/month &mdash; use like cash at checkout
+                        </p>
+                      )}
+
+                      {/* Cancel anytime */}
+                      {plan.id !== "none" && (
+                        <p style={{ fontSize: "0.65rem", color: "#B0A898", marginTop: 2 }}>
+                          Cancel anytime
                         </p>
                       )}
 
@@ -304,7 +405,117 @@ export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: Student
           </div>
         </motion.div>
 
-        {/* Account details form — shown when creating account */}
+        {/* Social proof */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="flex items-center justify-center gap-2 py-2"
+        >
+          <Users className="w-3.5 h-3.5" style={{ color: "#006838" }} />
+          <p style={{ fontSize: "0.75rem", color: "#006838", fontWeight: 600 }}>
+            94 students are on Rescue Member
+          </p>
+        </motion.div>
+
+        {/* Mini comparison table */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.18 }}
+          className="rounded-2xl overflow-hidden shadow-sm"
+          style={{ backgroundColor: "white", border: "1px solid rgba(0,104,56,0.1)" }}
+        >
+          <div className="px-4 py-3" style={{ borderBottom: "1px solid #F0EBE3" }}>
+            <p style={{ fontSize: "0.78rem", fontWeight: 700, color: "#1C2B1C" }}>
+              Plan Comparison
+            </p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full" style={{ fontSize: "0.68rem" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid #F0EBE3" }}>
+                  <th className="text-left px-3 py-2" style={{ color: "#7A6B5A", fontWeight: 600 }}>Feature</th>
+                  <th className="text-center px-2 py-2" style={{ color: "#7A6B5A", fontWeight: 600 }}>Guest</th>
+                  <th className="text-center px-2 py-2" style={{ color: "#006838", fontWeight: 700 }}>Member</th>
+                  <th className="text-center px-2 py-2" style={{ color: "#8B6F47", fontWeight: 700 }}>Premium</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARISON.map((row, i) => (
+                  <tr key={i} style={{ borderBottom: i < COMPARISON.length - 1 ? "1px solid #F8F5F0" : "none" }}>
+                    <td className="px-3 py-2" style={{ color: "#4A3728" }}>{row.feature}</td>
+                    {(["guest", "basic", "premium"] as const).map((col) => {
+                      const val = row[col];
+                      return (
+                        <td key={col} className="text-center px-2 py-2">
+                          {typeof val === "boolean" ? (
+                            val ? (
+                              <CheckCircle2 className="w-3.5 h-3.5 mx-auto" style={{ color: "#006838" }} />
+                            ) : (
+                              <span style={{ color: "#D5CFC7" }}>&mdash;</span>
+                            )
+                          ) : (
+                            <span style={{ fontWeight: 700, color: "#006838" }}>{val}</span>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+
+        {/* Why upgrade? collapsible */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="rounded-2xl overflow-hidden shadow-sm"
+          style={{ backgroundColor: "white", border: "1px solid rgba(0,104,56,0.1)" }}
+        >
+          <button
+            onClick={() => setShowWhyUpgrade(!showWhyUpgrade)}
+            className="w-full flex items-center justify-between px-4 py-3"
+          >
+            <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#1C2B1C" }}>
+              Why upgrade?
+            </span>
+            <ChevronDown
+              className="w-4 h-4 transition-transform"
+              style={{ color: "#7A6B5A", transform: showWhyUpgrade ? "rotate(180deg)" : "rotate(0)" }}
+            />
+          </button>
+          <AnimatePresence>
+            {showWhyUpgrade && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <div className="px-4 pb-4 space-y-2">
+                  {[
+                    "Save up to 40% versus pay-per-box pricing over a month",
+                    "Never miss a drop with early access and priority waitlist",
+                    "Track your environmental impact and food rescue history",
+                    "Credits roll over for one month if unused",
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: "#006838" }} />
+                      <p style={{ fontSize: "0.75rem", color: "#7A6B5A", lineHeight: 1.4 }}>{item}</p>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Account details form */}
         <AnimatePresence>
           {!user.hasAccount && showDetails && (
             <motion.div
@@ -377,7 +588,7 @@ export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: Student
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.25 }}
         >
           <button
             onClick={handleAction}
@@ -408,7 +619,7 @@ export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: Student
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
+            transition={{ delay: 0.3 }}
             className="rounded-2xl overflow-hidden shadow-sm"
             style={{ backgroundColor: "white", border: "1px solid rgba(0,104,56,0.1)" }}
           >

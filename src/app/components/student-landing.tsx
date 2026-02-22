@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
-  Leaf,
   MapPin,
   Clock,
   Package,
@@ -12,8 +11,29 @@ import {
   X,
   QrCode,
   Navigation,
+  Search,
+  Star,
+  Timer,
+  Footprints,
 } from "lucide-react";
 import { Drop, Reservation, formatTime, calculateCurrentPrice, getWindowState } from "./ecoplate-types";
+import { EcoplateLogo } from "./ecoplate-logo";
+
+// Demo data for card extras
+const CARD_EXTRAS: Record<string, { rating: number; walkMin: number; tags: string[]; closingSoon?: boolean }> = {
+  "drop-1": { rating: 4.5, walkMin: 4, tags: ["High Protein"] },
+  "drop-2": { rating: 4.2, walkMin: 6, tags: ["Gluten-Free"] },
+  "drop-3": { rating: 4.7, walkMin: 6, tags: ["Vegetarian"], closingSoon: true },
+  "drop-4": { rating: 4.3, walkMin: 4, tags: ["High Protein"] },
+};
+
+const FILTERS = ["All", "Vegetarian", "Gluten-Free", "High Protein"] as const;
+
+// Location colors for visual differentiation
+const LOCATION_COLORS: Record<string, string> = {
+  Brandywine: "#8B6F47",
+  Anteatery: "#006838",
+};
 
 interface StudentLandingProps {
   drops: Drop[];
@@ -40,9 +60,32 @@ export function StudentLanding({
   waitlistedDropIds,
   onWaitlist,
 }: StudentLandingProps) {
-  const activeDrops = drops.filter((d) => d.status === "active" && d.remainingBoxes > 0);
-  const soldOutDrops = drops.filter((d) => d.status === "active" && d.remainingBoxes === 0);
-  const upcomingDrops = drops.filter((d) => d.status === "upcoming");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState<string>("All");
+
+  const filteredDrops = useMemo(() => {
+    let result = drops;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (d) =>
+          d.description.toLowerCase().includes(q) ||
+          d.location.toLowerCase().includes(q) ||
+          d.locationDetail.toLowerCase().includes(q)
+      );
+    }
+    if (activeFilter !== "All") {
+      result = result.filter((d) => {
+        const extras = CARD_EXTRAS[d.id];
+        return extras?.tags.includes(activeFilter);
+      });
+    }
+    return result;
+  }, [drops, searchQuery, activeFilter]);
+
+  const activeDrops = filteredDrops.filter((d) => d.status === "active" && d.remainingBoxes > 0);
+  const soldOutDrops = filteredDrops.filter((d) => d.status === "active" && d.remainingBoxes === 0);
+  const upcomingDrops = filteredDrops.filter((d) => d.status === "upcoming");
 
   const reservedDrop = activeReservation
     ? drops.find((d) => d.id === activeReservation.dropId) ?? null
@@ -59,23 +102,14 @@ export function StudentLanding({
       >
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2.5">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
-            >
-              <Leaf className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <span
-                className="text-white tracking-tight"
-                style={{ fontWeight: 800, fontSize: "1.2rem", letterSpacing: "-0.02em" }}
-              >
-                EcoPlate
-              </span>
-              <p className="text-white/60" style={{ fontSize: "0.65rem", lineHeight: 1 }}>
-                Waste Less. Eat More.
-              </p>
-            </div>
+            <EcoplateLogo
+              iconSize={34}
+              label="EcoPlate"
+              subLabel="Waste Less. Eat More."
+              textColor="white"
+              subTextColor="rgba(255,255,255,0.6)"
+              fontSize="1.2rem"
+            />
           </div>
           <button
             onClick={onAdminAccess}
@@ -87,6 +121,62 @@ export function StudentLanding({
         </div>
       </motion.div>
 
+      {/* Badge under header */}
+      <div className="px-4 pt-3 pb-1">
+        <div
+          className="flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-full mx-auto w-fit"
+          style={{ backgroundColor: "#E8F5EE", border: "1px solid rgba(0,104,56,0.15)" }}
+        >
+          <CheckCircle2 className="w-3 h-3" style={{ color: "#006838" }} />
+          <span style={{ fontSize: "0.68rem", fontWeight: 600, color: "#006838" }}>
+            No account needed to reserve. Just tap and go.
+          </span>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="px-4 pt-3">
+        <div
+          className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl"
+          style={{ backgroundColor: "white", border: "1px solid rgba(0,104,56,0.12)", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}
+        >
+          <Search className="w-4 h-4 shrink-0" style={{ color: "#7A6B5A" }} />
+          <input
+            type="text"
+            placeholder="Search meals, locations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-transparent outline-none"
+            style={{ fontSize: "0.85rem", color: "#1C2B1C" }}
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery("")}>
+              <X className="w-3.5 h-3.5" style={{ color: "#7A6B5A" }} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Filter bar */}
+      <div className="px-4 pt-3 pb-1 flex gap-2 overflow-x-auto no-scrollbar">
+        {FILTERS.map((f) => (
+          <button
+            key={f}
+            onClick={() => setActiveFilter(f)}
+            className="shrink-0 px-3 py-1.5 rounded-full transition-all"
+            style={{
+              backgroundColor: activeFilter === f ? "#006838" : "white",
+              color: activeFilter === f ? "white" : "#7A6B5A",
+              fontSize: "0.72rem",
+              fontWeight: 600,
+              border: `1px solid ${activeFilter === f ? "#006838" : "rgba(0,104,56,0.12)"}`,
+            }}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
       {/* Active Reservation Status Banner */}
       <AnimatePresence>
         {activeReservation && reservedDrop && (
@@ -94,7 +184,7 @@ export function StudentLanding({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="mx-4 mt-4 overflow-hidden"
+            className="mx-4 mt-3 overflow-hidden"
           >
             <ReservationBanner
               reservation={activeReservation}
@@ -108,9 +198,35 @@ export function StudentLanding({
       </AnimatePresence>
 
       {/* Drop list */}
-      <div className="flex-1 px-4 py-4 space-y-5 overflow-y-auto pb-28">
+      <div className="flex-1 px-4 py-3 space-y-5 overflow-y-auto pb-28">
+        {/* Skeleton loading */}
+        {dropsLoading && (
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="rounded-2xl overflow-hidden animate-pulse"
+                style={{ backgroundColor: "white", border: "1px solid rgba(0,104,56,0.08)" }}
+              >
+                <div className="flex">
+                  <div className="w-[90px] h-[110px] shrink-0" style={{ backgroundColor: "#EDE8E1" }} />
+                  <div className="flex-1 p-3 space-y-2">
+                    <div className="h-4 rounded" style={{ backgroundColor: "#EDE8E1", width: "60%" }} />
+                    <div className="h-3 rounded" style={{ backgroundColor: "#F0EBE3", width: "90%" }} />
+                    <div className="h-3 rounded" style={{ backgroundColor: "#F0EBE3", width: "70%" }} />
+                    <div className="flex gap-2">
+                      <div className="h-3 rounded" style={{ backgroundColor: "#EDE8E1", width: "40%" }} />
+                      <div className="h-3 rounded" style={{ backgroundColor: "#EDE8E1", width: "30%" }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Available now */}
-        {activeDrops.length > 0 && (
+        {!dropsLoading && activeDrops.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -137,7 +253,7 @@ export function StudentLanding({
         )}
 
         {/* Upcoming */}
-        {upcomingDrops.length > 0 && (
+        {!dropsLoading && upcomingDrops.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -161,7 +277,7 @@ export function StudentLanding({
         )}
 
         {/* Sold out */}
-        {soldOutDrops.length > 0 && (
+        {!dropsLoading && soldOutDrops.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -188,37 +304,28 @@ export function StudentLanding({
           </motion.div>
         )}
 
-        {drops.length === 0 && (
+        {!dropsLoading && filteredDrops.length === 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center py-20"
+            className="text-center py-16"
           >
             <div
               className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
               style={{ backgroundColor: "#E8F5EE" }}
             >
-              <Leaf className="w-8 h-8" style={{ color: "#006838" }} />
+              <Search className="w-8 h-8" style={{ color: "#006838" }} />
             </div>
             <p className="text-[1rem]" style={{ fontWeight: 600, color: "#1C2B1C" }}>
-              No drops tonight
+              {searchQuery || activeFilter !== "All" ? "No matches found" : "No drops tonight"}
             </p>
             <p className="text-[0.875rem] mt-1" style={{ color: "#7A6B5A" }}>
-              Check back tomorrow for fresh Rescue Boxes!
+              {searchQuery || activeFilter !== "All"
+                ? "Try a different search or filter"
+                : "Check back tomorrow for fresh Rescue Boxes!"}
             </p>
           </motion.div>
         )}
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="text-center pt-1 pb-4"
-        >
-          <p style={{ fontSize: "0.75rem", color: "#7A6B5A" }}>
-            No account needed to reserve. Just tap and go.
-          </p>
-        </motion.div>
       </div>
     </div>
   );
@@ -277,7 +384,6 @@ function ReservationBanner({
     getWindowState(drop.windowStart, drop.windowEnd)
   );
 
-  // Re-check window state every minute
   useEffect(() => {
     const interval = setInterval(() => {
       setWindowState(getWindowState(drop.windowStart, drop.windowEnd));
@@ -285,12 +391,10 @@ function ReservationBanner({
     return () => clearInterval(interval);
   }, [drop.windowStart, drop.windowEnd]);
 
-  // Pickup already completed (admin redeemed or student confirmed)
   const isPickedUp = reservation.status === "picked_up";
   const isReady = !isPickedUp && windowState === "during";
   const isPast = !isPickedUp && windowState === "after";
 
-  // Banner visual config per state
   const bannerBg = isPickedUp
     ? "#004D28"
     : isReady
@@ -314,7 +418,6 @@ function ReservationBanner({
       className="rounded-2xl overflow-hidden shadow-md relative"
       style={{ border: `1.5px solid ${bannerBg}` }}
     >
-      {/* Banner top */}
       <div className="px-4 pt-3.5 pb-3" style={{ backgroundColor: bannerBg }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -329,7 +432,6 @@ function ReservationBanner({
               {statusLabel}
             </span>
           </div>
-          {/* Only show cancel X when pre-window and not picked up */}
           {!isReady && !isPast && !isPickedUp && (
             <button
               onClick={() => setShowCancel(true)}
@@ -346,7 +448,7 @@ function ReservationBanner({
               Your meal has been picked up!
             </p>
             <p className="text-white/70 mt-0.5" style={{ fontSize: "0.75rem" }}>
-              {drop.location} · Tell us how it was
+              {drop.location} &middot; Tell us how it was
             </p>
           </>
         ) : isReady ? (
@@ -355,7 +457,7 @@ function ReservationBanner({
               Head to {drop.locationDetail}
             </p>
             <p className="text-white/70 mt-0.5" style={{ fontSize: "0.75rem" }}>
-              Window closes at {formatTime(drop.windowEnd)} · Show your code at the counter
+              Window closes at {formatTime(drop.windowEnd)} &middot; Show your code at the counter
             </p>
           </>
         ) : isPast ? (
@@ -364,7 +466,7 @@ function ReservationBanner({
               Pickup window has ended
             </p>
             <p className="text-white/70 mt-0.5" style={{ fontSize: "0.75rem" }}>
-              {drop.location} · {formatTime(drop.windowStart)} – {formatTime(drop.windowEnd)}
+              {drop.location} &middot; {formatTime(drop.windowStart)}&ndash;{formatTime(drop.windowEnd)}
             </p>
           </>
         ) : (
@@ -373,16 +475,14 @@ function ReservationBanner({
               Your box at {drop.location} is reserved
             </p>
             <p className="text-white/70 mt-0.5" style={{ fontSize: "0.75rem" }}>
-              Pickup opens at {formatTime(drop.windowStart)} · {drop.locationDetail}
+              Pickup opens at {formatTime(drop.windowStart)} &middot; {drop.locationDetail}
             </p>
           </>
         )}
       </div>
 
-      {/* Banner actions */}
       <div className="px-4 py-3 flex gap-2" style={{ backgroundColor: "#E8F5EE" }}>
         {isPickedUp ? (
-          /* Completion state: full-width rate button */
           <button
             onClick={onPickedUp}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl active:scale-[0.97] transition-transform shadow-sm"
@@ -397,25 +497,21 @@ function ReservationBanner({
             Rate Your Meal
           </button>
         ) : isReady ? (
-          /* During pickup window: show code only — staff must scan to confirm */
-          <>
-            <button
-              onClick={onViewCode}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border active:scale-[0.97] transition-transform shadow-sm"
-              style={{
-                backgroundColor: "#006838",
-                borderColor: "transparent",
-                color: "white",
-                fontSize: "0.8rem",
-                fontWeight: 700,
-              }}
-            >
-              <QrCode className="w-3.5 h-3.5" />
-              Show Pickup Code
-            </button>
-          </>
+          <button
+            onClick={onViewCode}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border active:scale-[0.97] transition-transform shadow-sm"
+            style={{
+              backgroundColor: "#006838",
+              borderColor: "transparent",
+              color: "white",
+              fontSize: "0.8rem",
+              fontWeight: 700,
+            }}
+          >
+            <QrCode className="w-3.5 h-3.5" />
+            Show Pickup Code
+          </button>
         ) : isPast ? (
-          /* After window: show code (staff may still scan) */
           <button
             onClick={onViewCode}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border active:scale-[0.97] transition-transform"
@@ -431,7 +527,6 @@ function ReservationBanner({
             Show Code
           </button>
         ) : (
-          /* Pre-window: show code + cancel */
           <>
             <button
               onClick={onViewCode}
@@ -465,7 +560,6 @@ function ReservationBanner({
         )}
       </div>
 
-      {/* Ready state: awaiting staff scan hint */}
       {isReady && (
         <div
           className="px-4 py-2 flex items-center gap-2"
@@ -473,12 +567,11 @@ function ReservationBanner({
         >
           <Navigation className="w-3 h-3" style={{ color: "#006838" }} />
           <p style={{ fontSize: "0.72rem", color: "#004D28" }}>
-            Window open — show your code to staff at the counter to complete pickup.
+            Window open &mdash; show your code to staff at the counter to complete pickup.
           </p>
         </div>
       )}
 
-      {/* Picked-up celebration strip */}
       {isPickedUp && (
         <div
           className="px-4 py-2 flex items-center gap-2"
@@ -486,12 +579,11 @@ function ReservationBanner({
         >
           <CheckCircle2 className="w-3 h-3" style={{ color: "#006838" }} />
           <p style={{ fontSize: "0.72rem", color: "#004D28" }}>
-            Verified by dining staff · Share your experience below
+            Verified by dining staff &middot; Share your experience below
           </p>
         </div>
       )}
 
-      {/* Cancel confirm overlay */}
       <AnimatePresence>
         {showCancel && (
           <motion.div
@@ -553,6 +645,51 @@ function ReservationBanner({
   );
 }
 
+function CountdownChip({ windowEnd }: { windowEnd: string }) {
+  const [text, setText] = useState("");
+
+  useEffect(() => {
+    const update = () => {
+      const now = new Date();
+      const [endH, endM] = windowEnd.split(":").map(Number);
+      const endMinutes = endH * 60 + endM;
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+      const diff = endMinutes - nowMinutes;
+      if (diff <= 0) {
+        setText("Closed");
+      } else if (diff >= 60) {
+        const h = Math.floor(diff / 60);
+        const m = diff % 60;
+        setText(`Closes in ${h}h ${m}min`);
+      } else {
+        setText(`Closes in ${diff}min`);
+      }
+    };
+    update();
+    const interval = setInterval(update, 60_000);
+    return () => clearInterval(interval);
+  }, [windowEnd]);
+
+  if (!text) return null;
+  const isClosed = text === "Closed";
+
+  return (
+    <span
+      className="flex items-center gap-1 px-1.5 py-0.5 rounded-md shrink-0"
+      style={{
+        backgroundColor: isClosed ? "rgba(0,0,0,0.55)" : "#F59E0B",
+        color: "white",
+        fontSize: "0.58rem",
+        fontWeight: 700,
+        whiteSpace: "nowrap",
+      }}
+    >
+      <Timer className="w-2.5 h-2.5" />
+      {text}
+    </span>
+  );
+}
+
 function DropCard({
   drop,
   onSelect,
@@ -572,6 +709,8 @@ function DropCard({
 }) {
   const urgency = !soldOut && !upcoming && drop.remainingBoxes > 0 && drop.remainingBoxes <= 5;
   const currentPrice = calculateCurrentPrice(drop);
+  const extras = CARD_EXTRAS[drop.id] || { rating: 4.0, walkMin: 5, tags: [] };
+  const locationColor = LOCATION_COLORS[drop.location] || "#006838";
 
   const handleWaitlistClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -589,23 +728,38 @@ function DropCard({
       style={{
         backgroundColor: "white",
         border: "1px solid rgba(0,104,56,0.1)",
+        borderLeft: `3px solid ${locationColor}`,
       }}
     >
       <button
-        onClick={soldOut ? () => onSelect() : onSelect}
-        className={`w-full text-left ${soldOut ? "active:scale-[0.985] transition-transform" : "active:scale-[0.985] transition-transform"}`}
+        onClick={onSelect}
+        className="w-full text-left active:scale-[0.985] transition-transform"
       >
         <div className="flex items-stretch">
           {/* Food photo */}
-          <div className="w-[90px] shrink-0 relative overflow-hidden" style={{ minHeight: 100 }}>
+          <div className="w-[90px] shrink-0 relative overflow-hidden" style={{ minHeight: 110 }}>
             <img
               src={drop.imageUrl}
               alt={drop.location}
               className="w-full h-full object-cover"
               style={{ filter: soldOut ? "grayscale(60%)" : "none" }}
             />
-            {/* Status badge */}
-            {urgency && (
+            {/* Closing soon badge */}
+            {extras.closingSoon && !soldOut && !upcoming && (
+              <div
+                className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md"
+                style={{
+                  backgroundColor: "#DC2626",
+                  color: "white",
+                  fontSize: "0.58rem",
+                  fontWeight: 700,
+                }}
+              >
+                Closing Soon
+              </div>
+            )}
+            {/* Urgency badge */}
+            {urgency && !extras.closingSoon && (
               <div
                 className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md"
                 style={{
@@ -647,14 +801,28 @@ function DropCard({
           </div>
 
           {/* Content */}
-          <div className="flex-1 p-3 min-w-0">
+          <div className="flex-1 p-3 min-w-0 flex flex-col">
             <div className="flex items-start justify-between gap-1">
-              <p
-                className="truncate"
-                style={{ fontSize: "0.9rem", fontWeight: 700, color: "#1C2B1C" }}
-              >
-                {drop.location}
-              </p>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <p
+                  className="truncate"
+                  style={{ fontSize: "0.9rem", fontWeight: 700, color: "#1C2B1C" }}
+                >
+                  {drop.location}
+                </p>
+                {/* Location tag */}
+                <span
+                  className="px-1.5 py-0.5 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: locationColor + "18",
+                    color: locationColor,
+                    fontSize: "0.55rem",
+                    fontWeight: 700,
+                  }}
+                >
+                  {drop.location === "Brandywine" ? "BW" : "ANT"}
+                </span>
+              </div>
               <ChevronRight className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#7A6B5A" }} />
             </div>
 
@@ -665,17 +833,34 @@ function DropCard({
               {drop.description}
             </p>
 
-            <div className="flex items-center gap-2.5 mt-2" style={{ fontSize: "0.68rem", color: "#7A6B5A" }}>
-              <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                {formatTime(drop.windowStart)}–{formatTime(drop.windowEnd)}
+            {/* Star + Distance + Countdown row */}
+            <div className="flex items-center gap-2 mt-1.5 flex-wrap" style={{ fontSize: "0.65rem" }}>
+              <span className="flex items-center gap-0.5" style={{ color: "#D97706" }}>
+                <Star className="w-3 h-3" fill="#D97706" />
+                <span style={{ fontWeight: 700 }}>{extras.rating}</span>
               </span>
-              <span className="flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                {drop.locationDetail}
+              <span className="flex items-center gap-0.5" style={{ color: "#7A6B5A" }}>
+                <Footprints className="w-3 h-3" />
+                {extras.walkMin} min walk
+              </span>
+              {!soldOut && !upcoming && <CountdownChip windowEnd={drop.windowEnd} />}
+            </div>
+
+            {/* Time + location */}
+            <div className="flex items-center gap-2.5 mt-1.5" style={{ fontSize: "0.68rem", color: "#7A6B5A" }}>
+              <span className="flex items-center gap-1 whitespace-nowrap">
+                <Clock className="w-3 h-3" />
+                <span style={{ whiteSpace: "nowrap" }}>
+                  {formatTime(drop.windowStart)}&ndash;{formatTime(drop.windowEnd)}
+                </span>
+              </span>
+              <span className="flex items-center gap-1 truncate">
+                <MapPin className="w-3 h-3 shrink-0" />
+                <span className="truncate">{drop.locationDetail}</span>
               </span>
             </div>
 
+            {/* Bottom row: stock + price */}
             <div className="flex items-center justify-between mt-2">
               <div className="flex items-center gap-1" style={{ fontSize: "0.72rem" }}>
                 <Package className="w-3 h-3" style={{ color: "#006838" }} />
@@ -688,10 +873,12 @@ function DropCard({
                 </span>
               </div>
               <span
+                className="px-2 py-0.5 rounded-lg"
                 style={{
                   fontSize: "0.85rem",
                   fontWeight: 800,
                   color: soldOut ? "#7A6B5A" : "#006838",
+                  backgroundColor: soldOut ? "transparent" : "#E8F5EE",
                 }}
               >
                 ${currentPrice}
@@ -701,7 +888,7 @@ function DropCard({
         </div>
       </button>
 
-      {/* Waitlist button for sold out — persists via external state */}
+      {/* Waitlist button for sold out */}
       {soldOut && (
         <div
           className="px-3 pb-3"

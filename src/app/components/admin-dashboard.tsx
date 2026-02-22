@@ -28,6 +28,7 @@ import {
   Cell,
 } from "recharts";
 import { AdminStats, Drop, formatTime } from "./ecoplate-types";
+import { EcoplateLogo } from "./ecoplate-logo";
 
 interface AdminDashboardProps {
   stats: AdminStats;
@@ -66,20 +67,14 @@ export function AdminDashboard({
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2.5">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
-            >
-              <Leaf className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <span className="text-white" style={{ fontSize: "1.125rem", fontWeight: 800 }}>
-                EcoPlate Staff
-              </span>
-              <p className="text-white/60" style={{ fontSize: "0.65rem" }}>
-                Admin Dashboard
-              </p>
-            </div>
+            <EcoplateLogo
+              iconSize={34}
+              label="EcoPlate Staff"
+              subLabel="Admin Dashboard"
+              textColor="white"
+              subTextColor="rgba(255,255,255,0.6)"
+              fontSize="1.125rem"
+            />
           </div>
           <button
             onClick={onLogout}
