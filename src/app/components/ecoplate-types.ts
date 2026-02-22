@@ -90,6 +90,8 @@ export type Screen =
   | "pickup-code"
   | "post-rating"
   | "account-prompt"
+  | "student-insights"
+  | "student-settings"
   | "admin-login"
   | "admin-dashboard"
   | "admin-create-drop"
@@ -157,11 +159,11 @@ export const MOCK_DROPS: Drop[] = [
     location: "Anteatery",
     locationDetail: "Main lobby, counter 3",
     date: new Date().toISOString().split("T")[0],
-    windowStart: "20:30",
-    windowEnd: "22:00",
+    windowStart: "18:00",
+    windowEnd: "23:00",
     totalBoxes: 30,
-    remainingBoxes: 12,
-    reservedBoxes: 18,
+    remainingBoxes: 30,
+    reservedBoxes: 0,
     priceMin: 3,
     priceMax: 5,
     status: "active",
@@ -176,11 +178,11 @@ export const MOCK_DROPS: Drop[] = [
     location: "Brandywine",
     locationDetail: "Side entrance, Window B",
     date: new Date().toISOString().split("T")[0],
-    windowStart: "21:00",
-    windowEnd: "22:30",
+    windowStart: "18:00",
+    windowEnd: "23:00",
     totalBoxes: 25,
-    remainingBoxes: 3,
-    reservedBoxes: 22,
+    remainingBoxes: 25,
+    reservedBoxes: 0,
     priceMin: 3,
     priceMax: 5,
     status: "active",
@@ -195,11 +197,11 @@ export const MOCK_DROPS: Drop[] = [
     location: "Brandywine",
     locationDetail: "Main lobby, counter 1",
     date: new Date().toISOString().split("T")[0],
-    windowStart: "20:00",
-    windowEnd: "21:30",
+    windowStart: "18:00",
+    windowEnd: "23:00",
     totalBoxes: 20,
-    remainingBoxes: 0,
-    reservedBoxes: 20,
+    remainingBoxes: 20,
+    reservedBoxes: 0,
     priceMin: 4,
     priceMax: 5,
     status: "active",
@@ -214,14 +216,14 @@ export const MOCK_DROPS: Drop[] = [
     location: "Anteatery",
     locationDetail: "East-side door, table pickup",
     date: new Date().toISOString().split("T")[0],
-    windowStart: "21:30",
+    windowStart: "18:00",
     windowEnd: "23:00",
     totalBoxes: 30,
     remainingBoxes: 30,
     reservedBoxes: 0,
     priceMin: 3,
     priceMax: 5,
-    status: "upcoming",
+    status: "active",
     description:
       "Chef's choice: BBQ pulled pork, house-made coleslaw, golden cornbread, and a brownie.",
     imageUrl: "https://images.unsplash.com/photo-1624900043496-eefdb73dadf6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",

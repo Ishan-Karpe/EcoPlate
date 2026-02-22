@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   ArrowUpRight,
   TrendingUp,
+  AlertCircle,
 } from "lucide-react";
 import { LocationCap } from "./ecoplate-types";
 
@@ -36,12 +37,18 @@ const LOCATIONS: { value: "Brandywine" | "Anteatery"; detail: string }[] = [
 export function AdminCreateDrop({ onBack, onSubmit, locationCaps }: AdminCreateDropProps) {
   const [location, setLocation] = useState<"Brandywine" | "Anteatery">("Anteatery");
   const [boxes, setBoxes] = useState("30");
-  const [windowStart, setWindowStart] = useState("20:30");
-  const [windowEnd, setWindowEnd] = useState("22:00");
+  const [windowStart, setWindowStart] = useState("18:00");
+  const [windowEnd, setWindowEnd] = useState("23:00");
   const [priceMin, setPriceMin] = useState("3");
   const [priceMax, setPriceMax] = useState("5");
   const [description, setDescription] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [errors, setErrors] = useState<{
+    boxes?: string;
+    time?: string;
+    priceMin?: string;
+    priceMax?: string;
+  }>({});
 
   const currentCap = locationCaps.find((c) => c.location === location);
   const capLimit = currentCap?.currentCap ?? 30;
@@ -49,7 +56,39 @@ export function AdminCreateDrop({ onBack, onSubmit, locationCaps }: AdminCreateD
   const canIncrease = weeksAbove85 >= 2;
   const locationDetail = LOCATIONS.find((l) => l.value === location)?.detail ?? "";
 
+  const validate = () => {
+    const newErrors: typeof errors = {};
+
+    const boxCount = parseInt(boxes);
+    if (isNaN(boxCount) || boxCount < 1) {
+      newErrors.boxes = "Enter at least 1 box";
+    } else if (boxCount > capLimit) {
+      newErrors.boxes = `Maximum is ${capLimit} boxes for this location`;
+    }
+
+    if (!windowStart || !windowEnd) {
+      newErrors.time = "Both start and end times are required";
+    } else if (windowStart >= windowEnd) {
+      newErrors.time = "End time must be after start time";
+    }
+
+    const min = parseFloat(priceMin);
+    const max = parseFloat(priceMax);
+    if (isNaN(min) || min < 1) {
+      newErrors.priceMin = "Minimum price must be at least $1";
+    }
+    if (isNaN(max) || max < 1) {
+      newErrors.priceMax = "Maximum price must be at least $1";
+    } else if (!isNaN(min) && max < min) {
+      newErrors.priceMax = "Max must be ≥ min price";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = () => {
+    if (!validate()) return;
     const boxCount = Math.min(parseInt(boxes) || 1, capLimit);
     setSubmitted(true);
     setTimeout(() => {
@@ -58,8 +97,8 @@ export function AdminCreateDrop({ onBack, onSubmit, locationCaps }: AdminCreateD
         boxes: boxCount,
         windowStart,
         windowEnd,
-        priceMin: parseInt(priceMin) || 3,
-        priceMax: parseInt(priceMax) || 5,
+        priceMin: parseFloat(priceMin) || 3,
+        priceMax: parseFloat(priceMax) || 5,
         description,
         locationDetail,
       });
@@ -199,18 +238,24 @@ export function AdminCreateDrop({ onBack, onSubmit, locationCaps }: AdminCreateD
           {/* Number of boxes */}
           <div
             className="rounded-xl p-4 shadow-sm"
-            style={{ backgroundColor: "white", border: "1px solid rgba(0,104,56,0.1)" }}
+            style={{
+              backgroundColor: "white",
+              border: `1px solid ${errors.boxes ? "#FECACA" : "rgba(0,104,56,0.1)"}`,
+            }}
           >
             <label
               className="flex items-center gap-2 mb-2"
-              style={{ fontSize: "0.8rem", color: "#7A6B5A" }}
+              style={{ fontSize: "0.8rem", color: errors.boxes ? "#C0392B" : "#7A6B5A" }}
             >
               <Package className="w-3.5 h-3.5" />
               Number of Rescue Boxes
             </label>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setBoxes((prev) => Math.max(1, parseInt(prev) - 5).toString())}
+                onClick={() => {
+                  setBoxes((prev) => Math.max(1, parseInt(prev) - 5).toString());
+                  setErrors((e) => ({ ...e, boxes: undefined }));
+                }}
                 className="w-10 h-10 rounded-lg text-[1.25rem] active:scale-[0.9] transition-transform"
                 style={{ backgroundColor: "#F5F1EB", color: "#4A3728" }}
               >
@@ -222,6 +267,7 @@ export function AdminCreateDrop({ onBack, onSubmit, locationCaps }: AdminCreateD
                 onChange={(e) => {
                   const val = Math.min(parseInt(e.target.value) || 0, capLimit);
                   setBoxes(val.toString());
+                  setErrors((err) => ({ ...err, boxes: undefined }));
                 }}
                 className="flex-1 text-center rounded-lg px-3 py-2.5 outline-none"
                 style={{
@@ -232,9 +278,10 @@ export function AdminCreateDrop({ onBack, onSubmit, locationCaps }: AdminCreateD
                 }}
               />
               <button
-                onClick={() =>
-                  setBoxes((prev) => Math.min(capLimit, parseInt(prev) + 5).toString())
-                }
+                onClick={() => {
+                  setBoxes((prev) => Math.min(capLimit, parseInt(prev) + 5).toString());
+                  setErrors((e) => ({ ...e, boxes: undefined }));
+                }}
                 className="w-10 h-10 rounded-lg text-[1.25rem] active:scale-[0.9] transition-transform"
                 style={{ backgroundColor: "#F5F1EB", color: "#4A3728" }}
               >
@@ -249,47 +296,81 @@ export function AdminCreateDrop({ onBack, onSubmit, locationCaps }: AdminCreateD
                 <p style={{ fontSize: "0.7rem", fontWeight: 500, color: "#D97706" }}>At cap</p>
               )}
             </div>
+            {errors.boxes && (
+              <div className="flex items-center gap-1.5 mt-2">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" style={{ color: "#C0392B" }} />
+                <p style={{ fontSize: "0.72rem", color: "#C0392B" }}>{errors.boxes}</p>
+              </div>
+            )}
           </div>
 
           {/* Pickup window */}
           <div
             className="rounded-xl p-4 shadow-sm"
-            style={{ backgroundColor: "white", border: "1px solid rgba(0,104,56,0.1)" }}
+            style={{
+              backgroundColor: "white",
+              border: `1px solid ${errors.time ? "#FECACA" : "rgba(0,104,56,0.1)"}`,
+            }}
           >
             <label
               className="flex items-center gap-2 mb-2"
-              style={{ fontSize: "0.8rem", color: "#7A6B5A" }}
+              style={{ fontSize: "0.8rem", color: errors.time ? "#C0392B" : "#7A6B5A" }}
             >
               <Clock className="w-3.5 h-3.5" />
-              Pickup Window (90 min)
+              Pickup Window
             </label>
             <div className="flex items-center gap-2">
               <input
                 type="time"
                 value={windowStart}
-                onChange={(e) => setWindowStart(e.target.value)}
+                onChange={(e) => {
+                  setWindowStart(e.target.value);
+                  setErrors((err) => ({ ...err, time: undefined }));
+                }}
                 className="flex-1 rounded-lg px-3 py-2.5 outline-none"
-                style={{ backgroundColor: "#F5F1EB", fontSize: "0.875rem", color: "#1C2B1C" }}
+                style={{
+                  backgroundColor: "#F5F1EB",
+                  fontSize: "0.875rem",
+                  color: "#1C2B1C",
+                  border: errors.time ? "1px solid #FECACA" : "none",
+                }}
               />
               <span style={{ color: "#7A6B5A" }}>to</span>
               <input
                 type="time"
                 value={windowEnd}
-                onChange={(e) => setWindowEnd(e.target.value)}
+                onChange={(e) => {
+                  setWindowEnd(e.target.value);
+                  setErrors((err) => ({ ...err, time: undefined }));
+                }}
                 className="flex-1 rounded-lg px-3 py-2.5 outline-none"
-                style={{ backgroundColor: "#F5F1EB", fontSize: "0.875rem", color: "#1C2B1C" }}
+                style={{
+                  backgroundColor: "#F5F1EB",
+                  fontSize: "0.875rem",
+                  color: "#1C2B1C",
+                  border: errors.time ? "1px solid #FECACA" : "none",
+                }}
               />
             </div>
+            {errors.time && (
+              <div className="flex items-center gap-1.5 mt-2">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" style={{ color: "#C0392B" }} />
+                <p style={{ fontSize: "0.72rem", color: "#C0392B" }}>{errors.time}</p>
+              </div>
+            )}
           </div>
 
           {/* Price */}
           <div
             className="rounded-xl p-4 shadow-sm"
-            style={{ backgroundColor: "white", border: "1px solid rgba(0,104,56,0.1)" }}
+            style={{
+              backgroundColor: "white",
+              border: `1px solid ${errors.priceMin || errors.priceMax ? "#FECACA" : "rgba(0,104,56,0.1)"}`,
+            }}
           >
             <label
               className="flex items-center gap-2 mb-2"
-              style={{ fontSize: "0.8rem", color: "#7A6B5A" }}
+              style={{ fontSize: "0.8rem", color: errors.priceMin || errors.priceMax ? "#C0392B" : "#7A6B5A" }}
             >
               <DollarSign className="w-3.5 h-3.5" />
               Price Range
@@ -302,9 +383,18 @@ export function AdminCreateDrop({ onBack, onSubmit, locationCaps }: AdminCreateD
                   min="1"
                   max="10"
                   value={priceMin}
-                  onChange={(e) => setPriceMin(e.target.value)}
+                  onChange={(e) => {
+                    setPriceMin(e.target.value);
+                    setErrors((err) => ({ ...err, priceMin: undefined, priceMax: undefined }));
+                  }}
                   className="w-full text-center rounded-lg px-3 py-2.5 outline-none"
-                  style={{ backgroundColor: "#F5F1EB", fontSize: "1.125rem", fontWeight: 700, color: "#1C2B1C" }}
+                  style={{
+                    backgroundColor: "#F5F1EB",
+                    fontSize: "1.125rem",
+                    fontWeight: 700,
+                    color: "#1C2B1C",
+                    border: errors.priceMin ? "1.5px solid #FECACA" : "none",
+                  }}
                 />
               </div>
               <span style={{ color: "#7A6B5A", paddingTop: 20 }}>–</span>
@@ -315,14 +405,31 @@ export function AdminCreateDrop({ onBack, onSubmit, locationCaps }: AdminCreateD
                   min="1"
                   max="10"
                   value={priceMax}
-                  onChange={(e) => setPriceMax(e.target.value)}
+                  onChange={(e) => {
+                    setPriceMax(e.target.value);
+                    setErrors((err) => ({ ...err, priceMax: undefined }));
+                  }}
                   className="w-full text-center rounded-lg px-3 py-2.5 outline-none"
-                  style={{ backgroundColor: "#F5F1EB", fontSize: "1.125rem", fontWeight: 700, color: "#1C2B1C" }}
+                  style={{
+                    backgroundColor: "#F5F1EB",
+                    fontSize: "1.125rem",
+                    fontWeight: 700,
+                    color: "#1C2B1C",
+                    border: errors.priceMax ? "1.5px solid #FECACA" : "none",
+                  }}
                 />
               </div>
             </div>
+            {(errors.priceMin || errors.priceMax) && (
+              <div className="flex items-center gap-1.5 mt-2">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" style={{ color: "#C0392B" }} />
+                <p style={{ fontSize: "0.72rem", color: "#C0392B" }}>
+                  {errors.priceMin || errors.priceMax}
+                </p>
+              </div>
+            )}
             <p className="mt-2" style={{ fontSize: "0.7rem", color: "#7A6B5A" }}>
-              Dynamic pricing: low supply + high demand skews toward max. High supply skews toward min.
+              Dynamic pricing: low supply + high demand skews toward max.
             </p>
           </div>
 

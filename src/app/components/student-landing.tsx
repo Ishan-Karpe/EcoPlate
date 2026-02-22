@@ -106,7 +106,7 @@ export function StudentLanding({
       </AnimatePresence>
 
       {/* Drop list */}
-      <div className="flex-1 px-4 py-4 space-y-5 overflow-y-auto pb-10">
+      <div className="flex-1 px-4 py-4 space-y-5 overflow-y-auto pb-28">
         {/* Available now */}
         {activeDrops.length > 0 && (
           <motion.div
@@ -283,13 +283,27 @@ function ReservationBanner({
     return () => clearInterval(interval);
   }, [drop.windowStart, drop.windowEnd]);
 
-  const isReady = windowState === "during";
-  const isPast = windowState === "after";
+  // Pickup already completed (admin redeemed or student confirmed)
+  const isPickedUp = reservation.status === "picked_up";
+  const isReady = !isPickedUp && windowState === "during";
+  const isPast = !isPickedUp && windowState === "after";
 
   // Banner visual config per state
-  const bannerBg = isReady ? "#005C30" : isPast ? "#4A3728" : "#006838";
-  const statusLabel = isReady ? "Ready to Pick Up" : isPast ? "Window Ended" : "Reserved";
-  const dotColor = isReady ? "#86efac" : isPast ? "#F59E0B" : "#86efac";
+  const bannerBg = isPickedUp
+    ? "#004D28"
+    : isReady
+    ? "#005C30"
+    : isPast
+    ? "#4A3728"
+    : "#006838";
+  const statusLabel = isPickedUp
+    ? "Pickup Complete"
+    : isReady
+    ? "Ready to Pick Up"
+    : isPast
+    ? "Window Ended"
+    : "Reserved";
+  const dotColor = isPickedUp ? "#86efac" : isReady ? "#86efac" : isPast ? "#F59E0B" : "#86efac";
 
   return (
     <motion.div
@@ -306,15 +320,15 @@ function ReservationBanner({
               className="w-2 h-2 rounded-full"
               style={{
                 backgroundColor: dotColor,
-                animation: isReady ? "pulse 1.5s infinite" : isPast ? "none" : "pulse 2s infinite",
+                animation: isPickedUp ? "none" : isReady ? "pulse 1.5s infinite" : isPast ? "none" : "pulse 2s infinite",
               }}
             />
             <span className="text-white" style={{ fontSize: "0.8rem", fontWeight: 700 }}>
               {statusLabel}
             </span>
           </div>
-          {/* Only show cancel X when pre-window */}
-          {!isReady && !isPast && (
+          {/* Only show cancel X when pre-window and not picked up */}
+          {!isReady && !isPast && !isPickedUp && (
             <button
               onClick={() => setShowCancel(true)}
               className="text-white/50 active:text-white/80"
@@ -324,7 +338,16 @@ function ReservationBanner({
           )}
         </div>
 
-        {isReady ? (
+        {isPickedUp ? (
+          <>
+            <p className="text-white mt-1.5" style={{ fontSize: "0.9rem", fontWeight: 600 }}>
+              Your meal has been picked up!
+            </p>
+            <p className="text-white/70 mt-0.5" style={{ fontSize: "0.75rem" }}>
+              {drop.location} · Tell us how it was
+            </p>
+          </>
+        ) : isReady ? (
           <>
             <p className="text-white mt-1.5" style={{ fontSize: "0.9rem", fontWeight: 600 }}>
               Head to {drop.locationDetail}
@@ -356,68 +379,91 @@ function ReservationBanner({
 
       {/* Banner actions */}
       <div className="px-4 py-3 flex gap-2" style={{ backgroundColor: "#E8F5EE" }}>
-        <button
-          onClick={onViewCode}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border active:scale-[0.97] transition-transform"
-          style={{
-            backgroundColor: "white",
-            borderColor: "rgba(0,104,56,0.2)",
-            color: "#006838",
-            fontSize: "0.8rem",
-            fontWeight: 600,
-          }}
-        >
-          <QrCode className="w-3.5 h-3.5" />
-          Show Code
-        </button>
-
-        {isReady ? (
+        {isPickedUp ? (
+          /* Completion state: full-width rate button */
           <button
             onClick={onPickedUp}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl active:scale-[0.97] transition-transform shadow-sm"
             style={{
               backgroundColor: "#006838",
               color: "white",
-              fontSize: "0.8rem",
+              fontSize: "0.875rem",
               fontWeight: 700,
             }}
           >
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            I Picked It Up
+            <CheckCircle2 className="w-4 h-4" />
+            Rate Your Meal
           </button>
+        ) : isReady ? (
+          /* During pickup window: show code only — staff must scan to confirm */
+          <>
+            <button
+              onClick={onViewCode}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border active:scale-[0.97] transition-transform shadow-sm"
+              style={{
+                backgroundColor: "#006838",
+                borderColor: "transparent",
+                color: "white",
+                fontSize: "0.8rem",
+                fontWeight: 700,
+              }}
+            >
+              <QrCode className="w-3.5 h-3.5" />
+              Show Pickup Code
+            </button>
+          </>
         ) : isPast ? (
+          /* After window: show code (staff may still scan) */
           <button
-            onClick={onPickedUp}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl active:scale-[0.97] transition-transform"
-            style={{
-              backgroundColor: "#8B6F47",
-              color: "white",
-              fontSize: "0.8rem",
-              fontWeight: 600,
-            }}
-          >
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            Mark Picked Up
-          </button>
-        ) : (
-          <button
-            onClick={() => setShowCancel(true)}
+            onClick={onViewCode}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border active:scale-[0.97] transition-transform"
             style={{
               backgroundColor: "white",
-              borderColor: "rgba(192,57,43,0.2)",
-              color: "#C0392B",
+              borderColor: "rgba(0,104,56,0.2)",
+              color: "#006838",
               fontSize: "0.8rem",
               fontWeight: 600,
             }}
           >
-            <X className="w-3.5 h-3.5" />
-            Cancel
+            <QrCode className="w-3.5 h-3.5" />
+            Show Code
           </button>
+        ) : (
+          /* Pre-window: show code + cancel */
+          <>
+            <button
+              onClick={onViewCode}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border active:scale-[0.97] transition-transform"
+              style={{
+                backgroundColor: "white",
+                borderColor: "rgba(0,104,56,0.2)",
+                color: "#006838",
+                fontSize: "0.8rem",
+                fontWeight: 600,
+              }}
+            >
+              <QrCode className="w-3.5 h-3.5" />
+              Show Code
+            </button>
+            <button
+              onClick={() => setShowCancel(true)}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border active:scale-[0.97] transition-transform"
+              style={{
+                backgroundColor: "white",
+                borderColor: "rgba(192,57,43,0.2)",
+                color: "#C0392B",
+                fontSize: "0.8rem",
+                fontWeight: 600,
+              }}
+            >
+              <X className="w-3.5 h-3.5" />
+              Cancel
+            </button>
+          </>
         )}
       </div>
 
-      {/* Ready state: directions hint */}
+      {/* Ready state: awaiting staff scan hint */}
       {isReady && (
         <div
           className="px-4 py-2 flex items-center gap-2"
@@ -425,7 +471,20 @@ function ReservationBanner({
         >
           <Navigation className="w-3 h-3" style={{ color: "#006838" }} />
           <p style={{ fontSize: "0.72rem", color: "#004D28" }}>
-            Window is open now — head over to pick up your Rescue Box!
+            Window open — show your code to staff at the counter to complete pickup.
+          </p>
+        </div>
+      )}
+
+      {/* Picked-up celebration strip */}
+      {isPickedUp && (
+        <div
+          className="px-4 py-2 flex items-center gap-2"
+          style={{ backgroundColor: "#D4EDDA", borderTop: "1px solid rgba(0,104,56,0.1)" }}
+        >
+          <CheckCircle2 className="w-3 h-3" style={{ color: "#006838" }} />
+          <p style={{ fontSize: "0.72rem", color: "#004D28" }}>
+            Verified by dining staff · Share your experience below
           </p>
         </div>
       )}

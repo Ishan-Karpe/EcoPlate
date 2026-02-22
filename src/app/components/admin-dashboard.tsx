@@ -50,7 +50,6 @@ export function AdminDashboard({
 }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [chartView, setChartView] = useState<"bar" | "area">("area");
-  const [hoveredDay, setHoveredDay] = useState<string | null>(null);
 
   const tabs: { key: TabKey; label: string }[] = [
     { key: "overview", label: "Overview" },
@@ -143,8 +142,6 @@ export function AdminDashboard({
               stats={stats}
               chartView={chartView}
               setChartView={setChartView}
-              hoveredDay={hoveredDay}
-              setHoveredDay={setHoveredDay}
             />
           )}
           {activeTab === "forecast" && <ForecastTab />}
@@ -333,15 +330,13 @@ function AnalyticsTab({
   stats,
   chartView,
   setChartView,
-  hoveredDay,
-  setHoveredDay,
 }: {
   stats: AdminStats;
   chartView: "bar" | "area";
   setChartView: (v: "bar" | "area") => void;
-  hoveredDay: string | null;
-  setHoveredDay: (d: string | null) => void;
 }) {
+  // hoveredDay lives here so chart interactions don't re-render parent
+  const [hoveredDay, setHoveredDay] = useState<string | null>(null);
   const selectedDay = hoveredDay ? stats.recentDrops.find((d) => d.date === hoveredDay) : null;
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -412,10 +407,7 @@ function AnalyticsTab({
       </div>
 
       {/* Weekly chart */}
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
+      <div
         className="rounded-xl p-4 shadow-sm"
         style={{ backgroundColor: "white", border: "1px solid rgba(0,104,56,0.1)" }}
       >
@@ -449,40 +441,48 @@ function AnalyticsTab({
           </div>
         </div>
 
-        {/* Selected day detail */}
-        {selectedDay && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex gap-3 mb-3 p-2 rounded-xl"
+        {/* Selected day detail — always reserves height to prevent chart jumping */}
+        <div
+          style={{
+            height: 52,
+            marginBottom: 8,
+            opacity: selectedDay ? 1 : 0,
+            transition: "opacity 0.18s ease",
+            pointerEvents: selectedDay ? "auto" : "none",
+          }}
+        >
+          <div
+            className="flex gap-3 p-2 rounded-xl h-full"
             style={{ backgroundColor: "#E8F5EE" }}
           >
             <div className="text-center">
               <p style={{ fontSize: "0.65rem", color: "#7A6B5A" }}>Posted</p>
               <p style={{ fontSize: "0.9rem", fontWeight: 700, color: "#1C2B1C" }}>
-                {selectedDay.posted}
+                {selectedDay?.posted ?? "—"}
               </p>
             </div>
             <div className="text-center">
               <p style={{ fontSize: "0.65rem", color: "#7A6B5A" }}>Picked Up</p>
               <p style={{ fontSize: "0.9rem", fontWeight: 700, color: "#006838" }}>
-                {selectedDay.pickedUp}
+                {selectedDay?.pickedUp ?? "—"}
               </p>
             </div>
             <div className="text-center">
               <p style={{ fontSize: "0.65rem", color: "#7A6B5A" }}>No-shows</p>
               <p style={{ fontSize: "0.9rem", fontWeight: 700, color: "#C0392B" }}>
-                {selectedDay.noShows}
+                {selectedDay?.noShows ?? "—"}
               </p>
             </div>
             <div className="text-center">
               <p style={{ fontSize: "0.65rem", color: "#7A6B5A" }}>Rate</p>
               <p style={{ fontSize: "0.9rem", fontWeight: 700, color: "#006838" }}>
-                {Math.round((selectedDay.pickedUp / selectedDay.posted) * 100)}%
+                {selectedDay
+                  ? `${Math.round((selectedDay.pickedUp / selectedDay.posted) * 100)}%`
+                  : "—"}
               </p>
             </div>
-          </motion.div>
-        )}
+          </div>
+        </div>
 
         <div style={{ height: 160 }}>
           <ResponsiveContainer width="100%" height="100%">
@@ -576,7 +576,7 @@ function AnalyticsTab({
           <LegendDot color="#8B6F47" label="Posted" />
           <LegendDot color="#C0392B" label="No-shows" dot />
         </div>
-      </motion.div>
+      </div>
 
       {/* Location comparison */}
       <motion.div

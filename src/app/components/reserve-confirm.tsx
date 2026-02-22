@@ -31,7 +31,11 @@ export function ReserveConfirm({ drop, user, onConfirm, onBack }: ReserveConfirm
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvc, setCvc] = useState("");
-  const [cardError, setCardError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<{
+    cardNumber?: string;
+    expiry?: string;
+    cvc?: string;
+  }>({});
   const [isConfirming, setIsConfirming] = useState(false);
 
   const currentPrice = calculateCurrentPrice(drop);
@@ -65,10 +69,33 @@ export function ReserveConfirm({ drop, user, onConfirm, onBack }: ReserveConfirm
 
   const handleCardSubmit = () => {
     const digits = cardNumber.replace(/\s/g, "");
-    if (digits.length < 16) { setCardError("Enter a valid 16-digit card number"); return; }
-    if (expiry.length < 5) { setCardError("Enter a valid expiry date"); return; }
-    if (cvc.length < 3) { setCardError("Enter a valid CVC"); return; }
-    setCardError("");
+    const errs: typeof fieldErrors = {};
+
+    if (digits.length < 16) {
+      errs.cardNumber = "Enter a valid 16-digit card number";
+    }
+    if (expiry.length < 5) {
+      errs.expiry = "Enter expiry in MM/YY format";
+    } else {
+      const [mm, yy] = expiry.split("/");
+      const month = parseInt(mm, 10);
+      const year = 2000 + parseInt(yy, 10);
+      const now = new Date();
+      if (month < 1 || month > 12) {
+        errs.expiry = "Month must be 01–12";
+      } else if (year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1)) {
+        errs.expiry = "Card has expired";
+      }
+    }
+    if (cvc.length < 3) {
+      errs.cvc = "CVC must be 3–4 digits";
+    }
+
+    if (Object.keys(errs).length > 0) {
+      setFieldErrors(errs);
+      return;
+    }
+    setFieldErrors({});
     const last4 = digits.slice(-4);
     setIsConfirming(true);
     setTimeout(() => onConfirm("card", last4), 400);
@@ -149,15 +176,19 @@ export function ReserveConfirm({ drop, user, onConfirm, onBack }: ReserveConfirm
               </p>
             </div>
 
+            {/* Card number */}
             <div>
-              <label style={{ fontSize: "0.75rem", fontWeight: 600, color: "#7A6B5A" }}>
+              <label style={{ fontSize: "0.75rem", fontWeight: 600, color: fieldErrors.cardNumber ? "#C0392B" : "#7A6B5A" }}>
                 Card number
               </label>
               <input
                 type="text"
                 inputMode="numeric"
                 value={cardNumber}
-                onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                onChange={(e) => {
+                  setCardNumber(formatCardNumber(e.target.value));
+                  setFieldErrors((prev) => ({ ...prev, cardNumber: undefined }));
+                }}
                 placeholder="1234 5678 9012 3456"
                 className="w-full mt-1.5 px-4 py-3 rounded-xl outline-none"
                 style={{
@@ -166,44 +197,76 @@ export function ReserveConfirm({ drop, user, onConfirm, onBack }: ReserveConfirm
                   fontFamily: "monospace",
                   letterSpacing: "0.05em",
                   color: "#1C2B1C",
+                  border: fieldErrors.cardNumber ? "1.5px solid #FECACA" : "1.5px solid transparent",
                 }}
               />
+              {fieldErrors.cardNumber && (
+                <p style={{ fontSize: "0.72rem", color: "#C0392B", marginTop: 4 }}>
+                  {fieldErrors.cardNumber}
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
+              {/* Expiry */}
               <div>
-                <label style={{ fontSize: "0.75rem", fontWeight: 600, color: "#7A6B5A" }}>
+                <label style={{ fontSize: "0.75rem", fontWeight: 600, color: fieldErrors.expiry ? "#C0392B" : "#7A6B5A" }}>
                   Expiry
                 </label>
                 <input
                   type="text"
                   inputMode="numeric"
                   value={expiry}
-                  onChange={(e) => setExpiry(formatExpiry(e.target.value))}
+                  onChange={(e) => {
+                    setExpiry(formatExpiry(e.target.value));
+                    setFieldErrors((prev) => ({ ...prev, expiry: undefined }));
+                  }}
                   placeholder="MM/YY"
                   className="w-full mt-1.5 px-4 py-3 rounded-xl outline-none"
-                  style={{ backgroundColor: "#F5F1EB", fontSize: "1rem", fontFamily: "monospace", color: "#1C2B1C" }}
+                  style={{
+                    backgroundColor: "#F5F1EB",
+                    fontSize: "1rem",
+                    fontFamily: "monospace",
+                    color: "#1C2B1C",
+                    border: fieldErrors.expiry ? "1.5px solid #FECACA" : "1.5px solid transparent",
+                  }}
                 />
+                {fieldErrors.expiry && (
+                  <p style={{ fontSize: "0.68rem", color: "#C0392B", marginTop: 4 }}>
+                    {fieldErrors.expiry}
+                  </p>
+                )}
               </div>
+              {/* CVC */}
               <div>
-                <label style={{ fontSize: "0.75rem", fontWeight: 600, color: "#7A6B5A" }}>
+                <label style={{ fontSize: "0.75rem", fontWeight: 600, color: fieldErrors.cvc ? "#C0392B" : "#7A6B5A" }}>
                   CVC
                 </label>
                 <input
                   type="text"
                   inputMode="numeric"
                   value={cvc}
-                  onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                  onChange={(e) => {
+                    setCvc(e.target.value.replace(/\D/g, "").slice(0, 4));
+                    setFieldErrors((prev) => ({ ...prev, cvc: undefined }));
+                  }}
                   placeholder="•••"
                   className="w-full mt-1.5 px-4 py-3 rounded-xl outline-none"
-                  style={{ backgroundColor: "#F5F1EB", fontSize: "1rem", fontFamily: "monospace", color: "#1C2B1C" }}
+                  style={{
+                    backgroundColor: "#F5F1EB",
+                    fontSize: "1rem",
+                    fontFamily: "monospace",
+                    color: "#1C2B1C",
+                    border: fieldErrors.cvc ? "1.5px solid #FECACA" : "1.5px solid transparent",
+                  }}
                 />
+                {fieldErrors.cvc && (
+                  <p style={{ fontSize: "0.68rem", color: "#C0392B", marginTop: 4 }}>
+                    {fieldErrors.cvc}
+                  </p>
+                )}
               </div>
             </div>
-
-            {cardError && (
-              <p style={{ fontSize: "0.8rem", color: "#C0392B" }}>{cardError}</p>
-            )}
 
             <div className="flex items-center gap-2">
               <Lock className="w-3 h-3" style={{ color: "#7A6B5A" }} />
