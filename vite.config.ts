@@ -1,51 +1,22 @@
-import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vitest/config';
-import tailwindcss from '@tailwindcss/vite';
-import { SvelteKitPWA } from '@vite-pwa/sveltekit';
+import { defineConfig } from 'vite'
+import path from 'path'
+import tailwindcss from '@tailwindcss/vite'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-	plugins: [
-		tailwindcss(),
-		sveltekit(),
-		SvelteKitPWA({
-			registerType: 'autoUpdate',
-			strategies: 'generateSW',
-			kit: {
-				adapterFallback: '404.html',
-				spa: true
-			},
-			manifest: {
-				name: 'EcoPlate',
-				short_name: 'EcoPlate',
-				description: 'Campus food rescue — $3-$5 meals, right on campus',
-				theme_color: '#16a34a',
-				background_color: '#f8faf8',
-				display: 'standalone',
-				start_url: '/',
-				icons: [
-					{
-						src: '/icon-192x192.svg',
-						sizes: '192x192',
-						type: 'image/svg+xml'
-					},
-					{
-						src: '/icon-512x512.svg',
-						sizes: '512x512',
-						type: 'image/svg+xml'
-					},
-					{
-						src: '/icon-maskable.svg',
-						sizes: '512x512',
-						type: 'image/svg+xml',
-						purpose: 'maskable'
-					}
-				]
-			}
-		})
-	],
-	test: {
-		include: ['src/**/*.{test,spec}.{js,ts}'],
-		environment: 'jsdom',
-		globals: true
-	}
-});
+  plugins: [
+    // The React and Tailwind plugins are both required for Make, even if
+    // Tailwind is not being actively used – do not remove them
+    react(),
+    tailwindcss(),
+  ],
+  resolve: {
+    alias: {
+      // Alias @ to the src directory
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+
+  // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
+  assetsInclude: ['**/*.svg', '**/*.csv'],
+})
