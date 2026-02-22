@@ -277,7 +277,7 @@ export function ReserveConfirm({ drop, user, onConfirm, onBack }: ReserveConfirm
           </div>
         </div>
 
-        <div className="px-5 pb-8 pt-3">
+        <div className="px-5 pb-24 pt-3">
           <button
             onClick={handleCardSubmit}
             disabled={isConfirming}
@@ -477,7 +477,7 @@ export function ReserveConfirm({ drop, user, onConfirm, onBack }: ReserveConfirm
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
-        className="px-5 pb-8 pt-3"
+        className="px-5 pb-24 pt-3"
       >
         <button
           onClick={handleConfirm}

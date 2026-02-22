@@ -258,7 +258,7 @@ export function PickupCode({ drop, reservation, onBackToHome }: PickupCodeProps)
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="px-4 pb-8 pt-2 space-y-2"
+        className="px-4 pb-24 pt-2 space-y-2"
       >
         <button
           onClick={handleGoHome}

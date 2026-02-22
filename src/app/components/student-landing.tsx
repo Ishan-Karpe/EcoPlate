@@ -17,6 +17,7 @@ import { Drop, Reservation, formatTime, calculateCurrentPrice, getWindowState } 
 
 interface StudentLandingProps {
   drops: Drop[];
+  dropsLoading?: boolean;
   onSelectDrop: (drop: Drop) => void;
   onAdminAccess: () => void;
   activeReservation: Reservation | null;
@@ -29,6 +30,7 @@ interface StudentLandingProps {
 
 export function StudentLanding({
   drops,
+  dropsLoading = false,
   onSelectDrop,
   onAdminAccess,
   activeReservation,

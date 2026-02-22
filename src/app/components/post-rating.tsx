@@ -136,7 +136,7 @@ export function PostRating({ onRate, onSkip }: PostRatingProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
-        className="px-5 pb-8"
+        className="px-5 pb-24"
       >
         <div className="rounded-xl p-3.5" style={{ backgroundColor: "#E8F5EE" }}>
           <div className="flex items-start gap-2">

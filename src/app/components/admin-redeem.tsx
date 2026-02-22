@@ -1,5 +1,5 @@
-import { motion, AnimatePresence } from "motion/react";
 import { useState, useRef, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -13,6 +13,7 @@ import {
   FlipHorizontal,
 } from "lucide-react";
 import jsQR from "jsqr";
+import type { RedeemResult } from "../api";
 
 interface Redemption {
   code: string;
@@ -22,9 +23,7 @@ interface Redemption {
 
 interface AdminRedeemProps {
   onBack: () => void;
-  validCodes: string[];
-  expiredCodes: string[];
-  onRedeem: (code: string) => void;
+  onRedeem: (code: string) => Promise<RedeemResult>;
   recentRedemptions: Redemption[];
 }
 
@@ -46,8 +45,6 @@ function parseEcoPlateQR(raw: string): string | null {
 
 export function AdminRedeem({
   onBack,
-  validCodes,
-  expiredCodes,
   onRedeem,
   recentRedemptions,
 }: AdminRedeemProps) {
@@ -132,21 +129,22 @@ export function AdminRedeem({
 
   // ── QR scan loop ──────────────────────────────────────────────────
 
-  const handleCheck = useCallback((inputCode: string) => {
+  const handleCheck = useCallback(async (inputCode: string) => {
     const upper = inputCode.toUpperCase().trim();
     if (!upper || upper.length < 6) return;
 
-    if (validCodes.includes(upper)) {
+    const result = await onRedeem(upper);
+
+    if (result.valid) {
       setResult("success");
       setRedeemedCode(upper);
-      onRedeem(upper);
       setTimeout(() => {
         setResult(null);
         setCode("");
         resultLockRef.current = false;
         setDetectedCode(null);
       }, 3500);
-    } else if (expiredCodes.includes(upper)) {
+    } else if (result.reason === "Already redeemed" || result.reason === "Code expired or cancelled") {
       setResult("expired");
       setTimeout(() => {
         setResult(null);
@@ -161,7 +159,7 @@ export function AdminRedeem({
         setDetectedCode(null);
       }, 3000);
     }
-  }, [validCodes, expiredCodes, onRedeem]);
+  }, [onRedeem]);
 
   useEffect(() => {
     if (!scannerActive) return;

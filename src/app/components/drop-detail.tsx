@@ -281,7 +281,7 @@ export function DropDetail({ drop, onReserve, onBack, waitlistedDropIds, onWaitl
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="px-4 pb-8 pt-3"
+          className="px-4 pb-24 pt-3"
         >
           <button
             onClick={onReserve}

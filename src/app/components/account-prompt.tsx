@@ -213,7 +213,7 @@ export function AccountPrompt({ onSignUp, onDismiss }: AccountPromptProps) {
           </div>
         </div>
 
-        <div className="px-5 pb-8 pt-4">
+        <div className="px-5 pb-24 pt-4">
           <button
             onClick={handleFormNext}
             className="w-full py-4 rounded-2xl active:scale-[0.98] transition-transform"
@@ -315,7 +315,7 @@ export function AccountPrompt({ onSignUp, onDismiss }: AccountPromptProps) {
         </div>
       </div>
 
-      <div className="px-5 pb-8 pt-3">
+      <div className="px-5 pb-24 pt-3">
         <button
           onClick={() => onSignUp(selectedPlan, name, email)}
           className="w-full py-4 rounded-2xl active:scale-[0.98] transition-transform"

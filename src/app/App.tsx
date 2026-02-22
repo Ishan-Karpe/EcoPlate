@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Leaf, TrendingUp, User } from "lucide-react";
 import { StudentLanding } from "./components/student-landing";
@@ -19,21 +19,16 @@ import {
   Drop,
   Reservation,
   UserState,
-  generatePickupCode,
   calculateCurrentPrice,
   MOCK_DROPS,
   MOCK_STATS,
   MOCK_USER,
 } from "./components/ecoplate-types";
+import * as api from "./api";
 import { toast, Toaster } from "sonner";
 
-interface Redemption {
-  code: string;
-  time: string;
-  location: string;
-}
+// ─── Food image pool (keyword → URL) ─────────────────────────────────────────
 
-// Keyword → food image URL map for auto drop image selection
 const FOOD_IMAGE_POOL = [
   {
     keywords: ["pasta", "penne", "spaghetti", "lasagna", "noodle", "fettuccine", "italian"],
@@ -74,16 +69,16 @@ const FOOD_IMAGE_POOL = [
 ];
 
 const LOCATION_FALLBACK_IMAGES: Record<string, string> = {
-  Brandywine: "https://images.unsplash.com/photo-1732187582879-3ca83139c1b8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
-  Anteatery: "https://images.unsplash.com/photo-1758705206993-f141bbe56193?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
+  Brandywine:
+    "https://images.unsplash.com/photo-1732187582879-3ca83139c1b8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
+  Anteatery:
+    "https://images.unsplash.com/photo-1758705206993-f141bbe56193?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
 };
 
 function pickDropImage(description: string, location: string): string {
   const lower = description.toLowerCase();
   for (const entry of FOOD_IMAGE_POOL) {
-    if (entry.keywords.some((k) => lower.includes(k))) {
-      return entry.url;
-    }
+    if (entry.keywords.some((k) => lower.includes(k))) return entry.url;
   }
   return LOCATION_FALLBACK_IMAGES[location] ?? LOCATION_FALLBACK_IMAGES["Anteatery"];
 }
@@ -96,30 +91,100 @@ const ADMIN_SCREENS: Screen[] = [
   "admin-no-shows",
 ];
 
+// ─── App ──────────────────────────────────────────────────────────────────────
+
 export default function App() {
+  // Session ID — persisted in localStorage so same user across refreshes
+  const sessionId = useRef<string>(api.getOrCreateSessionId());
+
+  // ── Core state ────────────────────────────────────────────────────────────
   const [screen, setScreen] = useState<Screen>("landing");
-  const [drops, setDrops] = useState<Drop[]>(MOCK_DROPS);
+  const [drops, setDrops] = useState<Drop[]>(MOCK_DROPS); // seeded instantly, replaced by server
+  const [dropsLoading, setDropsLoading] = useState(true);
   const [selectedDrop, setSelectedDrop] = useState<Drop | null>(null);
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [user, setUser] = useState<UserState>(MOCK_USER);
-  const [validCodes, setValidCodes] = useState<string[]>([]);
-  const [expiredCodes, setExpiredCodes] = useState<string[]>([]);
-  const [recentRedemptions, setRecentRedemptions] = useState<Redemption[]>([]);
   const [stats, setStats] = useState(MOCK_STATS);
   const [waitlistedDropIds, setWaitlistedDropIds] = useState<Set<string>>(new Set());
 
-  // --- STUDENT FLOW ---
+  // No-shows (loaded when admin navigates to that screen)
+  const [noShows, setNoShows] = useState<api.NoShowEntry[]>([]);
+  const [noShowsLoading, setNoShowsLoading] = useState(false);
 
-  const handleWaitlist = useCallback((dropId: string) => {
-    setWaitlistedDropIds((prev) => {
-      const next = new Set(prev);
-      next.add(dropId);
-      return next;
-    });
-    toast.success("You're on the waitlist!", {
-      description: "We'll notify you if a box opens up.",
-    });
+  // Redemption history (still tracked locally for the redeem screen counter)
+  const [recentRedemptions, setRecentRedemptions] = useState<
+    { code: string; time: string; location: string }[]
+  >([]);
+
+  // ── Bootstrap ──────────────────────────────────────────────────────────────
+  useEffect(() => {
+    // Load drops from server
+    api
+      .getDrops()
+      .then((serverDrops) => {
+        setDrops(serverDrops.length > 0 ? serverDrops : MOCK_DROPS);
+      })
+      .catch((err) => {
+        console.error("Failed to load drops:", err);
+        toast.error("Could not load drops", { description: "Showing cached data." });
+        setDrops(MOCK_DROPS);
+      })
+      .finally(() => setDropsLoading(false));
+
+    // Load user state from server
+    api
+      .getUser(sessionId.current)
+      .then((serverUser) => setUser(serverUser))
+      .catch((err) => console.error("Failed to load user state:", err));
+
+    // Load any active reservation for this session
+    api
+      .getReservations(sessionId.current)
+      .then((allRes) => {
+        const active = allRes.find((r) => r.status === "reserved");
+        if (active) setReservation(active);
+      })
+      .catch((err) => console.error("Failed to load reservations:", err));
   }, []);
+
+  // Re-sync stats whenever we enter admin dashboard
+  useEffect(() => {
+    if (screen === "admin-dashboard") {
+      api
+        .getAdminStats()
+        .then((s) => setStats(s))
+        .catch((err) => console.error("Failed to load admin stats:", err));
+    }
+    if (screen === "admin-no-shows") {
+      setNoShowsLoading(true);
+      api
+        .getNoShows()
+        .then((ns) => setNoShows(ns))
+        .catch((err) => console.error("Failed to load no-shows:", err))
+        .finally(() => setNoShowsLoading(false));
+    }
+  }, [screen]);
+
+  // ── Student handlers ───────────────────────────────────────────────────────
+
+  const handleWaitlist = useCallback(
+    async (dropId: string) => {
+      setWaitlistedDropIds((prev) => {
+        const next = new Set(prev);
+        next.add(dropId);
+        return next;
+      });
+      toast.success("You're on the waitlist!", {
+        description: "We'll notify you if a box opens up.",
+      });
+      try {
+        await api.joinWaitlist(dropId, sessionId.current);
+      } catch (err) {
+        console.error("Failed to save waitlist entry:", err);
+      }
+    },
+    []
+  );
 
   const handleSelectDrop = useCallback((drop: Drop) => {
     setSelectedDrop(drop);
@@ -137,94 +202,86 @@ export default function App() {
   }, [selectedDrop]);
 
   const handleConfirmReservation = useCallback(
-    (paymentMethod: "card" | "credit" | "pay_at_pickup", cardLast4?: string) => {
+    async (paymentMethod: "card" | "credit" | "pay_at_pickup", cardLast4?: string) => {
       if (!selectedDrop) return;
 
-      const code = generatePickupCode();
-      const currentPrice = calculateCurrentPrice(selectedDrop);
-
-      const newReservation: Reservation = {
-        id: `res-${Date.now()}`,
+      // Optimistic local update so UI responds immediately
+      const optimisticPrice = calculateCurrentPrice(selectedDrop);
+      const optimisticRes: Reservation = {
+        id: `res-optimistic-${Date.now()}`,
         dropId: selectedDrop.id,
         dropLocation: selectedDrop.location,
         dropLocationDetail: selectedDrop.locationDetail,
         dropWindowStart: selectedDrop.windowStart,
         dropWindowEnd: selectedDrop.windowEnd,
         dropImageUrl: selectedDrop.imageUrl,
-        pickupCode: code,
+        pickupCode: "------",
         status: "reserved",
         createdAt: new Date().toISOString(),
         paymentMethod,
-        currentPrice,
+        currentPrice: optimisticPrice,
       };
-      setReservation(newReservation);
-      setValidCodes((prev) => [...prev, code]);
-
-      // Decrement remaining boxes
-      setDrops((prev) =>
-        prev.map((d) =>
-          d.id === selectedDrop.id
-            ? {
-                ...d,
-                remainingBoxes: Math.max(0, d.remainingBoxes - 1),
-                reservedBoxes: d.reservedBoxes + 1,
-              }
-            : d
-        )
-      );
-      setSelectedDrop((prev) =>
-        prev
-          ? {
-              ...prev,
-              remainingBoxes: Math.max(0, prev.remainingBoxes - 1),
-              reservedBoxes: prev.reservedBoxes + 1,
-            }
-          : null
-      );
-
-      if (paymentMethod === "card" && cardLast4 && !user.hasCardSaved) {
-        setUser((prev) => ({ ...prev, hasCardSaved: true, cardLast4: cardLast4 }));
-      }
-      if (paymentMethod === "credit") {
-        setUser((prev) => ({
-          ...prev,
-          creditsRemaining: Math.max(0, prev.creditsRemaining - 1),
-        }));
-      }
-
-      setStats((prev) => ({ ...prev, totalReservations: prev.totalReservations + 1 }));
+      setReservation(optimisticRes);
       setScreen("pickup-code");
+
+      try {
+        const { reservation: serverRes, drop: updatedDrop } = await api.createReservation({
+          dropId: selectedDrop.id,
+          sessionId: sessionId.current,
+          paymentMethod,
+          cardLast4,
+        });
+
+        setReservation(serverRes);
+        setDrops((prev) => prev.map((d) => (d.id === updatedDrop.id ? updatedDrop : d)));
+        setSelectedDrop(updatedDrop);
+
+        // Sync user state after credit/card changes
+        const updatedUser = await api.getUser(sessionId.current);
+        setUser(updatedUser);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error("Failed to confirm reservation:", msg);
+        if (msg.includes("sold out")) {
+          toast.error("Just sold out!", { description: "Someone grabbed the last box." });
+        } else {
+          toast.error("Reservation failed", { description: msg });
+        }
+        setReservation(null);
+        setScreen("reserve-confirm");
+      }
     },
-    [selectedDrop, user.hasCardSaved]
+    [selectedDrop]
   );
 
-  const handleCancelReservation = useCallback(() => {
+  const handleCancelReservation = useCallback(async () => {
     if (!reservation || !selectedDrop) return;
 
+    // Optimistic update
     setDrops((prev) =>
       prev.map((d) =>
         d.id === selectedDrop.id
-          ? {
-              ...d,
-              remainingBoxes: d.remainingBoxes + 1,
-              reservedBoxes: Math.max(0, d.reservedBoxes - 1),
-            }
+          ? { ...d, remainingBoxes: d.remainingBoxes + 1, reservedBoxes: Math.max(0, d.reservedBoxes - 1) }
           : d
       )
     );
-
-    setValidCodes((prev) => prev.filter((c) => c !== reservation.pickupCode));
-    setExpiredCodes((prev) => [...prev, reservation.pickupCode]);
-
-    if (reservation.paymentMethod === "credit") {
-      setUser((prev) => ({ ...prev, creditsRemaining: prev.creditsRemaining + 1 }));
-    }
-
     setReservation(null);
+    setScreen("landing");
     toast.success("Reservation cancelled", {
       description: "Your box has been released for someone else.",
     });
-    setScreen("landing");
+
+    try {
+      await api.cancelReservation(reservation.id);
+      // Re-sync user (credit may have been returned)
+      const updatedUser = await api.getUser(sessionId.current);
+      setUser(updatedUser);
+      // Re-sync drops
+      const serverDrops = await api.getDrops();
+      if (serverDrops.length > 0) setDrops(serverDrops);
+    } catch (err) {
+      console.error("Failed to cancel reservation on server:", err);
+    }
   }, [reservation, selectedDrop]);
 
   const handlePickedUp = useCallback(() => {
@@ -235,21 +292,19 @@ export default function App() {
   }, [reservation]);
 
   const handleRate = useCallback(
-    (rating: number) => {
-      if (reservation) {
-        setReservation((prev) => (prev ? { ...prev, rating } : null));
-      }
+    async (rating: number) => {
       setUser((prev) => ({ ...prev, totalPickups: prev.totalPickups + 1 }));
-      setStats((prev) => ({
-        ...prev,
-        totalBoxesPickedUp: prev.totalBoxesPickedUp + 1,
-        avgRating:
-          Math.round(
-            ((prev.avgRating * prev.totalBoxesPickedUp + rating) /
-              (prev.totalBoxesPickedUp + 1)) *
-              10
-          ) / 10,
-      }));
+
+      try {
+        if (reservation) {
+          await api.submitRating(reservation.id, rating, sessionId.current);
+          const updatedUser = await api.getUser(sessionId.current);
+          setUser(updatedUser);
+        }
+      } catch (err) {
+        console.error("Failed to submit rating:", err);
+      }
+
       setTimeout(() => {
         if (!user.hasAccount) {
           setScreen("account-prompt");
@@ -273,34 +328,19 @@ export default function App() {
   }, [user.hasAccount]);
 
   const handleSignUp = useCallback(
-    (plan: "none" | "basic" | "premium", name: string, email: string) => {
-      setUser((prev) => {
-        const updated: UserState = { ...prev, hasAccount: true, isFirstTime: false };
-        if (plan === "basic") {
-          updated.membership = {
-            plan: "basic",
-            monthlyPrice: 15,
-            creditsPerMonth: 7,
-            earlyAccess: false,
-            monthsUnderUsed: 0,
-          };
-          updated.creditsRemaining = 7;
-        } else if (plan === "premium") {
-          updated.membership = {
-            plan: "premium",
-            monthlyPrice: 30,
-            creditsPerMonth: 15,
-            earlyAccess: true,
-            monthsUnderUsed: 0,
-          };
-          updated.creditsRemaining = 15;
-        }
-        return updated;
-      });
+    async (plan: "none" | "basic" | "premium", name: string, email: string) => {
+      const updates: Partial<UserState> = { hasAccount: true, isFirstTime: false };
+      if (plan === "basic") {
+        updates.membership = { plan: "basic", monthlyPrice: 15, creditsPerMonth: 7, earlyAccess: false, monthsUnderUsed: 0 };
+        updates.creditsRemaining = 7;
+      } else if (plan === "premium") {
+        updates.membership = { plan: "premium", monthlyPrice: 30, creditsPerMonth: 15, earlyAccess: true, monthsUnderUsed: 0 };
+        updates.creditsRemaining = 15;
+      }
+      setUser((prev) => ({ ...prev, ...updates }));
+
       toast.success(
-        plan === "none"
-          ? `Welcome${name ? `, ${name}` : ""}!`
-          : `${plan === "basic" ? "Rescue Basic" : "Rescue Premium"} activated!`,
+        plan === "none" ? `Welcome${name ? `, ${name}` : ""}!` : `${plan === "basic" ? "Rescue Basic" : "Rescue Premium"} activated!`,
         {
           description:
             plan === "none"
@@ -310,41 +350,30 @@ export default function App() {
       );
       setReservation(null);
       setScreen("landing");
+
+      try {
+        await api.updateUser(sessionId.current, updates);
+      } catch (err) {
+        console.error("Failed to save account to server:", err);
+      }
     },
     []
   );
 
-  // Update plan without screen change (used from settings screen)
-  const handleUpdatePlan = useCallback((plan: "none" | "basic" | "premium") => {
-    setUser((prev) => {
-      const updated = { ...prev };
-      if (plan === "none") {
-        updated.membership = null;
-      } else if (plan === "basic") {
-        updated.membership = {
-          plan: "basic",
-          monthlyPrice: 15,
-          creditsPerMonth: 7,
-          earlyAccess: false,
-          monthsUnderUsed: 0,
-        };
-        updated.creditsRemaining = 7;
-      } else {
-        updated.membership = {
-          plan: "premium",
-          monthlyPrice: 30,
-          creditsPerMonth: 15,
-          earlyAccess: true,
-          monthsUnderUsed: 0,
-        };
-        updated.creditsRemaining = 15;
-      }
-      return updated;
-    });
+  const handleUpdatePlan = useCallback(async (plan: "none" | "basic" | "premium") => {
+    const updates: Partial<UserState> = {};
+    if (plan === "none") {
+      updates.membership = null;
+    } else if (plan === "basic") {
+      updates.membership = { plan: "basic", monthlyPrice: 15, creditsPerMonth: 7, earlyAccess: false, monthsUnderUsed: 0 };
+      updates.creditsRemaining = 7;
+    } else {
+      updates.membership = { plan: "premium", monthlyPrice: 30, creditsPerMonth: 15, earlyAccess: true, monthsUnderUsed: 0 };
+      updates.creditsRemaining = 15;
+    }
+    setUser((prev) => ({ ...prev, ...updates }));
     toast.success(
-      plan === "none"
-        ? "Plan cancelled"
-        : `${plan === "basic" ? "Rescue Basic" : "Rescue Premium"} activated!`,
+      plan === "none" ? "Plan cancelled" : `${plan === "basic" ? "Rescue Basic" : "Rescue Premium"} activated!`,
       {
         description:
           plan !== "none"
@@ -352,38 +381,26 @@ export default function App() {
             : undefined,
       }
     );
+    try {
+      await api.updateUser(sessionId.current, updates);
+    } catch (err) {
+      console.error("Failed to update plan on server:", err);
+    }
   }, []);
 
-  // Create account from settings screen (no screen change)
   const handleCreateAccountFromSettings = useCallback(
-    (plan: "none" | "basic" | "premium", name: string, email: string) => {
-      setUser((prev) => {
-        const updated: UserState = { ...prev, hasAccount: true, isFirstTime: false };
-        if (plan === "basic") {
-          updated.membership = {
-            plan: "basic",
-            monthlyPrice: 15,
-            creditsPerMonth: 7,
-            earlyAccess: false,
-            monthsUnderUsed: 0,
-          };
-          updated.creditsRemaining = 7;
-        } else if (plan === "premium") {
-          updated.membership = {
-            plan: "premium",
-            monthlyPrice: 30,
-            creditsPerMonth: 15,
-            earlyAccess: true,
-            monthsUnderUsed: 0,
-          };
-          updated.creditsRemaining = 15;
-        }
-        return updated;
-      });
+    async (plan: "none" | "basic" | "premium", name: string, email: string) => {
+      const updates: Partial<UserState> = { hasAccount: true, isFirstTime: false };
+      if (plan === "basic") {
+        updates.membership = { plan: "basic", monthlyPrice: 15, creditsPerMonth: 7, earlyAccess: false, monthsUnderUsed: 0 };
+        updates.creditsRemaining = 7;
+      } else if (plan === "premium") {
+        updates.membership = { plan: "premium", monthlyPrice: 30, creditsPerMonth: 15, earlyAccess: true, monthsUnderUsed: 0 };
+        updates.creditsRemaining = 15;
+      }
+      setUser((prev) => ({ ...prev, ...updates }));
       toast.success(
-        plan === "none"
-          ? `Welcome${name ? `, ${name}` : ""}!`
-          : `${plan === "basic" ? "Rescue Basic" : "Rescue Premium"} activated!`,
+        plan === "none" ? `Welcome${name ? `, ${name}` : ""}!` : `${plan === "basic" ? "Rescue Basic" : "Rescue Premium"} activated!`,
         {
           description:
             plan === "none"
@@ -391,6 +408,11 @@ export default function App() {
               : `${plan === "basic" ? 7 : 15} Rescue Credits added to your account.`,
         }
       );
+      try {
+        await api.updateUser(sessionId.current, updates);
+      } catch (err) {
+        console.error("Failed to save account:", err);
+      }
     },
     []
   );
@@ -399,20 +421,21 @@ export default function App() {
     setUser((prev) => ({ ...prev, isFirstTime: false }));
     setReservation(null);
     setScreen("landing");
+    api.updateUser(sessionId.current, { isFirstTime: false }).catch(console.error);
   }, []);
 
   const handleViewCode = useCallback(() => {
     setScreen("pickup-code");
   }, []);
 
-  // --- ADMIN FLOW ---
+  // ── Admin handlers ─────────────────────────────────────────────────────────
 
   const handleAdminLogin = useCallback(() => {
     setScreen("admin-dashboard");
   }, []);
 
   const handleDropSubmit = useCallback(
-    (drop: {
+    async (drop: {
       location: "Brandywine" | "Anteatery";
       boxes: number;
       windowStart: string;
@@ -422,113 +445,96 @@ export default function App() {
       description: string;
       locationDetail: string;
     }) => {
-      const newDrop: Drop = {
-        id: `drop-${Date.now()}`,
-        location: drop.location,
-        locationDetail: drop.locationDetail,
-        date: new Date().toISOString().split("T")[0],
-        windowStart: drop.windowStart,
-        windowEnd: drop.windowEnd,
-        totalBoxes: drop.boxes,
-        remainingBoxes: drop.boxes,
-        reservedBoxes: 0,
-        priceMin: drop.priceMin,
-        priceMax: drop.priceMax,
-        status: "active",
-        description:
-          drop.description ||
-          "Tonight's Rescue Box: freshly prepared and packed by dining staff.",
-        imageUrl: pickDropImage(drop.description, drop.location),
-        dailyCap:
-          stats.locationCaps.find((c) => c.location === drop.location)?.currentCap ?? 30,
-        consecutiveWeeksAbove85:
-          stats.locationCaps.find((c) => c.location === drop.location)
-            ?.consecutiveWeeksAbove85 ?? 0,
-      };
+      const imageUrl = pickDropImage(drop.description, drop.location);
+      const locationCap = stats.locationCaps.find((c) => c.location === drop.location);
 
-      setDrops((prev) => [newDrop, ...prev]);
-      setStats((prev) => ({
-        ...prev,
-        totalDrops: prev.totalDrops + 1,
-        totalBoxesPosted: prev.totalBoxesPosted + drop.boxes,
-      }));
-      setTimeout(() => setScreen("admin-dashboard"), 1500);
+      try {
+        const newDrop = await api.createDrop({
+          ...drop,
+          imageUrl,
+          dailyCap: locationCap?.currentCap ?? 30,
+          consecutiveWeeksAbove85: locationCap?.consecutiveWeeksAbove85 ?? 0,
+        });
+        setDrops((prev) => [newDrop, ...prev]);
+        setStats((prev) => ({
+          ...prev,
+          totalDrops: prev.totalDrops + 1,
+          totalBoxesPosted: prev.totalBoxesPosted + drop.boxes,
+        }));
+        toast.success("Drop created!", { description: `${drop.boxes} boxes posted at ${drop.location}.` });
+        setTimeout(() => setScreen("admin-dashboard"), 1500);
+      } catch (err) {
+        console.error("Failed to create drop:", err);
+        toast.error("Failed to create drop", { description: String(err) });
+      }
     },
     [stats.locationCaps]
   );
 
-  const handleRedeemCode = useCallback(
-    (code: string) => {
-      const upperCode = code.toUpperCase().trim();
-
-      // If this code belongs to the current student reservation, mark it as picked up
-      if (reservation && reservation.pickupCode === upperCode) {
-        setReservation((prev) => (prev ? { ...prev, status: "picked_up" } : null));
+  const handleRedeemCode = useCallback(async (code: string): Promise<api.RedeemResult> => {
+    try {
+      const result = await api.redeemCode(code);
+      if (result.valid) {
+        // Mark local reservation as picked up if it matches
+        if (reservation && reservation.pickupCode === code.toUpperCase().trim()) {
+          setReservation((prev) => (prev ? { ...prev, status: "picked_up" } : null));
+        }
+        setRecentRedemptions((prev) => [
+          {
+            code: code.toUpperCase().trim(),
+            time: new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }),
+            location: result.location ?? "",
+          },
+          ...prev,
+        ]);
+        // Refresh stats
+        api.getAdminStats().then(setStats).catch(console.error);
       }
+      return result;
+    } catch (err) {
+      console.error("Failed to redeem code:", err);
+      return { valid: false, reason: "Server error. Please try again." };
+    }
+  }, [reservation]);
 
-      const drop = drops.find((d) =>
-        reservation?.pickupCode === upperCode ? d.id === reservation.dropId : false
-      );
-
-      setValidCodes((prev) => prev.filter((c) => c !== upperCode));
-      setRecentRedemptions((prev) => [
-        {
-          code: upperCode,
-          time: new Date().toLocaleTimeString("en-US", {
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: true,
-          }),
-          location: drop?.location ?? reservation?.dropLocation ?? "",
-        },
-        ...prev,
-      ]);
-      setStats((prev) => ({
-        ...prev,
-        totalBoxesPickedUp: prev.totalBoxesPickedUp + 1,
-        pickupRate: Math.round(
-          ((prev.totalBoxesPickedUp + 1) / prev.totalBoxesPosted) * 100
-        ),
-      }));
+  const handleMarkNoShow = useCallback(
+    async (reservationId: string, boxStatus: "released" | "donated" | "disposed") => {
+      try {
+        await api.markNoShow(reservationId, boxStatus);
+        setNoShows((prev) =>
+          prev.map((ns) =>
+            ns.reservationId === reservationId
+              ? { ...ns, alreadyMarked: true, boxStatus }
+              : ns
+          )
+        );
+        toast.success("Marked as no-show", { description: `Box disposition: ${boxStatus}.` });
+        api.getAdminStats().then(setStats).catch(console.error);
+      } catch (err) {
+        console.error("Failed to mark no-show:", err);
+        toast.error("Failed to mark no-show", { description: String(err) });
+      }
     },
-    [drops, reservation]
+    []
   );
 
   const handleAdminLogout = useCallback(() => {
     setScreen("landing");
   }, []);
 
-  // --- BOTTOM NAV ---
+  // ── Bottom nav ─────────────────────────────────────────────────────────────
 
   const showBottomNav = !ADMIN_SCREENS.includes(screen);
 
-  const handleNavTab = (tab: Screen) => {
-    setScreen(tab);
-  };
+  const handleNavTab = (tab: Screen) => setScreen(tab);
 
-  const navTabs: {
-    id: Screen;
-    label: string;
-    icon: React.ReactNode;
-  }[] = [
-    {
-      id: "landing",
-      label: "Home",
-      icon: <Leaf className="w-5 h-5" />,
-    },
-    {
-      id: "student-insights",
-      label: "Insights",
-      icon: <TrendingUp className="w-5 h-5" />,
-    },
-    {
-      id: "student-settings",
-      label: "Profile",
-      icon: <User className="w-5 h-5" />,
-    },
+  const navTabs: { id: Screen; label: string; icon: React.ReactNode }[] = [
+    { id: "landing", label: "Home", icon: <Leaf className="w-5 h-5" /> },
+    { id: "student-insights", label: "Insights", icon: <TrendingUp className="w-5 h-5" /> },
+    { id: "student-settings", label: "Profile", icon: <User className="w-5 h-5" /> },
   ];
 
-  // --- RENDER ---
+  // ── Render ─────────────────────────────────────────────────────────────────
 
   const renderScreen = () => {
     switch (screen) {
@@ -536,6 +542,7 @@ export default function App() {
         return (
           <StudentLanding
             drops={drops}
+            dropsLoading={dropsLoading}
             onSelectDrop={handleSelectDrop}
             onAdminAccess={() => setScreen("admin-login")}
             activeReservation={reservation}
@@ -576,9 +583,7 @@ export default function App() {
       case "post-rating":
         return <PostRating onRate={handleRate} onSkip={handleSkipRating} />;
       case "account-prompt":
-        return (
-          <AccountPrompt onSignUp={handleSignUp} onDismiss={handleDismissAccount} />
-        );
+        return <AccountPrompt onSignUp={handleSignUp} onDismiss={handleDismissAccount} />;
       case "student-insights":
         return <StudentInsights user={user} />;
       case "student-settings":
@@ -590,9 +595,7 @@ export default function App() {
           />
         );
       case "admin-login":
-        return (
-          <AdminLogin onLogin={handleAdminLogin} onBack={() => setScreen("landing")} />
-        );
+        return <AdminLogin onLogin={handleAdminLogin} onBack={() => setScreen("landing")} />;
       case "admin-dashboard":
         return (
           <AdminDashboard
@@ -616,14 +619,19 @@ export default function App() {
         return (
           <AdminRedeem
             onBack={() => setScreen("admin-dashboard")}
-            validCodes={validCodes}
-            expiredCodes={expiredCodes}
             onRedeem={handleRedeemCode}
             recentRedemptions={recentRedemptions}
           />
         );
       case "admin-no-shows":
-        return <AdminNoShows onBack={() => setScreen("admin-dashboard")} />;
+        return (
+          <AdminNoShows
+            onBack={() => setScreen("admin-dashboard")}
+            noShows={noShows}
+            loading={noShowsLoading}
+            onMarkNoShow={handleMarkNoShow}
+          />
+        );
       default:
         return null;
     }
@@ -647,7 +655,7 @@ export default function App() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Bottom navigation — always visible on student screens */}
+      {/* Bottom nav — stable, never unmounts */}
       {showBottomNav && (
         <div
           className="absolute bottom-0 left-0 right-0 z-50"
@@ -660,19 +668,13 @@ export default function App() {
           <div className="flex items-center">
             {navTabs.map((tab) => {
               const isActive = screen === tab.id;
-
               return (
                 <button
                   key={tab.id}
                   onClick={() => handleNavTab(tab.id)}
                   className="flex-1 flex flex-col items-center py-3 gap-1 relative transition-colors active:bg-green-50"
                 >
-                  <span
-                    style={{
-                      color: isActive ? "#006838" : "#7A6B5A",
-                      transition: "color 0.15s",
-                    }}
-                  >
+                  <span style={{ color: isActive ? "#006838" : "#7A6B5A", transition: "color 0.15s" }}>
                     {tab.icon}
                   </span>
                   <span
@@ -696,7 +698,6 @@ export default function App() {
               );
             })}
           </div>
-          {/* Safe area spacer */}
           <div style={{ height: "env(safe-area-inset-bottom, 0px)" }} />
         </div>
       )}
