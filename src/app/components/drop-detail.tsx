@@ -33,9 +33,9 @@ export function DropDetail({ drop, onReserve, onBack, waitlistedDropIds, onWaitl
   const supplyRatio = drop.totalBoxes > 0 ? drop.remainingBoxes / drop.totalBoxes : 1;
   const priceTrend =
     supplyRatio > 0.5
-      ? "High supply — lowest price"
+      ? "High supply - lowest price"
       : supplyRatio < 0.2
-      ? "Low supply — at max price"
+      ? "Low supply - at max price"
       : "Moderate supply";
 
   return (
@@ -275,7 +275,7 @@ export function DropDetail({ drop, onReserve, onBack, waitlistedDropIds, onWaitl
         </div>
       </div>
 
-      {/* Reserve button — shown for any non-sold-out drop */}
+      {/* Reserve button - shown for any non-sold-out drop */}
       {!soldOut && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}

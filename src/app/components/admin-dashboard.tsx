@@ -13,7 +13,6 @@ import {
   AlertTriangle,
   ArrowUpRight,
   BarChart2,
-  TrendingDown,
 } from "lucide-react";
 import {
   AreaChart,
@@ -436,7 +435,7 @@ function AnalyticsTab({
           </div>
         </div>
 
-        {/* Selected day detail — always reserves height to prevent chart jumping */}
+        {/* Selected day detail - always reserves height to prevent chart jumping */}
         <div
           style={{
             height: 52,
@@ -453,19 +452,19 @@ function AnalyticsTab({
             <div className="text-center">
               <p style={{ fontSize: "0.65rem", color: "#7A6B5A" }}>Posted</p>
               <p style={{ fontSize: "0.9rem", fontWeight: 700, color: "#1C2B1C" }}>
-                {selectedDay?.posted ?? "—"}
+                {selectedDay?.posted ?? "-"}
               </p>
             </div>
             <div className="text-center">
               <p style={{ fontSize: "0.65rem", color: "#7A6B5A" }}>Picked Up</p>
               <p style={{ fontSize: "0.9rem", fontWeight: 700, color: "#006838" }}>
-                {selectedDay?.pickedUp ?? "—"}
+                {selectedDay?.pickedUp ?? "-"}
               </p>
             </div>
             <div className="text-center">
               <p style={{ fontSize: "0.65rem", color: "#7A6B5A" }}>No-shows</p>
               <p style={{ fontSize: "0.9rem", fontWeight: 700, color: "#C0392B" }}>
-                {selectedDay?.noShows ?? "—"}
+                {selectedDay?.noShows ?? "-"}
               </p>
             </div>
             <div className="text-center">
@@ -473,7 +472,7 @@ function AnalyticsTab({
               <p style={{ fontSize: "0.9rem", fontWeight: 700, color: "#006838" }}>
                 {selectedDay
                   ? `${Math.round((selectedDay.pickedUp / selectedDay.posted) * 100)}%`
-                  : "—"}
+                  : "-"}
               </p>
             </div>
           </div>

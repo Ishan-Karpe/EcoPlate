@@ -72,7 +72,7 @@ const PERKS = [
   },
   {
     icon: <Tag className="w-4 h-4" style={{ color: "#006838" }} />,
-    label: "Lock in founding member pricing \u2014 first 200 only",
+    label: "Lock in founding member pricing - first 200 only",
   },
 ];
 
@@ -139,18 +139,30 @@ export function WaitlistPopup({ onStaffAccess, onClose }: WaitlistPopupProps) {
 
   const handleJoin = async () => {
     setError("");
-    if (!name.trim()) {
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+    const trimmedPhone = phone.trim();
+
+    if (!trimmedName) {
       setError("Please enter your first name.");
       return;
     }
-    if (!email.includes("@") || !email.includes(".")) {
+    if (trimmedName.length > 100) {
+      setError("Name is too long.");
+      return;
+    }
+    if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
       setError("Please enter a valid email address.");
+      return;
+    }
+    if (trimmedPhone && !/^[\d\s()+-]{7,20}$/.test(trimmedPhone)) {
+      setError("Please enter a valid phone number, or leave it blank.");
       return;
     }
 
     setLoading(true);
     try {
-      const data = await submitWaitlist(email.trim(), name.trim(), phone.trim() || undefined);
+      const data = await submitWaitlist(trimmedEmail, trimmedName, trimmedPhone || undefined);
       if (data.error) {
         setError("Something went wrong. Please try again.");
         return;
@@ -175,7 +187,7 @@ export function WaitlistPopup({ onStaffAccess, onClose }: WaitlistPopupProps) {
   };
 
   const handleShare = () => {
-    const text = `I just claimed my spot on EcoPlate \u2014 rescued dining hall meals at UCI for $3\u20135! Join me: https://${referralLink}`;
+    const text = `I just claimed my spot on EcoPlate - rescued meals at UCI for $3-5! Join me: https://${referralLink}`;
     if (navigator.share) {
       navigator.share({ title: "EcoPlate", text }).catch(() => {});
     } else {
@@ -209,12 +221,21 @@ export function WaitlistPopup({ onStaffAccess, onClose }: WaitlistPopupProps) {
           overflowY: "auto",
         }}
       >
-        {/* Pill handle */}
-        <div className="flex justify-center pt-3 pb-1">
+        {/* Pill handle + subtle close */}
+        <div className="flex items-center justify-between pt-3 pb-1 px-5">
+          <div className="w-5" />
           <div
             className="w-10 h-1 rounded-full"
             style={{ backgroundColor: "rgba(0,104,56,0.2)" }}
           />
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="w-5 h-5 flex items-center justify-center rounded-full transition-opacity"
+            style={{ opacity: 0.18 }}
+          >
+            <X className="w-3 h-3" style={{ color: "#7A6B5A" }} />
+          </button>
         </div>
 
         <AnimatePresence mode="wait">
@@ -281,7 +302,7 @@ export function WaitlistPopup({ onStaffAccess, onClose }: WaitlistPopupProps) {
 
               {/* One-liner */}
               <p className="text-center mb-4" style={{ fontSize: "0.85rem", color: "#4A3728", fontWeight: 500 }}>
-                Freshly rescued dining hall meals &mdash; reserved in 30 seconds
+                Freshly rescued meals - reserved in 30 seconds
               </p>
 
               {/* Price transparency */}
@@ -389,10 +410,10 @@ export function WaitlistPopup({ onStaffAccess, onClose }: WaitlistPopupProps) {
                 </div>
                 <p style={{ fontSize: "0.775rem", color: "#006838", fontWeight: 500 }}>
                   <strong>
-                    {liveCount > 0 ? `${liveCount}` : "\u2014"} student
+                    {liveCount > 0 ? `${liveCount}` : "-"} student
                     {liveCount !== 1 ? "s" : ""}
                   </strong>{" "}
-                  {liveCount > 0 ? "already on the waitlist" : "on the waitlist \u2014 be first"}
+                  {liveCount > 0 ? "already on the waitlist" : "on the waitlist - be first"}
                 </p>
               </div>
 
@@ -411,13 +432,13 @@ export function WaitlistPopup({ onStaffAccess, onClose }: WaitlistPopupProps) {
                   boxShadow: "0 6px 24px rgba(0,104,56,0.35)",
                 }}
               >
-                Claim Your Spot &mdash; It's Free
+                Claim Your Spot - It's Free
                 <ArrowRight className="w-4 h-4" />
               </button>
 
               {/* No download badge */}
               <p className="text-center mt-3" style={{ fontSize: "0.7rem", color: "#7A6B5A" }}>
-                No download needed &mdash; works in your browser
+                No download needed - works in your browser
               </p>
 
               {/* FAQ */}
@@ -542,7 +563,7 @@ export function WaitlistPopup({ onStaffAccess, onClose }: WaitlistPopupProps) {
                     style={{ backgroundColor: "#006838" }}
                   />
                   <p style={{ fontSize: "0.72rem", color: "#006838", fontWeight: 600 }}>
-                    {liveCount} student{liveCount !== 1 ? "s" : ""} ahead of you &mdash; join now
+                    {liveCount} student{liveCount !== 1 ? "s" : ""} ahead of you - join now
                   </p>
                 </div>
               )}
@@ -563,6 +584,7 @@ export function WaitlistPopup({ onStaffAccess, onClose }: WaitlistPopupProps) {
                     type="text"
                     placeholder="First name"
                     value={name}
+                    maxLength={100}
                     onChange={(e) => {
                       setName(e.target.value);
                       setError("");
@@ -590,6 +612,7 @@ export function WaitlistPopup({ onStaffAccess, onClose }: WaitlistPopupProps) {
                       type="email"
                       placeholder="your@email.com"
                       value={email}
+                      maxLength={254}
                       onChange={(e) => {
                         setEmail(e.target.value);
                         setError("");
@@ -621,6 +644,7 @@ export function WaitlistPopup({ onStaffAccess, onClose }: WaitlistPopupProps) {
                       type="tel"
                       placeholder="(optional) Phone number"
                       value={phone}
+                      maxLength={20}
                       onChange={(e) => setPhone(e.target.value)}
                       className="flex-1 bg-transparent outline-none"
                       style={{ fontSize: "0.9375rem", color: "#1C2B1C" }}
@@ -812,7 +836,7 @@ export function WaitlistPopup({ onStaffAccess, onClose }: WaitlistPopupProps) {
                 }}
               >
                 <Share2 className="w-4 h-4" />
-                Share with a friend &mdash; you both skip the line
+                Share with a friend - you both skip the line
               </motion.button>
 
               {/* Copyable referral link */}

@@ -51,12 +51,12 @@ const PLANS: {
   {
     id: "premium",
     name: "Rescue Premium",
-    monthlyPrice: "$50 / mo",
-    annualPrice: "$40 / mo",
-    credits: 10,
+    monthlyPrice: "$30 / mo",
+    annualPrice: "$24 / mo",
+    credits: 15,
     earlyAccess: true,
     features: [
-      "10 Rescue Credits per month",
+      "15 Rescue Credits per month",
       "Early access to drops",
       "Priority waitlist position",
       "Everything in Member",
@@ -66,7 +66,7 @@ const PLANS: {
 
 const COMPARISON = [
   { feature: "Browse & reserve", guest: true, basic: true, premium: true },
-  { feature: "Monthly credits", guest: "\u2014", basic: "7", premium: "10" },
+  { feature: "Monthly credits", guest: "-", basic: "7", premium: "15" },
   { feature: "Pay per box ($3\u20135)", guest: true, basic: true, premium: true },
   { feature: "Early access (30 min)", guest: false, basic: false, premium: true },
   { feature: "Priority waitlist", guest: false, basic: false, premium: true },
@@ -375,7 +375,7 @@ export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: Student
 
                       {plan.credits > 0 && (
                         <p style={{ fontSize: "0.72rem", color: "#8B6F47", fontWeight: 600, marginTop: 1 }}>
-                          {plan.credits} Rescue Credits/month &mdash; use like cash at checkout
+                          {plan.credits} Rescue Credits/month - use like cash at checkout
                         </p>
                       )}
 
@@ -453,7 +453,7 @@ export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: Student
                             val ? (
                               <CheckCircle2 className="w-3.5 h-3.5 mx-auto" style={{ color: "#006838" }} />
                             ) : (
-                              <span style={{ color: "#D5CFC7" }}>&mdash;</span>
+                              <span style={{ color: "#D5CFC7" }}>&ndash;</span>
                             )
                           ) : (
                             <span style={{ fontWeight: 700, color: "#006838" }}>{val}</span>
@@ -543,6 +543,7 @@ export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: Student
                       setFieldErrors((prev) => ({ ...prev, name: undefined }));
                     }}
                     placeholder="Your name"
+                    maxLength={100}
                     className="w-full mt-1 px-3 py-2.5 rounded-xl outline-none"
                     style={{
                       backgroundColor: "#F5F1EB",
@@ -567,6 +568,7 @@ export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: Student
                       setFieldErrors((prev) => ({ ...prev, email: undefined }));
                     }}
                     placeholder="you@uci.edu"
+                    maxLength={254}
                     className="w-full mt-1 px-3 py-2.5 rounded-xl outline-none"
                     style={{
                       backgroundColor: "#F5F1EB",

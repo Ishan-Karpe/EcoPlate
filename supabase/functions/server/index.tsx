@@ -124,8 +124,103 @@ async function updateStats(update: {
 
 // ─── Drops ────────────────────────────────────────────────────────────────────
 
+const SEED_DROPS = [
+  {
+    id: "drop-1",
+    location: "Anteatery",
+    locationDetail: "Main lobby, counter 3",
+    date: new Date().toISOString().split("T")[0],
+    windowStart: "18:00",
+    windowEnd: "19:30",
+    totalBoxes: 30,
+    remainingBoxes: 8,
+    reservedBoxes: 22,
+    priceMin: 3,
+    priceMax: 5,
+    status: "active",
+    description: "Pasta bar: penne arrabbiata, grilled chicken, roasted seasonal vegetables, and a dinner roll.",
+    imageUrl: "https://images.unsplash.com/photo-1758705206993-f141bbe56193?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
+    dailyCap: 30,
+    consecutiveWeeksAbove85: 1,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "drop-2",
+    location: "Brandywine",
+    locationDetail: "Side entrance, Window B",
+    date: new Date().toISOString().split("T")[0],
+    windowStart: "18:00",
+    windowEnd: "19:30",
+    totalBoxes: 25,
+    remainingBoxes: 12,
+    reservedBoxes: 13,
+    priceMin: 3,
+    priceMax: 5,
+    status: "active",
+    description: "Stir-fry station: teriyaki chicken, jasmine rice, steamed broccoli, and a spring roll.",
+    imageUrl: "https://images.unsplash.com/photo-1732187582879-3ca83139c1b8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
+    dailyCap: 25,
+    consecutiveWeeksAbove85: 2,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "drop-3",
+    location: "Brandywine",
+    locationDetail: "Main lobby, counter 1",
+    date: new Date().toISOString().split("T")[0],
+    windowStart: "18:30",
+    windowEnd: "20:00",
+    totalBoxes: 20,
+    remainingBoxes: 3,
+    reservedBoxes: 17,
+    priceMin: 4,
+    priceMax: 5,
+    status: "active",
+    description: "Deli station: turkey and avocado sandwich, fresh mixed green salad, and a chocolate chip cookie.",
+    imageUrl: "https://images.unsplash.com/photo-1634632071708-68d98ca65f04?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
+    dailyCap: 20,
+    consecutiveWeeksAbove85: 3,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "drop-4",
+    location: "Anteatery",
+    locationDetail: "East-side door, table pickup",
+    date: new Date().toISOString().split("T")[0],
+    windowStart: "19:00",
+    windowEnd: "20:30",
+    totalBoxes: 30,
+    remainingBoxes: 18,
+    reservedBoxes: 12,
+    priceMin: 3,
+    priceMax: 5,
+    status: "active",
+    description: "Chef's choice: BBQ pulled pork, house-made coleslaw, golden cornbread, and a brownie.",
+    imageUrl: "https://images.unsplash.com/photo-1624900043496-eefdb73dadf6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
+    dailyCap: 30,
+    consecutiveWeeksAbove85: 0,
+    createdAt: new Date().toISOString(),
+  },
+];
+
+async function ensureSeedDrops(): Promise<void> {
+  const existing = await kv.getByPrefix("drop:");
+  if (existing.length === 0) {
+    console.log("No drops found in KV store - seeding demo drops...");
+    for (const drop of SEED_DROPS) {
+      await kv.set(`drop:${drop.id}`, drop);
+    }
+    console.log(`Seeded ${SEED_DROPS.length} demo drops.`);
+  }
+}
+
+// Seed on cold start
+ensureSeedDrops().catch((e) => console.log("Seed error (non-fatal):", e));
+
 app.get(`${BASE}/drops`, async (c) => {
   try {
+    // Ensure seed drops exist before returning
+    await ensureSeedDrops();
     const drops = await kv.getByPrefix("drop:");
     const sorted = drops
       .filter((d) => d && d.id)
@@ -145,6 +240,33 @@ app.post(`${BASE}/drops`, async (c) => {
       priceMin, priceMax, description, imageUrl, dailyCap, consecutiveWeeksAbove85,
     } = body;
 
+    // ── Input validation ──
+    if (!location || !["Brandywine", "Anteatery"].includes(location)) {
+      return c.json({ error: "Location must be 'Brandywine' or 'Anteatery'" }, 400);
+    }
+    const boxCount = parseInt(boxes);
+    if (isNaN(boxCount) || boxCount < 1 || boxCount > 100) {
+      return c.json({ error: "Box count must be between 1 and 100" }, 400);
+    }
+    if (!windowStart || !windowEnd || !/^\d{2}:\d{2}$/.test(windowStart) || !/^\d{2}:\d{2}$/.test(windowEnd)) {
+      return c.json({ error: "Window times must be in HH:MM format" }, 400);
+    }
+    if (windowStart >= windowEnd) {
+      return c.json({ error: "Window end must be after start" }, 400);
+    }
+    const pMin = parseFloat(priceMin);
+    const pMax = parseFloat(priceMax);
+    if (isNaN(pMin) || pMin < 1 || pMin > 10) {
+      return c.json({ error: "Price min must be between $1 and $10" }, 400);
+    }
+    if (isNaN(pMax) || pMax < 1 || pMax > 10) {
+      return c.json({ error: "Price max must be between $1 and $10" }, 400);
+    }
+    if (pMax < pMin) {
+      return c.json({ error: "Price max must be >= price min" }, 400);
+    }
+    const safeDescription = typeof description === "string" ? description.slice(0, 500) : "";
+
     const id = `drop-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
     const drop = {
       id,
@@ -153,13 +275,13 @@ app.post(`${BASE}/drops`, async (c) => {
       date: new Date().toISOString().split("T")[0],
       windowStart,
       windowEnd,
-      totalBoxes: boxes,
-      remainingBoxes: boxes,
+      totalBoxes: boxCount,
+      remainingBoxes: boxCount,
       reservedBoxes: 0,
-      priceMin,
-      priceMax,
+      priceMin: pMin,
+      priceMax: pMax,
       status: "active",
-      description: description || "Tonight's Rescue Box — freshly prepared by dining staff.",
+      description: safeDescription || "Tonight's Rescue Box, freshly prepared by dining staff.",
       imageUrl: imageUrl ?? "",
       dailyCap: dailyCap ?? 30,
       consecutiveWeeksAbove85: consecutiveWeeksAbove85 ?? 0,
@@ -167,7 +289,7 @@ app.post(`${BASE}/drops`, async (c) => {
     };
 
     await kv.set(`drop:${id}`, drop);
-    await updateStats({ boxesPosted: boxes, dropCreated: true });
+    await updateStats({ boxesPosted: boxCount, dropCreated: true });
 
     // Update locationCaps consecutive weeks tracking
     const stats = await getStats();
@@ -207,6 +329,17 @@ app.post(`${BASE}/reservations`, async (c) => {
   try {
     const body = await c.req.json();
     const { dropId, sessionId, paymentMethod, cardLast4 } = body;
+
+    // ── Input validation ──
+    if (!dropId || typeof dropId !== "string") {
+      return c.json({ error: "dropId is required" }, 400);
+    }
+    if (!sessionId || typeof sessionId !== "string") {
+      return c.json({ error: "sessionId is required" }, 400);
+    }
+    if (!paymentMethod || !["card", "credit", "pay_at_pickup"].includes(paymentMethod)) {
+      return c.json({ error: "paymentMethod must be 'card', 'credit', or 'pay_at_pickup'" }, 400);
+    }
 
     const drop = await kv.get(`drop:${dropId}`);
     if (!drop) return c.json({ error: "Drop not found" }, 404);
@@ -253,7 +386,7 @@ app.post(`${BASE}/reservations`, async (c) => {
 
     await updateStats({ reservationCreated: true });
 
-    // Update user state — card saved, credit deducted
+    // Update user state - card saved, credit deducted
     const userState = await kv.get(`user:${sessionId}`) ?? defaultUserState();
     const userUpdates: Record<string, unknown> = {};
     if (paymentMethod === "card" && cardLast4 && !userState.hasCardSaved) {
@@ -344,10 +477,20 @@ app.post(`${BASE}/reservations/:id/rate`, async (c) => {
   try {
     const id = c.req.param("id");
     const { rating, sessionId } = await c.req.json();
+
+    // ── Input validation ──
+    if (!sessionId || typeof sessionId !== "string") {
+      return c.json({ error: "sessionId is required" }, 400);
+    }
+    const numRating = parseFloat(rating);
+    if (isNaN(numRating) || numRating < 1 || numRating > 5) {
+      return c.json({ error: "Rating must be between 1 and 5" }, 400);
+    }
+
     const res = await kv.get(`res:${id}`);
     if (!res) return c.json({ error: "Reservation not found" }, 404);
 
-    const updated = { ...res, rating, ratedAt: new Date().toISOString() };
+    const updated = { ...res, rating: numRating, ratedAt: new Date().toISOString() };
     await kv.set(`res:${id}`, updated);
 
     // Increment user pickup count
@@ -361,7 +504,7 @@ app.post(`${BASE}/reservations/:id/rate`, async (c) => {
     const stats = await getStats();
     await updateStats({
       newRating: {
-        value: rating,
+        value: numRating,
         previousAvg: stats.avgRating,
         previousCount: stats.totalBoxesPickedUp,
       },
@@ -379,6 +522,11 @@ app.post(`${BASE}/reservations/:id/no-show`, async (c) => {
     const id = c.req.param("id");
     const body = await c.req.json().catch(() => ({}));
     const boxStatus = body.boxStatus ?? "released";
+
+    // ── Input validation ──
+    if (!["released", "donated", "disposed"].includes(boxStatus)) {
+      return c.json({ error: "boxStatus must be 'released', 'donated', or 'disposed'" }, 400);
+    }
 
     const res = await kv.get(`res:${id}`);
     if (!res) return c.json({ error: "Reservation not found" }, 404);
@@ -419,6 +567,15 @@ app.post(`${BASE}/reservations/:id/no-show`, async (c) => {
 app.post(`${BASE}/redeem`, async (c) => {
   try {
     const { code } = await c.req.json();
+
+    // ── Input validation ──
+    if (!code || typeof code !== "string" || code.trim().length === 0) {
+      return c.json({ valid: false, reason: "Pickup code is required" });
+    }
+    if (code.trim().length > 20) {
+      return c.json({ valid: false, reason: "Invalid code format" });
+    }
+
     const upperCode = code.toUpperCase().trim();
 
     const codeRecord = await kv.get(`code:${upperCode}`);
@@ -563,7 +720,7 @@ function buildWaitlistEmail(firstName: string, email: string, position: number):
                   <div style="width:6px;height:6px;background-color:#006838;border-radius:50%;"></div>
                 </td>
                 <td style="padding-left:12px;font-size:13px;color:#2D3A2D;line-height:1.55;">
-                  <strong style="color:#1C2B1C;">Priority pickup window</strong> — access tonight's Rescue Boxes before the general public
+                  <strong style="color:#1C2B1C;">Priority pickup window</strong> - access tonight's Rescue Boxes before the general public
                 </td>
               </tr>
             </table>
@@ -579,7 +736,7 @@ function buildWaitlistEmail(firstName: string, email: string, position: number):
                   <div style="width:6px;height:6px;background-color:#006838;border-radius:50%;"></div>
                 </td>
                 <td style="padding-left:12px;font-size:13px;color:#2D3A2D;line-height:1.55;">
-                  <strong style="color:#1C2B1C;">Instant drop alerts</strong> — notified the moment a box goes live at Brandywine or Anteatery
+                  <strong style="color:#1C2B1C;">Instant drop alerts</strong> - notified the moment a box goes live at Brandywine or Anteatery
                 </td>
               </tr>
             </table>
@@ -595,7 +752,7 @@ function buildWaitlistEmail(firstName: string, email: string, position: number):
                   <div style="width:6px;height:6px;background-color:#006838;border-radius:50%;"></div>
                 </td>
                 <td style="padding-left:12px;font-size:13px;color:#2D3A2D;line-height:1.55;">
-                  <strong style="color:#1C2B1C;">Introductory $3 pricing</strong> — locked in for your first 60 days of pickup
+                  <strong style="color:#1C2B1C;">Introductory $3 pricing</strong> - locked in for your first 60 days of pickup
                 </td>
               </tr>
             </table>
@@ -615,7 +772,7 @@ function buildWaitlistEmail(firstName: string, email: string, position: number):
                       <td style="width:22px;height:22px;background-color:#006838;border-radius:50%;text-align:center;vertical-align:middle;">
                         <span style="color:#fff;font-size:10px;font-weight:800;">1</span>
                       </td>
-                      <td style="padding-left:12px;font-size:12px;color:#7A6B5A;line-height:1.5;">Your spot is confirmed — no further action needed</td>
+                      <td style="padding-left:12px;font-size:12px;color:#7A6B5A;line-height:1.5;">Your spot is confirmed, no further action needed</td>
                     </tr>
                   </table>
 
@@ -647,7 +804,7 @@ function buildWaitlistEmail(firstName: string, email: string, position: number):
           <td style="background-color:#F0EBE3;border-radius:0 0 20px 20px;padding:24px 40px;">
             <p style="margin:0;font-size:11px;color:#B0A898;line-height:1.7;text-align:center;">
               You're receiving this because you joined the waitlist at ecoplate.uci.edu.<br>
-              No spam — ever. Unsubscribe any time by replying to this email.
+              No spam, ever. Unsubscribe any time by replying to this email.
             </p>
             <p style="margin:10px 0 0;font-size:10px;color:#C4BAB0;text-align:center;letter-spacing:0.03em;">
               &copy; 2026 EcoPlate &middot; UCI Campus Food Rescue Program
@@ -666,9 +823,15 @@ function buildWaitlistEmail(firstName: string, email: string, position: number):
 app.post(`${BASE}/waitlist-signup`, async (c) => {
   try {
     const { email, name } = await c.req.json();
-    if (!email || !email.includes("@")) {
+
+    // ── Input validation ──
+    if (!email || typeof email !== "string" || !email.includes("@") || !email.includes(".")) {
       return c.json({ error: "Invalid email address" }, 400);
     }
+    if (typeof name === "string" && name.length > 200) {
+      return c.json({ error: "Name is too long" }, 400);
+    }
+
     const normalised = email.trim().toLowerCase();
     const key = `waitlist-signup:${normalised}`;
     const existing = await kv.get(key);
@@ -701,7 +864,7 @@ app.post(`${BASE}/waitlist-signup`, async (c) => {
         await transporter.sendMail({
           from: '"EcoPlate" <ecoplate.info@gmail.com>',
           to: normalised,
-          subject: `You're on the waitlist — position #${position} at EcoPlate`,
+          subject: `You're on the waitlist! Position #${position} at EcoPlate`,
           html: emailHtml,
         });
         console.log("Waitlist confirmation email sent to:", normalised);
@@ -740,6 +903,15 @@ app.get(`${BASE}/waitlist-signups`, async (c) => {
 app.post(`${BASE}/waitlist`, async (c) => {
   try {
     const { dropId, sessionId } = await c.req.json();
+
+    // ── Input validation ──
+    if (!dropId || typeof dropId !== "string") {
+      return c.json({ error: "dropId is required" }, 400);
+    }
+    if (!sessionId || typeof sessionId !== "string") {
+      return c.json({ error: "sessionId is required" }, 400);
+    }
+
     const key = `waitlist:${dropId}:${sessionId}`;
     const existing = await kv.get(key);
     if (existing) return c.json({ alreadyOnWaitlist: true });
@@ -879,6 +1051,108 @@ app.get(`${BASE}/admin/stats`, async (c) => {
   } catch (e) {
     console.log("Error getting admin stats:", e);
     return c.json({ error: `Failed to get admin stats: ${e}` }, 500);
+  }
+});
+
+// ─── AI Food Photo Analysis ──────────────────────────────────────────────────
+
+app.post(`${BASE}/analyze-food-photo`, async (c) => {
+  try {
+    const { imageBase64 } = await c.req.json();
+    if (!imageBase64 || typeof imageBase64 !== "string") {
+      return c.json({ error: "Missing imageBase64 field" }, 400);
+    }
+
+    const openRouterKey = Deno.env.get("OPENROUTER_API_KEY");
+    if (!openRouterKey) {
+      return c.json({ error: "OPENROUTER_API_KEY not configured" }, 500);
+    }
+
+    // Determine MIME type from base64 header or default to jpeg
+    let mimeType = "image/jpeg";
+    let rawBase64 = imageBase64;
+    if (imageBase64.startsWith("data:")) {
+      const match = imageBase64.match(/^data:(image\/\w+);base64,/);
+      if (match) {
+        mimeType = match[1];
+        rawBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+      }
+    }
+
+    const payload = {
+      model: "google/gemini-2.0-flash-001",
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:${mimeType};base64,${rawBase64}`,
+              },
+            },
+            {
+              type: "text",
+              text: `You are an AI assistant for EcoPlate, a campus food rescue program at UC Irvine.
+
+Analyze this photo of dining hall food and return a JSON object with:
+1. "description": A concise, appetizing 1-2 sentence description of what's in the photo suitable for a Rescue Box listing. Include the station type (e.g., "Pasta bar:", "Stir-fry station:", "Grill station:") followed by specific items.
+2. "suggestedBoxes": Estimated number of Rescue Boxes that could be made from what you see (integer between 5-30).
+3. "suggestedPriceMin": Suggested minimum price in dollars (integer, typically 3-4).
+4. "suggestedPriceMax": Suggested maximum price in dollars (integer, typically 4-5).
+5. "tags": Array of relevant dietary tags from: ["Vegetarian", "Vegan", "Gluten-Free", "High Protein", "Dairy-Free"].
+
+Return ONLY valid JSON, no markdown fences, no explanation.`,
+            },
+          ],
+        },
+      ],
+      max_tokens: 300,
+      temperature: 0.3,
+    };
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${openRouterKey}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.log("OpenRouter API error:", response.status, errText);
+      return c.json({ error: `AI analysis failed (${response.status}): ${errText}` }, 502);
+    }
+
+    const result = await response.json();
+    const content = result?.choices?.[0]?.message?.content ?? "";
+    console.log("AI raw response:", content);
+
+    // Parse JSON from response (strip markdown fences if present)
+    let parsed;
+    try {
+      const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      parsed = JSON.parse(cleaned);
+    } catch (parseErr) {
+      console.log("Failed to parse AI response as JSON:", parseErr, "raw:", content);
+      return c.json({
+        error: "AI returned invalid JSON",
+        raw: content,
+      }, 502);
+    }
+
+    return c.json({
+      description: parsed.description ?? "",
+      suggestedBoxes: Math.min(30, Math.max(1, parseInt(parsed.suggestedBoxes) || 15)),
+      suggestedPriceMin: Math.max(1, parseInt(parsed.suggestedPriceMin) || 3),
+      suggestedPriceMax: Math.max(1, parseInt(parsed.suggestedPriceMax) || 5),
+      tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+    });
+  } catch (e) {
+    console.log("Error in analyze-food-photo:", e);
+    return c.json({ error: `Failed to analyze photo: ${e}` }, 500);
   }
 });
 

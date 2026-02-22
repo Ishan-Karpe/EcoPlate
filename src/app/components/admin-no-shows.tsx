@@ -87,7 +87,7 @@ export function AdminNoShows({ onBack, noShows, loading, onMarkNoShow }: AdminNo
             style={{ backgroundColor: "white", border: "1px solid rgba(0,104,56,0.1)" }}
           >
             <p style={{ fontSize: "1.25rem", fontWeight: 800, color: "#C0392B" }}>
-              {loading ? "—" : noShows.length}
+              {loading ? "-" : noShows.length}
             </p>
             <p style={{ fontSize: "0.65rem", color: "#7A6B5A" }}>No-shows tonight</p>
           </div>
@@ -96,7 +96,7 @@ export function AdminNoShows({ onBack, noShows, loading, onMarkNoShow }: AdminNo
             style={{ backgroundColor: "white", border: "1px solid rgba(0,104,56,0.1)" }}
           >
             <p style={{ fontSize: "1.25rem", fontWeight: 800, color: "#006838" }}>
-              {loading ? "—" : releasedCount}
+              {loading ? "-" : releasedCount}
             </p>
             <p style={{ fontSize: "0.65rem", color: "#7A6B5A" }}>Boxes released</p>
           </div>
@@ -105,7 +105,7 @@ export function AdminNoShows({ onBack, noShows, loading, onMarkNoShow }: AdminNo
             style={{ backgroundColor: "white", border: "1px solid rgba(0,104,56,0.1)" }}
           >
             <p style={{ fontSize: "1.25rem", fontWeight: 800, color: "#D97706" }}>
-              {loading ? "—" : repeatCount}
+              {loading ? "-" : repeatCount}
             </p>
             <p style={{ fontSize: "0.65rem", color: "#7A6B5A" }}>Repeat offenders</p>
           </div>
@@ -196,7 +196,7 @@ export function AdminNoShows({ onBack, noShows, loading, onMarkNoShow }: AdminNo
                       {noShow.location}
                     </p>
 
-                    {/* Already marked — show status badge */}
+                    {/* Already marked - show status badge */}
                     {noShow.alreadyMarked && noShow.boxStatus && (
                       <span
                         className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full"
@@ -229,7 +229,7 @@ export function AdminNoShows({ onBack, noShows, loading, onMarkNoShow }: AdminNo
                       </span>
                     )}
 
-                    {/* Not yet marked — action buttons */}
+                    {/* Not yet marked - action buttons */}
                     {!noShow.alreadyMarked && (
                       <div className="flex gap-2">
                         <button

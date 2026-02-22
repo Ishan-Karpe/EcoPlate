@@ -456,7 +456,7 @@ export function AdminRedeem({
               )}
               <p className="text-center" style={{ fontSize: "0.72rem", color: "#7A6B5A" }}>
                 {cameraState === "active"
-                  ? "Scanning automatically — hold steady over the QR code"
+                  ? "Scanning automatically - hold steady over the QR code"
                   : "Camera access is required for QR scanning"}
               </p>
             </div>

@@ -1,5 +1,5 @@
 /**
- * EcoPlate logo — inline SVG so strokes are infinitely sharp at any size.
+ * EcoPlate logo - inline SVG so strokes are infinitely sharp at any size.
  * Concentric rings + leaf icon with centre vein.
  * On dark (green) backgrounds the icon is automatically drawn in white.
  */
@@ -25,7 +25,7 @@ function LogoIcon({ size, color = "#8B6F47" }: LogoIconProps) {
       {/* Inner ring */}
       <circle cx="24" cy="24" r="17" stroke={color} strokeWidth="1.5" fill="none" />
 
-      {/* Leaf shape — rounded, smaller */}
+      {/* Leaf shape - rounded, smaller */}
       <path
         d="M24 14 C27.5 18, 29.5 21.5, 29.5 25 C29.5 29, 27 32.5, 24 35 C21 32.5, 18.5 29, 18.5 25 C18.5 21.5, 20.5 18, 24 14Z"
         stroke={color}
@@ -117,7 +117,7 @@ export function EcoplateLogo({
   );
 }
 
-/** Standalone centred icon — used on login / success screens. */
+/** Standalone centred icon - used on login / success screens. */
 export function EcoplateLogo_Icon({
   size = 64,
   color = "#8B6F47",

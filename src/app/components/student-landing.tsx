@@ -15,6 +15,7 @@ import {
   Star,
   Timer,
   Footprints,
+  Camera,
 } from "lucide-react";
 import { Drop, Reservation, formatTime, calculateCurrentPrice, getWindowState } from "./ecoplate-types";
 import { EcoplateLogo } from "./ecoplate-logo";
@@ -29,12 +30,6 @@ const CARD_EXTRAS: Record<string, { rating: number; walkMin: number; tags: strin
 
 const FILTERS = ["All", "Vegetarian", "Gluten-Free", "High Protein"] as const;
 
-// Location colors for visual differentiation
-const LOCATION_COLORS: Record<string, string> = {
-  Brandywine: "#8B6F47",
-  Anteatery: "#006838",
-};
-
 interface StudentLandingProps {
   drops: Drop[];
   dropsLoading?: boolean;
@@ -46,6 +41,7 @@ interface StudentLandingProps {
   onViewCode: () => void;
   waitlistedDropIds: Set<string>;
   onWaitlist: (dropId: string) => void;
+  hasAccount?: boolean;
 }
 
 export function StudentLanding({
@@ -59,6 +55,7 @@ export function StudentLanding({
   onViewCode,
   waitlistedDropIds,
   onWaitlist,
+  hasAccount = false,
 }: StudentLandingProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<string>("All");
@@ -111,28 +108,23 @@ export function StudentLanding({
               fontSize="1.2rem"
             />
           </div>
-          <button
-            onClick={onAdminAccess}
-            className="text-white/60 px-3 py-1.5 rounded-full border border-white/20 active:bg-white/10"
-            style={{ fontSize: "0.75rem" }}
-          >
-            Staff
-          </button>
         </div>
       </motion.div>
 
       {/* Badge under header */}
-      <div className="px-4 pt-3 pb-1">
-        <div
-          className="flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-full mx-auto w-fit"
-          style={{ backgroundColor: "#E8F5EE", border: "1px solid rgba(0,104,56,0.15)" }}
-        >
-          <CheckCircle2 className="w-3 h-3" style={{ color: "#006838" }} />
-          <span style={{ fontSize: "0.68rem", fontWeight: 600, color: "#006838" }}>
-            No account needed to reserve. Just tap and go.
-          </span>
+      {!hasAccount && (
+        <div className="px-4 pt-3 pb-1">
+          <div
+            className="flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-full mx-auto w-fit"
+            style={{ backgroundColor: "#E8F5EE", border: "1px solid rgba(0,104,56,0.15)" }}
+          >
+            <CheckCircle2 className="w-3 h-3" style={{ color: "#006838" }} />
+            <span style={{ fontSize: "0.68rem", fontWeight: 600, color: "#006838" }}>
+              No account needed to reserve. Just tap and go.
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Search */}
       <div className="px-4 pt-3">
@@ -567,7 +559,7 @@ function ReservationBanner({
         >
           <Navigation className="w-3 h-3" style={{ color: "#006838" }} />
           <p style={{ fontSize: "0.72rem", color: "#004D28" }}>
-            Window open &mdash; show your code to staff at the counter to complete pickup.
+            Window open - show your code to staff at the counter to complete pickup.
           </p>
         </div>
       )}
@@ -710,7 +702,6 @@ function DropCard({
   const urgency = !soldOut && !upcoming && drop.remainingBoxes > 0 && drop.remainingBoxes <= 5;
   const currentPrice = calculateCurrentPrice(drop);
   const extras = CARD_EXTRAS[drop.id] || { rating: 4.0, walkMin: 5, tags: [] };
-  const locationColor = LOCATION_COLORS[drop.location] || "#006838";
 
   const handleWaitlistClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -728,7 +719,6 @@ function DropCard({
       style={{
         backgroundColor: "white",
         border: "1px solid rgba(0,104,56,0.1)",
-        borderLeft: `3px solid ${locationColor}`,
       }}
     >
       <button
@@ -744,6 +734,22 @@ function DropCard({
               className="w-full h-full object-cover"
               style={{ filter: soldOut ? "grayscale(60%)" : "none" }}
             />
+            {/* Real photo badge */}
+            {drop.imageUrl.startsWith("data:") && !soldOut && !upcoming && (
+              <div
+                className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded-md flex items-center gap-0.5"
+                style={{
+                  backgroundColor: "rgba(0,104,56,0.85)",
+                  color: "white",
+                  fontSize: "0.5rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.03em",
+                }}
+              >
+                <Camera className="w-2 h-2" />
+                Real photo
+              </div>
+            )}
             {/* Closing soon badge */}
             {extras.closingSoon && !soldOut && !upcoming && (
               <div
@@ -814,8 +820,8 @@ function DropCard({
                 <span
                   className="px-1.5 py-0.5 rounded-full shrink-0"
                   style={{
-                    backgroundColor: locationColor + "18",
-                    color: locationColor,
+                    backgroundColor: "#F0EBE3",
+                    color: "#7A6B5A",
                     fontSize: "0.55rem",
                     fontWeight: 700,
                   }}

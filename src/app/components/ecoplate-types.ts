@@ -92,6 +92,7 @@ export type Screen =
   | "account-prompt"
   | "student-insights"
   | "student-settings"
+  | "order-history"
   | "onboarding"
   | "admin-login"
   | "admin-dashboard"

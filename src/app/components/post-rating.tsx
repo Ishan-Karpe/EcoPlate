@@ -142,7 +142,7 @@ export function PostRating({ onRate, onSkip }: PostRatingProps) {
           <div className="flex items-start gap-2">
             <Leaf className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#006838" }} />
             <p style={{ fontSize: "0.8rem", color: "#004D28" }}>
-              You just saved approximately 1 lb of food from going to waste — that's roughly 1.5 kg
+              You just saved approximately 1 lb of food from going to waste. That's roughly 1.5 kg
               of CO2 prevented. Every box counts.
             </p>
           </div>

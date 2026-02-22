@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { TrendingUp, User, Home, QrCode } from "lucide-react";
+import { TrendingUp, User, Home, ClipboardList } from "lucide-react";
 import { StudentLanding } from "./components/student-landing";
 import { DropDetail } from "./components/drop-detail";
 import { ReserveConfirm } from "./components/reserve-confirm";
@@ -16,6 +16,7 @@ import { AdminRedeem } from "./components/admin-redeem";
 import { AdminNoShows } from "./components/admin-no-shows";
 import { WaitlistPopup } from "./components/waitlist-popup";
 import { Onboarding } from "./components/onboarding";
+import { OrderHistory } from "./components/order-history";
 import {
   Screen,
   Drop,
@@ -96,7 +97,7 @@ const ADMIN_SCREENS: Screen[] = [
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  // Session ID — persisted in localStorage so same user across refreshes
+  // Session ID - persisted in localStorage so same user across refreshes
   const sessionId = useRef<string>(api.getOrCreateSessionId());
 
   // ── Core state ────────────────────────────────────────────────────────────
@@ -108,7 +109,7 @@ export default function App() {
   const [user, setUser] = useState<UserState>(MOCK_USER);
   const [stats, setStats] = useState(MOCK_STATS);
   const [waitlistedDropIds, setWaitlistedDropIds] = useState<Set<string>>(new Set());
-  // Waitlist popup — shown to all students; hidden only when staff bypass
+  // Waitlist popup - shown to all students; hidden only when staff bypass
   const [showWaitlist, setShowWaitlist] = useState(true);
 
   // No-shows (loaded when admin navigates to that screen)
@@ -448,8 +449,10 @@ export default function App() {
       priceMax: number;
       description: string;
       locationDetail: string;
+      photoDataUrl?: string;
     }) => {
-      const imageUrl = pickDropImage(drop.description, drop.location);
+      // Use the staff-captured photo if available, otherwise fall back to stock images
+      const imageUrl = drop.photoDataUrl || pickDropImage(drop.description, drop.location);
       const locationCap = stats.locationCaps.find((c) => c.location === drop.location);
 
       try {
@@ -537,15 +540,6 @@ export default function App() {
     { id: "student-insights", label: "Impact", icon: <TrendingUp className="w-5 h-5" /> },
   ];
 
-  // Handle pickup tab separately since it depends on state
-  const handlePickupNav = useCallback(() => {
-    if (reservation && selectedDrop) {
-      setScreen("pickup-code");
-    } else {
-      toast("No active reservation", { description: "Reserve a Rescue Box first!" });
-    }
-  }, [reservation, selectedDrop]);
-
   // ── Render ─────────────────────────────────────────────────────────────────
 
   const renderScreen = () => {
@@ -563,6 +557,7 @@ export default function App() {
             onViewCode={handleViewCode}
             waitlistedDropIds={waitlistedDropIds}
             onWaitlist={handleWaitlist}
+            hasAccount={user.hasAccount}
           />
         );
       case "drop-detail":
@@ -604,6 +599,16 @@ export default function App() {
             user={user}
             onCreateAccount={handleCreateAccountFromSettings}
             onUpdatePlan={handleUpdatePlan}
+          />
+        );
+      case "order-history":
+        return (
+          <OrderHistory
+            sessionId={sessionId.current}
+            activeReservation={reservation}
+            onViewActivePickup={() => {
+              if (reservation && selectedDrop) setScreen("pickup-code");
+            }}
           />
         );
       case "admin-login":
@@ -679,7 +684,7 @@ export default function App() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Bottom nav — stable, never unmounts */}
+      {/* Bottom nav - stable, never unmounts */}
       {showBottomNav && (
         <div
           className="absolute bottom-0 left-0 right-0 z-50"
@@ -722,24 +727,31 @@ export default function App() {
               );
             })}
             <button
-              onClick={handlePickupNav}
+              onClick={() => handleNavTab("order-history")}
               className="flex-1 flex flex-col items-center py-3 gap-1 relative transition-colors active:bg-green-50"
             >
-              <span style={{ color: screen === "pickup-code" ? "#006838" : "#7A6B5A", transition: "color 0.15s" }}>
-                <QrCode className="w-5 h-5" />
+              <span style={{ color: screen === "order-history" ? "#006838" : "#7A6B5A", transition: "color 0.15s" }}>
+                <ClipboardList className="w-5 h-5" />
               </span>
               <span
                 style={{
                   fontSize: "0.62rem",
-                  fontWeight: screen === "pickup-code" ? 700 : 500,
-                  color: screen === "pickup-code" ? "#006838" : "#7A6B5A",
+                  fontWeight: screen === "order-history" ? 700 : 500,
+                  color: screen === "order-history" ? "#006838" : "#7A6B5A",
                   letterSpacing: "0.02em",
                 }}
               >
-                Pickup
+                Orders
               </span>
-              {/* Active dot indicator when reservation exists */}
-              {reservation && screen !== "pickup-code" && (
+              {screen === "order-history" && (
+                <motion.div
+                  layoutId="nav-bar"
+                  className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full"
+                  style={{ backgroundColor: "#006838" }}
+                />
+              )}
+              {/* Active dot when there's a pending reservation */}
+              {reservation && screen !== "order-history" && (
                 <div
                   className="absolute top-2 right-1/2 translate-x-3 w-1.5 h-1.5 rounded-full"
                   style={{ backgroundColor: "#006838" }}
@@ -782,7 +794,7 @@ export default function App() {
         toastOptions={{ style: { fontFamily: "inherit" } }}
       />
 
-      {/* Priority waitlist popup — blocks student access until launch */}
+      {/* Priority waitlist popup - blocks student access until launch */}
       <AnimatePresence>
         {showWaitlist && !ADMIN_SCREENS.includes(screen) && (
           <WaitlistPopup

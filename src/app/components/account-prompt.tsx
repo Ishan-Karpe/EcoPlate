@@ -16,7 +16,11 @@ export function AccountPrompt({ onSignUp, onDismiss }: AccountPromptProps) {
 
   const handleFormNext = () => {
     if (!name.trim()) { setFormError("Please enter your name"); return; }
-    if (!email.includes("@")) { setFormError("Please enter a valid email"); return; }
+    if (name.trim().length > 100) { setFormError("Name is too long"); return; }
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setFormError("Please enter a valid email address");
+      return;
+    }
     setFormError("");
     setStep("plans");
   };
@@ -151,7 +155,7 @@ export function AccountPrompt({ onSignUp, onDismiss }: AccountPromptProps) {
             Create your account
           </h1>
           <p className="mt-1" style={{ fontSize: "0.875rem", color: "#7A6B5A" }}>
-            Quick setup — just name and email
+            Quick setup - just name and email
           </p>
         </div>
 
@@ -175,6 +179,7 @@ export function AccountPrompt({ onSignUp, onDismiss }: AccountPromptProps) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="First name"
+                maxLength={100}
                 className="w-full px-4 py-3 rounded-xl outline-none"
                 style={{ backgroundColor: "#F5F1EB", fontSize: "1rem", color: "#1C2B1C" }}
               />
@@ -192,6 +197,7 @@ export function AccountPrompt({ onSignUp, onDismiss }: AccountPromptProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@uci.edu"
+                maxLength={254}
                 className="w-full px-4 py-3 rounded-xl outline-none"
                 style={{ backgroundColor: "#F5F1EB", fontSize: "1rem", color: "#1C2B1C" }}
               />
@@ -208,7 +214,7 @@ export function AccountPrompt({ onSignUp, onDismiss }: AccountPromptProps) {
             <Lock className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#8B6F47" }} />
             <p style={{ fontSize: "0.72rem", color: "#7A6B5A" }}>
               Your card on file will be used for future reservations. You won't be asked to enter it
-              again. Upgrade plans live in a separate tab — no pressure.
+              again. Upgrade plans live in a separate tab, no pressure.
             </p>
           </div>
         </div>
@@ -296,7 +302,7 @@ export function AccountPrompt({ onSignUp, onDismiss }: AccountPromptProps) {
           priceNote="~$2.00 per meal"
           features={[
             "15 Rescue Credits/month",
-            "Early access — reserve before others",
+            "Early access - reserve before others",
             "Credits roll for 30 days",
           ]}
           premium

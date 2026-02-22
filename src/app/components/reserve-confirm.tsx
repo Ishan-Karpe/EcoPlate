@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { useState } from "react";
 import {
   MapPin,
@@ -68,27 +68,38 @@ export function ReserveConfirm({ drop, user, onConfirm, onBack }: ReserveConfirm
   };
 
   const handleCardSubmit = () => {
+    if (isConfirming) return; // Prevent double submit
+
     const digits = cardNumber.replace(/\s/g, "");
     const errs: typeof fieldErrors = {};
 
     if (digits.length < 16) {
       errs.cardNumber = "Enter a valid 16-digit card number";
+    } else if (!/^[0-9]{16}$/.test(digits)) {
+      errs.cardNumber = "Card number must contain only digits";
     }
     if (expiry.length < 5) {
       errs.expiry = "Enter expiry in MM/YY format";
     } else {
-      const [mm, yy] = expiry.split("/");
+      const parts = expiry.split("/");
+      const mm = parts[0] ?? "";
+      const yy = parts[1] ?? "";
       const month = parseInt(mm, 10);
       const year = 2000 + parseInt(yy, 10);
-      const now = new Date();
-      if (month < 1 || month > 12) {
-        errs.expiry = "Month must be 01–12";
-      } else if (year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1)) {
-        errs.expiry = "Card has expired";
+      if (isNaN(month) || isNaN(year)) {
+        errs.expiry = "Enter a valid expiry date";
+      } else if (month < 1 || month > 12) {
+        errs.expiry = "Month must be 01-12";
+      } else {
+        const now = new Date();
+        if (year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1)) {
+          errs.expiry = "Card has expired";
+        }
       }
     }
-    if (cvc.length < 3) {
-      errs.cvc = "CVC must be 3–4 digits";
+    const cvcDigits = cvc.replace(/\D/g, "");
+    if (cvcDigits.length < 3) {
+      errs.cvc = "CVC must be 3-4 digits";
     }
 
     if (Object.keys(errs).length > 0) {
@@ -399,7 +410,6 @@ export function ReserveConfirm({ drop, user, onConfirm, onBack }: ReserveConfirm
           <div className="space-y-2">
             {hasCredits && (
               <PaymentOption
-                value="credit"
                 selected={paymentMethod === "credit"}
                 onSelect={() => setPaymentMethod("credit")}
                 icon={<Wallet className="w-4 h-4" />}
@@ -409,14 +419,13 @@ export function ReserveConfirm({ drop, user, onConfirm, onBack }: ReserveConfirm
               />
             )}
             <PaymentOption
-              value="card"
               selected={paymentMethod === "card"}
               onSelect={() => setPaymentMethod("card")}
               icon={<CreditCard className="w-4 h-4" />}
               label={hasSavedCard ? `Saved card ••••${user.cardLast4}` : "Pay by card"}
               desc={
                 hasSavedCard
-                  ? `$${currentPrice} charged now — one tap`
+                  ? `$${currentPrice} charged now, one tap`
                   : "Enter card details next"
               }
               badge={hasSavedCard && !hasCredits ? "One tap" : ""}
@@ -521,7 +530,6 @@ export function ReserveConfirm({ drop, user, onConfirm, onBack }: ReserveConfirm
 }
 
 function PaymentOption({
-  value,
   selected,
   onSelect,
   icon,
@@ -529,7 +537,6 @@ function PaymentOption({
   desc,
   badge,
 }: {
-  value: string;
   selected: boolean;
   onSelect: () => void;
   icon: React.ReactNode;

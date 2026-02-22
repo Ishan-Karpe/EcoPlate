@@ -175,6 +175,23 @@ export async function getAdminStats(): Promise<AdminStats> {
   return data.stats;
 }
 
+// ─── AI Food Photo Analysis ──────────────────────────────────────────────────
+
+export interface FoodAnalysisResult {
+  description: string;
+  suggestedBoxes: number;
+  suggestedPriceMin: number;
+  suggestedPriceMax: number;
+  tags: string[];
+}
+
+export async function analyzeFoodPhoto(imageBase64: string): Promise<FoodAnalysisResult> {
+  return request<FoodAnalysisResult>("/analyze-food-photo", {
+    method: "POST",
+    body: JSON.stringify({ imageBase64 }),
+  });
+}
+
 // ─── Session ID ───────────────────────────────────────────────────────────────
 
 export function getOrCreateSessionId(): string {
