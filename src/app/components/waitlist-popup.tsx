@@ -127,6 +127,18 @@ export function WaitlistPopup({ onStaffAccess, onClose }: WaitlistPopupProps) {
   const nameRef = useRef<HTMLInputElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Lock body scroll while popup is open
+  useEffect(() => {
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
+    };
+  }, []);
+
   useEffect(() => {
     fetchWaitlistCount().then(setLiveCount);
     pollRef.current = setInterval(() => {
@@ -250,26 +262,28 @@ export function WaitlistPopup({ onStaffAccess, onClose }: WaitlistPopupProps) {
               className="flex flex-col px-6 pb-10"
             >
               {/* Logo + badge */}
-              <div className="flex items-center justify-between mt-4 mb-4">
-                <EcoplateLogo
-                  iconSize={36}
-                  label="EcoPlate"
-                  textColor="#1C2B1C"
-                  fontSize="1.0625rem"
-                />
-                <span
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full"
-                  style={{
-                    backgroundColor: "#006838",
-                    color: "white",
-                    fontSize: "0.78rem",
-                    fontWeight: 700,
-                    boxShadow: "0 2px 8px rgba(0,104,56,0.3)",
-                  }}
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Launching Fall 2026 at UCI
-                </span>
+              <div className="flex flex-col gap-3 mt-2 mb-4">
+                <div className="flex items-center justify-between">
+                  <EcoplateLogo
+                    iconSize={34}
+                    label="EcoPlate"
+                    textColor="#1C2B1C"
+                    fontSize="1rem"
+                  />
+                  <span
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full shrink-0"
+                    style={{
+                      backgroundColor: "#006838",
+                      color: "white",
+                      fontSize: "0.72rem",
+                      fontWeight: 700,
+                      boxShadow: "0 2px 8px rgba(0,104,56,0.3)",
+                    }}
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    Launching Fall 2026 at UCI
+                  </span>
+                </div>
               </div>
 
               {/* Hero image strip */}

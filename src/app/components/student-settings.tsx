@@ -19,6 +19,7 @@ interface StudentSettingsProps {
   user: UserState;
   onCreateAccount: (plan: "none" | "basic" | "premium", name: string, email: string) => void;
   onUpdatePlan: (plan: "none" | "basic" | "premium") => void;
+  onAdminAccess?: () => void;
 }
 
 const PLANS: {
@@ -73,7 +74,7 @@ const COMPARISON = [
   { feature: "Impact tracking", guest: false, basic: true, premium: true },
 ];
 
-export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: StudentSettingsProps) {
+export function StudentSettings({ user, onCreateAccount, onUpdatePlan, onAdminAccess }: StudentSettingsProps) {
   const [selectedPlan, setSelectedPlan] = useState<"none" | "basic" | "premium">(
     user.membership?.plan ?? "none"
   );
@@ -673,6 +674,24 @@ export function StudentSettings({ user, onCreateAccount, onUpdatePlan }: Student
           EcoPlate is not intended for collecting sensitive personal information.
           Data is used solely for the UCI food rescue program.
         </p>
+
+        {/* Staff access - barely visible */}
+        {onAdminAccess && (
+          <button
+            onClick={onAdminAccess}
+            className="w-full py-2 text-center"
+            style={{
+              fontSize: "0.62rem",
+              color: "rgba(176,168,152,0.35)",
+              fontWeight: 500,
+              letterSpacing: "0.02em",
+              background: "none",
+              border: "none",
+            }}
+          >
+            Staff Portal
+          </button>
+        )}
       </div>
     </div>
   );

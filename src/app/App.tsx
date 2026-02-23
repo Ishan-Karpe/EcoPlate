@@ -30,7 +30,7 @@ import {
 import * as api from "./api";
 import { toast, Toaster } from "sonner";
 
-// ─── Food image pool (keyword → URL) ─────────────────────────────────────────
+// ─── Food image pool (keyword -> URL) ─────────────────────────────────────────
 
 const FOOD_IMAGE_POOL = [
   {
@@ -599,6 +599,7 @@ export default function App() {
             user={user}
             onCreateAccount={handleCreateAccountFromSettings}
             onUpdatePlan={handleUpdatePlan}
+            onAdminAccess={() => setScreen("admin-login")}
           />
         );
       case "order-history":
@@ -650,6 +651,11 @@ export default function App() {
           />
         );
       case "onboarding":
+        // Skip onboarding if user already has an account
+        if (user.hasAccount) {
+          setTimeout(() => setScreen("landing"), 0);
+          return null;
+        }
         return (
           <Onboarding
             onComplete={(plan) => {

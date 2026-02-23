@@ -51,9 +51,9 @@ const PLANS = [
   {
     id: "premium" as const,
     name: "Rescue Premium",
-    price: "$50/mo",
-    desc: "10 credits + early access",
-    features: ["10 Rescue Credits/month", "30-min early access", "Priority waitlist", "Everything in Member"],
+    price: "$30/mo",
+    desc: "15 credits + early access",
+    features: ["15 Rescue Credits/month", "30-min early access", "Priority waitlist", "Everything in Member"],
   },
 ];
 
