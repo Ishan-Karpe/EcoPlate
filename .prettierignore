@@ -1,0 +1,13 @@
+node_modules
+.svelte-kit
+.vercel
+playwright-report
+test-results
+static
+src/app
+supabase
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.svg
