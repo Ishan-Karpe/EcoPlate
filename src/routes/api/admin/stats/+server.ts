@@ -2,17 +2,11 @@ import { json } from "@sveltejs/kit";
 import type { RequestEvent } from "@sveltejs/kit";
 import { getByPrefix } from "$lib/kv";
 import { getStats } from "$lib/server/helpers";
+import { requireAdmin } from "$lib/server/auth";
 
 export async function GET(event: RequestEvent) {
-  const session = event.locals.session;
-  if (!session?.user) {
-    return json({ error: "Authentication required" }, { status: 401 });
-  }
-  const role =
-    (session.user.user_metadata?.role as string) ?? (session.user.app_metadata?.role as string);
-  if (role !== "admin") {
-    return json({ error: "Admin access required" }, { status: 403 });
-  }
+  const denied = requireAdmin(event);
+  if (denied) return denied;
   try {
     const stats = (await getStats()) as {
       recentDrops: Array<{ date: string; posted: number; pickedUp: number; noShows: number }>;

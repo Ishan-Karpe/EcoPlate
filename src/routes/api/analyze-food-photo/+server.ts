@@ -1,17 +1,11 @@
 import { json } from "@sveltejs/kit";
 import type { RequestEvent } from "@sveltejs/kit";
 import { env as privateEnv } from "$env/dynamic/private";
+import { requireAdmin } from "$lib/server/auth";
 
 export async function POST(event: RequestEvent) {
-  const session = event.locals.session;
-  if (!session?.user) {
-    return json({ error: "Authentication required" }, { status: 401 });
-  }
-  const role =
-    (session.user.user_metadata?.role as string) ?? (session.user.app_metadata?.role as string);
-  if (role !== "admin") {
-    return json({ error: "Admin access required" }, { status: 403 });
-  }
+  const denied = requireAdmin(event);
+  if (denied) return denied;
   const request = event.request;
   try {
     const { imageBase64 } = await request.json();
