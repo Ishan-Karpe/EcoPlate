@@ -10,12 +10,9 @@
 
   let { children } = $props();
 
-  const hiddenNavRoutes = new Set([
-    "/onboarding",
-    "/auth",
-    "/post-order-signup",
-    "/plan-selection",
-  ]);
+  // Auth-related routes (onboarding, auth, post-order-signup) now live
+  // in the (auth) layout group which has no bottom nav at all.
+  const hiddenNavRoutes = new Set(["/plan-selection"]);
 
   const pathname = $derived(page.url.pathname);
   const showBottomNav = $derived(!hiddenNavRoutes.has(pathname));

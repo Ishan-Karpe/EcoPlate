@@ -1,7 +1,7 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
-import { calculateCurrentPrice, formatTime, generatePickupCode, getWindowState } from "./utils";
-import { FOOD_IMAGE_POOL, LOCATION_FALLBACK_IMAGES, pickDropImage } from "./constants";
-import type { Drop } from "./types";
+import { calculateCurrentPrice, formatTime, generatePickupCode, getWindowState } from ".";
+import { FOOD_IMAGE_POOL, LOCATION_FALLBACK_IMAGES, pickDropImage } from "../constants";
+import type { Drop } from "../types";
 
 function makeDrop(overrides: Partial<Drop> = {}): Drop {
   return {

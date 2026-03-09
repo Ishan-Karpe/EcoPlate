@@ -1,4 +1,4 @@
-import type { Drop } from "./types";
+import type { Drop } from "../types";
 
 export function generatePickupCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
