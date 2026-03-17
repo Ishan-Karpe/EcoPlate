@@ -417,7 +417,7 @@
   >
     <!-- Logo row -->
     <div class="flex items-center justify-between mb-4">
-      <EcoplateLogo iconSize={24} fontSize="1rem" textColor="#006838" />
+      <EcoplateLogo iconSize={36} fontSize="1.5rem" textColor="#006838" />
       <div></div>
     </div>
 
