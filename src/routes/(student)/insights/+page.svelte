@@ -319,7 +319,7 @@
             Your impact starts with your first box
           </p>
           <p class="mt-1" style="font-size: 0.78rem; color: #006838">
-            Reserve a Rescue Box from the home screen to start tracking your stats.
+            Reserve a Fresh Box from the home screen to start tracking your stats.
           </p>
         </div>
       </Motion>

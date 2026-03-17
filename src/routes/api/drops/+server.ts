@@ -86,7 +86,7 @@ export async function POST(event: RequestEvent) {
       priceMin: pMin,
       priceMax: pMax,
       status: "active",
-      description: safeDescription || "Tonight's Rescue Box, freshly prepared by dining staff.",
+      description: safeDescription || "Tonight's Fresh Box, freshly prepared by dining staff.",
       imageUrl: imageUrl ?? "",
       dailyCap: dailyCap ?? 30,
       consecutiveWeeksAbove85: consecutiveWeeksAbove85 ?? 0,

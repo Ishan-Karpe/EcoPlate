@@ -70,7 +70,7 @@
       price: "$15/mo",
       priceNote: "~$2.14 per meal",
       features: [
-        "7 Rescue Credits/month",
+        "7 Fresh Credits/month",
         "Credits roll for 30 days",
         "Drop alerts + priority support",
       ],
@@ -83,7 +83,7 @@
       price: "$30/mo",
       priceNote: "~$2.00 per meal",
       features: [
-        "15 Rescue Credits/month",
+        "15 Fresh Credits/month",
         "Early access - reserve before others",
         "Credits roll for 30 days",
       ],

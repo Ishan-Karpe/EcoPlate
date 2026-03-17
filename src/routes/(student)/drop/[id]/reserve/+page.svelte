@@ -348,7 +348,7 @@
               >
                 <div>
                   <p class="text-white" style="font-size: 1rem; font-weight: 700">
-                    Rescue Box · {drop.location}
+                    Fresh Box · {drop.location}
                   </p>
                   <p class="text-white/70" style="font-size: 0.75rem">{drop.locationDetail}</p>
                 </div>
@@ -422,7 +422,7 @@
                   <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-2">
                       <p style="font-size: 0.875rem; font-weight: 600; color: #1C2B1C">
-                        Use Rescue Credit
+                        Use Fresh Credit
                       </p>
                       <span
                         class="px-1.5 py-0.5 rounded-md"
@@ -539,7 +539,7 @@
         >
           <div use:motion class="rounded-2xl p-4 space-y-3" style="background-color: #F0EBE3">
             <p style="font-size: 0.8rem; font-weight: 600; color: #4A3728">How pickup works</p>
-            {#each ["You'll get a QR code + 6-digit pickup code", "Show either one to staff at the pickup counter", "Grab your Rescue Box and enjoy!"] as step, i}
+            {#each ["You'll get a QR code + 6-digit pickup code", "Show either one to staff at the pickup counter", "Grab your Fresh Box and enjoy!"] as step, i}
               <div class="flex items-center gap-2.5">
                 <div
                   class="w-5 h-5 rounded-full flex items-center justify-center shrink-0"

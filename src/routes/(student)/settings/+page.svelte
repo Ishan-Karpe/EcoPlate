@@ -29,6 +29,7 @@
     annualPrice: string;
     credits: number;
     earlyAccess: boolean;
+    comingSoon?: boolean;
     features: string[];
   }[] = [
     {
@@ -43,21 +44,23 @@
     {
       id: "basic",
       name: "Rescue Member",
+      comingSoon: true,
       monthlyPrice: "$15 / mo",
       annualPrice: "$12 / mo",
       credits: 7,
       earlyAccess: false,
-      features: ["7 Rescue Credits per month", "Use credits at checkout", "Reservation history"],
+      features: ["7 Fresh Credits per month", "Use credits at checkout", "Reservation history"],
     },
     {
       id: "premium",
       name: "Rescue Premium",
+      comingSoon: true,
       monthlyPrice: "$30 / mo",
       annualPrice: "$24 / mo",
       credits: 15,
       earlyAccess: true,
       features: [
-        "15 Rescue Credits per month",
+        "15 Fresh Credits per month",
         "Early access to drops",
         "Priority waitlist position",
         "Everything in Member",
@@ -305,10 +308,11 @@
             {@const isMostPopular = plan.id === "basic"}
             {@const isPaidPlan = plan.id !== "none"}
             {@const isLockedForGuest = authStore.isGuest && isPaidPlan}
+            {@const isComingSoon = plan.comingSoon === true}
             {@const price = billingCycle === "annual" ? plan.annualPrice : plan.monthlyPrice}
             <button
               onclick={() => {
-                if (isLockedForGuest) return;
+                if (isLockedForGuest || isComingSoon) return;
                 selectedPlan = plan.id;
               }}
               class="w-full text-left rounded-2xl p-4 transition-all active:scale-[0.99] relative"
@@ -332,12 +336,12 @@
                 box-shadow: {isSelected && !isLockedForGuest
                 ? '0 2px 12px rgba(0,104,56,0.1)'
                 : '0 1px 4px rgba(0,0,0,0.04)'};
-                opacity: {isLockedForGuest ? 0.6 : isFreeTier && !isSelected ? 0.85 : 1};
-                cursor: {isLockedForGuest ? 'default' : 'pointer'};
+                opacity: {isLockedForGuest || isComingSoon ? 0.6 : isFreeTier && !isSelected ? 0.85 : 1};
+                cursor: {isLockedForGuest || isComingSoon ? 'default' : 'pointer'};
               "
             >
               <!-- Locked badge for guests -->
-              {#if isLockedForGuest}
+              {#if isLockedForGuest && !isComingSoon}
                 <div
                   class="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full flex items-center gap-1"
                   style="background-color: #EDE8E1; color: #7A6B5A; font-size: 0.58rem; font-weight: 700"
@@ -347,8 +351,19 @@
                 </div>
               {/if}
 
+              <!-- Coming soon badge -->
+              {#if isComingSoon}
+                <div
+                  class="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full flex items-center gap-1"
+                  style="background-color: #EDE8E1; color: #7A6B5A; font-size: 0.58rem; font-weight: 700"
+                >
+                  <Lock class="w-2.5 h-2.5" />
+                  Coming soon
+                </div>
+              {/if}
+
               <!-- Most Popular badge -->
-              {#if isMostPopular}
+              {#if isMostPopular && !isComingSoon}
                 <div
                   class="absolute -top-2.5 left-4 px-2.5 py-0.5 rounded-full"
                   style="background-color: #006838; color: white; font-size: 0.6rem; font-weight: 700"
@@ -444,7 +459,7 @@
                     <p
                       style="font-size: 0.72rem; color: #8B6F47; font-weight: 600; margin-top: 1px"
                     >
-                      {plan.credits} Rescue Credits/month - use like cash at checkout
+                      {plan.credits} Fresh Credits/month - use like cash at checkout
                     </p>
                   {/if}
 

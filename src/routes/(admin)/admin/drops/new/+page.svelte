@@ -312,7 +312,7 @@
     </a>
     <h1 style="font-size: 1.5rem; font-weight: 700; color: #1C2B1C;">Create Tonight's Drop</h1>
     <p class="mt-1" style="font-size: 0.875rem; color: #7A6B5A;">
-      Set up Rescue Boxes for students
+      Set up Fresh Boxes for students
     </p>
   </div>
 
@@ -582,7 +582,7 @@
             style="font-size: 0.8rem; color: {errors.boxes ? '#C0392B' : '#7A6B5A'};"
           >
             <Package class="w-3.5 h-3.5" />
-            Number of Rescue Boxes
+            Number of Fresh Boxes
             {#if aiApplied}
               <Sparkles class="w-3 h-3 ml-1" style="color: #006838;" />
             {/if}

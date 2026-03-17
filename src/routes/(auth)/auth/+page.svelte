@@ -266,7 +266,7 @@
         transition={{ delay: 0.15 }}
       >
         <div use:motion class="mt-4 space-y-2">
-          {#each ["Reserve Rescue Boxes from $3", "Track your food rescue impact", "Optional plan upgrades for credits"] as perk}
+          {#each ["Reserve Fresh Boxes from $3", "Track your food rescue impact", "Optional plan upgrades for credits"] as perk}
             <div class="flex items-center gap-2 px-1">
               <div
                 class="w-1.5 h-1.5 rounded-full shrink-0"

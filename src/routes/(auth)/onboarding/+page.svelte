@@ -322,13 +322,13 @@
               <QrCode class="w-12 h-12" style="color: #006838" />
             </div>
             <h1 style="font-size: 1.5rem; font-weight: 800; color: #1C2B1C; text-align: center">
-              Discover Rescue Boxes
+              Discover Fresh Boxes
             </h1>
             <p
               class="text-center mt-3 mb-2"
               style="font-size: 0.9rem; color: #7A6B5A; max-width: 280px"
             >
-              Scan the QR code at any dining hall to see tonight's available Rescue Boxes.
+              Scan the QR code at any dining hall to see tonight's available Fresh Boxes.
             </p>
             <p class="text-center mb-auto" style="font-size: 0.78rem; color: #B0A898">
               No account required to browse
@@ -363,7 +363,7 @@
               Pick a box, tap reserve, done. It takes less than 30 seconds.
             </p>
             <p class="text-center mb-auto" style="font-size: 0.78rem; color: #B0A898">
-              Rescue Boxes from $3-5 each
+              Fresh Boxes from $3-5 each
             </p>
           </div>
 

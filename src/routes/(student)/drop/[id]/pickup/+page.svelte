@@ -104,7 +104,7 @@
         transition={{ delay: 0.4 }}
       >
         <p use:motion style="font-size: 15px; color: rgba(26,26,26,0.55); margin-top: 4px">
-          Your Rescue Box is reserved
+          Your Fresh Box is reserved
         </p>
       </Motion>
     </div>
@@ -183,7 +183,7 @@
         </div>
         <div class="flex items-center gap-2">
           <Package class="w-4 h-4" style="color: rgba(26,26,26,0.55); stroke-width: 1.75" />
-          <span style="font-size: 14px; color: #1A1A1A">1 x Rescue Box</span>
+          <span style="font-size: 14px; color: #1A1A1A">1 x Fresh Box</span>
         </div>
       </div>
     </Motion>
@@ -199,7 +199,7 @@
         <div class="rounded-xl p-3 text-center" style="background-color: #F0EBE3">
           <p style="font-size: 13px; color: rgba(26,26,26,0.55)">
             {#if reservation.paymentMethod === "credit"}
-              1 Rescue Credit used
+              1 Fresh Credit used
             {:else if reservation.paymentMethod === "card"}
               ${reservation.currentPrice} charged to your card
             {:else}

@@ -49,7 +49,7 @@
           Thanks for the feedback!
         </h2>
         <p class="mt-2" style="font-size: 0.875rem; color: #7A6B5A">
-          You rated your Rescue Box {selectedRating}/5
+          You rated your Fresh Box {selectedRating}/5
         </p>
         <div class="flex justify-center gap-1 mt-3">
           {#each [1, 2, 3, 4, 5] as star}
@@ -72,7 +72,7 @@
       >
         <Leaf class="w-8 h-8" style="color: #006838" />
       </div>
-      <h1 style="font-size: 1.5rem; font-weight: 700; color: #1C2B1C">How was your Rescue Box?</h1>
+      <h1 style="font-size: 1.5rem; font-weight: 700; color: #1C2B1C">How was your Fresh Box?</h1>
       <p class="mt-1" style="font-size: 0.875rem; color: #7A6B5A">
         Quick tap helps us make it better
       </p>

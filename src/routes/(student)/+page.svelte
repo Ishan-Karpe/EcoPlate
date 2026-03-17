@@ -430,7 +430,7 @@
       </h1>
       <p style="font-size: 14px; color: rgba(26,26,26,0.55); margin-top: 2px">
         {activeDrops.length > 0
-          ? `${activeDrops.length} Rescue Box${activeDrops.length !== 1 ? "es" : ""} available nearby`
+          ? `${activeDrops.length} Fresh Box${activeDrops.length !== 1 ? "es" : ""} available nearby`
           : "No boxes available right now"}
       </p>
     </div>
@@ -842,7 +842,7 @@
           <p class="text-[0.875rem] mt-1" style="color: #7A6B5A">
             {searchQuery || activeFilter !== "All"
               ? "Try a different search or filter"
-              : "Check back tomorrow for fresh Rescue Boxes!"}
+              : "Check back tomorrow for fresh Fresh Boxes!"}
           </p>
         </div>
       </Motion>

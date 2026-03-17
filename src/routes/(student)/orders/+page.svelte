@@ -300,7 +300,7 @@
           </p>
           <p style="font-size: 0.78rem; color: #7A6B5A">
             {filter === "all"
-              ? "Reserve a Rescue Box from the Home tab to get started."
+              ? "Reserve a Fresh Box from the Home tab to get started."
               : "Try switching to a different filter."}
           </p>
         </div>

@@ -217,7 +217,7 @@
       transition={{ delay: 0.3 }}
     >
       <div use:motion class="mt-4 space-y-2">
-        {#each ["Get notified when Rescue Boxes drop", "Track your food rescue impact", "Optional plan upgrades for credits"] as perk}
+        {#each ["Get notified when Fresh Boxes drop", "Track your food rescue impact", "Optional plan upgrades for credits"] as perk}
           <div class="flex items-center gap-2 px-1">
             <div class="w-1.5 h-1.5 rounded-full shrink-0" style="background-color: #006838"></div>
             <span style="font-size: 0.8rem; color: #7A6B5A">{perk}</span>

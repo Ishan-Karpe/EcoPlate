@@ -45,8 +45,8 @@ export async function POST(event: RequestEvent) {
               text: `You are an AI assistant for EcoPlate, a campus food rescue program at UC Irvine.
 
 Analyze this photo of dining hall food and return a JSON object with:
-1. "description": A concise, appetizing 1-2 sentence description of what's in the photo suitable for a Rescue Box listing. Include the station type (e.g., "Pasta bar:", "Stir-fry station:", "Grill station:") followed by specific items.
-2. "suggestedBoxes": Estimated number of Rescue Boxes that could be made from what you see (integer between 5-30).
+1. "description": A concise, appetizing 1-2 sentence description of what's in the photo suitable for a Fresh Box listing. Include the station type (e.g., "Pasta bar:", "Stir-fry station:", "Grill station:") followed by specific items.
+2. "suggestedBoxes": Estimated number of Fresh Boxes that could be made from what you see (integer between 5-30).
 3. "suggestedPriceMin": Suggested minimum price in dollars (integer, typically 3-4).
 4. "suggestedPriceMax": Suggested maximum price in dollars (integer, typically 4-5).
 5. "tags": Array of relevant dietary tags from: ["Vegetarian", "Vegan", "Gluten-Free", "High Protein", "Dairy-Free"].

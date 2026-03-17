@@ -254,7 +254,7 @@
             rows={3}
             class="w-full rounded-xl px-4 py-3 outline-none resize-none"
             style="background-color: #F5F1EB; font-size: 0.875rem; color: #1C2B1C; border: none; line-height: 1.5;"
-            placeholder="Describe tonight's Rescue Box contents..."
+            placeholder="Describe tonight's Fresh Box contents..."
           ></textarea>
         </div>
       </Motion>
@@ -275,7 +275,7 @@
           <label
             class="flex items-center gap-2 mb-2"
             style="font-size: 0.8rem; color: {errors.boxes ? '#C0392B' : '#7A6B5A'};"
-            ><Package class="w-3.5 h-3.5" />Total Rescue Boxes</label
+            ><Package class="w-3.5 h-3.5" />Total Fresh Boxes</label
           >
           <div class="flex items-center gap-3">
             <button
