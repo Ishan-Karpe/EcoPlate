@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Motion } from "svelte-motion";
+  import EcoplateLogo from "$lib/components/EcoplateLogo.svelte";
   import {
     Clock,
     MapPin,
@@ -144,9 +145,7 @@
     "
   >
     <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-2">
-        <span style="font-size: 1rem; font-weight: 700; color: #006838">EcoPlate</span>
-      </div>
+      <EcoplateLogo iconSize={36} fontSize="1.5rem" textColor="#006838" />
       <button
         onclick={() => loadOrders(true)}
         class="relative p-2 rounded-full active:scale-[0.97]"

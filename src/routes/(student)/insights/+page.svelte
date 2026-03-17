@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Motion } from "svelte-motion";
   import { Leaf, TrendingUp, Package, Share2, Target } from "lucide-svelte";
+  import EcoplateLogo from "$lib/components/EcoplateLogo.svelte";
   import { appStore } from "$lib/stores/app.svelte";
   import { authStore } from "$lib/stores/auth.svelte";
   import { onMount } from "svelte";
@@ -112,9 +113,7 @@
     "
   >
     <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-2">
-        <span style="font-size: 1rem; font-weight: 700; color: #006838">EcoPlate</span>
-      </div>
+      <EcoplateLogo iconSize={36} fontSize="1.5rem" textColor="#006838" />
       <button
         onclick={handleShare}
         class="relative p-2 rounded-full active:scale-[0.97]"
