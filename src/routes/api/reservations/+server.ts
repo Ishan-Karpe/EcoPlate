@@ -3,6 +3,7 @@ import type { RequestEvent } from "@sveltejs/kit";
 import { get, getByPrefix, set } from "$lib/kv";
 import { defaultUserState, updateStats } from "$lib/server/helpers";
 import { calculateCurrentPrice, generatePickupCode } from "$lib/utils";
+import { sendReservationConfirmation } from "$lib/server/email";
 
 export async function POST(event: RequestEvent) {
   try {
@@ -105,6 +106,21 @@ export async function POST(event: RequestEvent) {
     }
     if (Object.keys(userUpdates).length > 0) {
       await set(`user:${userId}`, { ...userState, ...userUpdates });
+    }
+
+    // Send confirmation email to authenticated users (fire-and-forget)
+    if (!isGuest && session?.user?.email) {
+      const userName = (session.user.user_metadata?.name as string | undefined) ?? "there";
+      sendReservationConfirmation({
+        to: session.user.email,
+        name: userName,
+        pickupCode: code,
+        location: String(drop.location ?? ""),
+        locationDetail: String(drop.locationDetail ?? ""),
+        windowStart: String(drop.windowStart ?? ""),
+        windowEnd: String(drop.windowEnd ?? ""),
+        price: currentPrice,
+      }).catch((err) => console.error("Failed to send confirmation email:", err));
     }
 
     return json({ reservation, drop: updatedDrop });

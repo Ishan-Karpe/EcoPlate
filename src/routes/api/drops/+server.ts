@@ -3,6 +3,8 @@ import type { RequestEvent } from "@sveltejs/kit";
 import { get, getByPrefix, set } from "$lib/kv";
 import { getStats, updateStats } from "$lib/server/helpers";
 import { requireAdmin } from "$lib/server/auth";
+import { sendDropAlert } from "$lib/server/email";
+import { getAdminSupabase } from "$lib/supabase-server";
 
 export async function GET() {
   try {
@@ -113,6 +115,34 @@ export async function POST(event: RequestEvent) {
       return cap;
     });
     await set("stats:global", { ...stats, locationCaps: caps });
+
+    // Send drop alert emails to all registered users (fire-and-forget)
+    (async () => {
+      try {
+        const supabase = getAdminSupabase();
+        const { data } = await supabase.auth.admin.listUsers({ perPage: 500 });
+        const users = data?.users ?? [];
+        await Promise.allSettled(
+          users
+            .filter((u) => u.email)
+            .map((u) =>
+              sendDropAlert({
+                to: u.email!,
+                name: (u.user_metadata?.name as string | undefined) ?? "there",
+                location: drop.location as string,
+                locationDetail: drop.locationDetail as string,
+                windowStart: drop.windowStart as string,
+                windowEnd: drop.windowEnd as string,
+                priceMin: drop.priceMin as number,
+                priceMax: drop.priceMax as number,
+                dropId: id,
+              })
+            )
+        );
+      } catch (err) {
+        console.error("Failed to send drop alert emails:", err);
+      }
+    })();
 
     return json({ drop });
   } catch (e) {

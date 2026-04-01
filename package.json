@@ -28,6 +28,7 @@
     "jsqr": "^1.4.0",
     "lucide-svelte": "^0.575.0",
     "qrcode": "^1.5.4",
+    "resend": "^6.10.0",
     "svelte": "^5.53.6",
     "svelte-motion": "^0.12.2",
     "svelte-sonner": "^1.0.7",

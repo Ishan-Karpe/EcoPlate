@@ -237,7 +237,7 @@
     <p style="font-size: 0.875rem; color: rgba(255,255,255,0.7); margin-top: 4px;">
       {recentRedemptions.length > 0
         ? `${recentRedemptions.length} picked up today`
-        : "Scan QR or enter pickup code"}
+        : "Scan student's QR or type their 6-digit code"}
     </p>
   </div>
 
@@ -340,6 +340,13 @@
                 <p class="mt-1" style="color: rgba(255,255,255,0.4); font-size: 0.72rem;">
                   Allow camera permission in your browser settings, then try again.
                 </p>
+                <button
+                  onclick={() => { mode = "code"; result = null; }}
+                  class="mt-3 px-4 py-1.5 rounded-full"
+                  style="background-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;"
+                >
+                  Enter code manually instead →
+                </button>
               </div>
             {/if}
 
@@ -352,6 +359,13 @@
                 <p class="mt-1" style="color: rgba(255,255,255,0.4); font-size: 0.72rem;">
                   No camera found or it's in use by another app.
                 </p>
+                <button
+                  onclick={() => { mode = "code"; result = null; }}
+                  class="mt-3 px-4 py-1.5 rounded-full"
+                  style="background-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;"
+                >
+                  Enter code manually instead →
+                </button>
               </div>
             {/if}
 

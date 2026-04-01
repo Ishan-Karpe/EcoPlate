@@ -84,6 +84,7 @@ export const appStore = {
       });
     } catch (e) {
       toast.error((e as Error).message || "Failed to reserve");
+      throw e;
     }
   },
   async handleCancelReservation(userId: string) {
@@ -104,14 +105,14 @@ export const appStore = {
   },
   async handleRate(rating: number, userId: string, isGuest = false) {
     if (!reservation) return;
-    const wasFirstPickup = user.totalPickups === 0;
+    const pickupsBefore = user.totalPickups;
     try {
       await api.submitRating(reservation.id, rating, userId);
       reservation = null;
       await this.loadUser(userId);
       await this.loadDrops();
       toast.success("Thanks for the rating");
-      if (wasFirstPickup && isGuest) {
+      if (isGuest && pickupsBefore >= 4) {
         await goto("/post-order-signup");
       } else {
         await goto("/");
@@ -121,10 +122,10 @@ export const appStore = {
     }
   },
   async handleSkipRating(isGuest = false) {
-    const wasFirstPickup = user.totalPickups === 0;
+    const pickupsBefore = user.totalPickups;
     reservation = null;
     // totalPickups was already incremented server-side by /redeem
-    if (wasFirstPickup && isGuest) {
+    if (isGuest && pickupsBefore >= 4) {
       await goto("/post-order-signup");
     } else {
       await goto("/");
