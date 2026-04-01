@@ -25,10 +25,7 @@ export async function getStats() {
     pickupRate: 0,
     noShowRate: 0,
     avgRating: 0,
-    locationCaps: [
-      { location: "Anteatery", currentCap: 30, consecutiveWeeksAbove85: 0 },
-      { location: "Brandywine", currentCap: 25, consecutiveWeeksAbove85: 0 },
-    ],
+    locationCaps: [],
     recentDrops: [],
   };
 }

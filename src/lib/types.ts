@@ -1,6 +1,6 @@
 export interface Drop {
   id: string;
-  location: "Brandywine" | "Anteatery";
+  location: string;
   locationDetail: string;
   date: string;
   windowStart: string;
@@ -22,7 +22,7 @@ export interface Reservation {
   id: string;
   dropId: string;
   userId: string;
-  dropLocation: "Brandywine" | "Anteatery";
+  dropLocation: string;
   dropLocationDetail: string;
   dropWindowStart: string;
   dropWindowEnd: string;

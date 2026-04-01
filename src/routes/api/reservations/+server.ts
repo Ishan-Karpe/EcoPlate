@@ -49,7 +49,7 @@ export async function POST(event: RequestEvent) {
       priceMin: drop.priceMin as number,
       priceMax: drop.priceMax as number,
       id: String(drop.id ?? ""),
-      location: (drop.location as "Brandywine" | "Anteatery") ?? "Anteatery",
+      location: String(drop.location ?? ""),
       locationDetail: String(drop.locationDetail ?? ""),
       date: String(drop.date ?? ""),
       windowStart: String(drop.windowStart ?? ""),

@@ -258,7 +258,7 @@
           <div class="flex items-center gap-2">
             <Zap class="w-3.5 h-3.5 shrink-0" style="color: #8B6F47; stroke-width: 1.75" />
             <p style="font-size: 0.72rem; color: rgba(26,26,26,0.55)">
-              <span style="font-weight: 600">Dynamic pricing: </span>{priceTrend} - Range $3-$5
+              <span style="font-weight: 600">Dynamic pricing: </span>{priceTrend} - Range $5-$8
             </p>
           </div>
         {/if}
@@ -343,7 +343,7 @@
         <div class="flex items-center gap-2 justify-center py-1">
           <ShieldCheck class="w-4 h-4" style="color: #006838; stroke-width: 1.75" />
           <span style="font-size: 13px; color: rgba(26,26,26,0.55)"
-            >Food handled by campus dining staff</span
+            >Food handled by dining staff</span
           >
         </div>
       </div>

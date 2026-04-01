@@ -60,7 +60,7 @@
       title: "Free Tier",
       badge: "",
       price: "",
-      priceNote: "Pay per box ($3-$5 each)",
+      priceNote: "Pay per box ($7 each)",
       features: ["Drop alerts when boxes go live", "Impact tracking", "No monthly commitment"],
     },
     {

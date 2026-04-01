@@ -134,7 +134,7 @@
                   <span style="font-size: 0.875rem; color: #7A6B5A">Tonight's price</span>
                   <div class="flex items-center gap-1 mt-0.5">
                     <Zap class="w-3 h-3" style="color: #8B6F47" />
-                    <span style="font-size: 0.68rem; color: #8B6F47">Dynamic $3-$5</span>
+                    <span style="font-size: 0.68rem; color: #8B6F47">Dynamic pricing</span>
                   </div>
                 </div>
                 <span style="font-size: 1.375rem; font-weight: 800; color: #006838"
@@ -227,7 +227,7 @@
         <!-- Trust signal -->
         <div class="flex items-center gap-2 justify-center py-1">
           <ShieldCheck class="w-4 h-4" style="color: #006838" />
-          <span style="font-size: 0.75rem; color: #7A6B5A">Food handled by campus dining staff</span
+          <span style="font-size: 0.75rem; color: #7A6B5A">Food handled by dining staff</span
           >
         </div>
       </div>

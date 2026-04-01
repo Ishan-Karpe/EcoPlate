@@ -305,7 +305,7 @@
                   class="px-1.5 py-0.5 rounded-full shrink-0"
                   style="background-color: #F0EBE3; color: #7A6B5A; font-size: 0.55rem; font-weight: 700"
                 >
-                  {drop.location === "Brandywine" ? "BW" : "ANT"}
+                  {drop.location.slice(0, 3).toUpperCase()}
                 </span>
               </div>
               <ChevronRight class="w-4 h-4 shrink-0 mt-0.5" style="color: #7A6B5A" />

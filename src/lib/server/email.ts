@@ -77,8 +77,6 @@ export async function sendDropAlert({
   locationDetail,
   windowStart,
   windowEnd,
-  priceMin,
-  priceMax,
   dropId,
 }: {
   to: string;
@@ -87,8 +85,6 @@ export async function sendDropAlert({
   locationDetail: string;
   windowStart: string;
   windowEnd: string;
-  priceMin: number;
-  priceMax: number;
   dropId: string;
 }) {
   const resend = getResend();
@@ -117,7 +113,7 @@ export async function sendDropAlert({
         <div style="border: 1px solid rgba(0,104,56,0.12); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px;">
           <p style="font-size: 14px; margin: 0 0 8px;"><strong>📍 ${locationDetail}</strong></p>
           <p style="font-size: 14px; margin: 0 0 8px;">⏰ Pickup window: <strong>${window}</strong></p>
-          <p style="font-size: 14px; margin: 0;">💵 From <strong>$${priceMin}–$${priceMax}</strong> — pay at the counter</p>
+          <p style="font-size: 14px; margin: 0;">💵 <strong>$7</strong> — pay at the counter</p>
         </div>
 
         <a href="${appUrl}/drop/${dropId}"

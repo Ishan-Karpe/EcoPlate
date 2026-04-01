@@ -31,16 +31,6 @@ export function getWindowState(
   return "during";
 }
 
-export function calculateCurrentPrice(drop: Drop): number {
-  if (drop.totalBoxes === 0) return drop.priceMin;
-  const supplyRatio = drop.remainingBoxes / drop.totalBoxes;
-  const demandRatio = drop.reservedBoxes / drop.totalBoxes;
-  if (supplyRatio > 0.5) {
-    return drop.priceMin;
-  } else if (supplyRatio < 0.2 && demandRatio > 0.7) {
-    return drop.priceMax;
-  } else {
-    const raw = drop.priceMin + (drop.priceMax - drop.priceMin) * (1 - supplyRatio) * demandRatio;
-    return Math.min(drop.priceMax, Math.max(drop.priceMin, Math.round(raw)));
-  }
+export function calculateCurrentPrice(_drop: Drop): number {
+  return 7;
 }

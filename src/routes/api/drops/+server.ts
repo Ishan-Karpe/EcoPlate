@@ -35,16 +35,14 @@ export async function POST(event: RequestEvent) {
       boxes,
       windowStart,
       windowEnd,
-      priceMin,
-      priceMax,
       description,
       imageUrl,
       dailyCap,
       consecutiveWeeksAbove85,
     } = body;
 
-    if (!location || !["Brandywine", "Anteatery"].includes(location)) {
-      return json({ error: "Location must be 'Brandywine' or 'Anteatery'" }, { status: 400 });
+    if (!location || typeof location !== "string" || location.trim().length === 0) {
+      return json({ error: "Location name is required" }, { status: 400 });
     }
     const boxCount = parseInt(boxes);
     if (isNaN(boxCount) || boxCount < 1 || boxCount > 100) {
@@ -61,17 +59,6 @@ export async function POST(event: RequestEvent) {
     if (windowStart >= windowEnd) {
       return json({ error: "Window end must be after start" }, { status: 400 });
     }
-    const pMin = parseFloat(priceMin);
-    const pMax = parseFloat(priceMax);
-    if (isNaN(pMin) || pMin < 1 || pMin > 10) {
-      return json({ error: "Price min must be between $1 and $10" }, { status: 400 });
-    }
-    if (isNaN(pMax) || pMax < 1 || pMax > 10) {
-      return json({ error: "Price max must be between $1 and $10" }, { status: 400 });
-    }
-    if (pMax < pMin) {
-      return json({ error: "Price max must be >= price min" }, { status: 400 });
-    }
     const safeDescription = typeof description === "string" ? description.slice(0, 500) : "";
 
     const id = `drop-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
@@ -85,8 +72,8 @@ export async function POST(event: RequestEvent) {
       totalBoxes: boxCount,
       remainingBoxes: boxCount,
       reservedBoxes: 0,
-      priceMin: pMin,
-      priceMax: pMax,
+      priceMin: 7,
+      priceMax: 7,
       status: "active",
       description: safeDescription || "Tonight's Fresh Box, freshly prepared by dining staff.",
       imageUrl: imageUrl ?? "",

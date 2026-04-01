@@ -57,7 +57,7 @@ export const adminStore = {
   },
   async handleDropSubmit(
     payload: {
-      location: "Brandywine" | "Anteatery";
+      location: string;
       locationDetail: string;
       boxes: number;
       windowStart: string;

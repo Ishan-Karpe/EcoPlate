@@ -39,19 +39,10 @@ export const FOOD_IMAGE_POOL = [
   },
 ];
 
-export const LOCATION_FALLBACK_IMAGES: Record<string, string> = {
-  Brandywine:
-    "https://images.unsplash.com/photo-1676436293954-33493be151c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
-  Anteatery:
-    "https://images.unsplash.com/photo-1710793231486-e83b6a5da35c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
-};
+export const LOCATION_FALLBACK_IMAGES: Record<string, string> = {};
 
-export const LOCATION_IMAGES = {
-  Brandywine:
-    "https://images.unsplash.com/photo-1676436293954-33493be151c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
-  Anteatery:
-    "https://images.unsplash.com/photo-1710793231486-e83b6a5da35c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800",
-};
+export const DEFAULT_FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1710793231486-e83b6a5da35c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800";
 
 export const DEFAULT_USER: UserState = {
   isFirstTime: false,
@@ -73,10 +64,7 @@ export const DEFAULT_STATS: AdminStats = {
   pickupRate: 0,
   noShowRate: 0,
   avgRating: 0,
-  locationCaps: [
-    { location: "Anteatery", currentCap: 30, consecutiveWeeksAbove85: 0 },
-    { location: "Brandywine", currentCap: 25, consecutiveWeeksAbove85: 0 },
-  ],
+  locationCaps: [],
   recentDrops: [],
 };
 
@@ -85,5 +73,5 @@ export function pickDropImage(description: string, location: string): string {
   for (const entry of FOOD_IMAGE_POOL) {
     if (entry.keywords.some((k) => lower.includes(k))) return entry.url;
   }
-  return LOCATION_FALLBACK_IMAGES[location] ?? LOCATION_FALLBACK_IMAGES["Anteatery"];
+  return LOCATION_FALLBACK_IMAGES[location] ?? DEFAULT_FALLBACK_IMAGE;
 }

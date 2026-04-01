@@ -18,7 +18,7 @@
   type UserRole = "student" | "partner";
 
   const COLLEGES = [
-    { name: "UC Irvine", available: true },
+    { name: "Near UC Irvine", available: true },
     { name: "UCLA", available: false },
     { name: "UC Berkeley", available: false },
     { name: "UC San Diego", available: false },
@@ -29,10 +29,10 @@
     { name: "UC Merced", available: false },
   ] as const;
 
-  const steps: OnboardingStep[] = ["college", "role", "discover", "reserve", "pickup"];
+  const steps: OnboardingStep[] = ["role", "discover", "reserve", "pickup"];
 
-  let step = $state<OnboardingStep>("college");
-  let selectedCollege = $state("UC Irvine");
+  let step = $state<OnboardingStep>("role");
+  let selectedCollege = $state("Near UC Irvine");
   let collegeSearch = $state("");
   let showCollegeDropdown = $state(false);
   let selectedRole = $state<UserRole | null>(null);
@@ -266,7 +266,7 @@
                 <div>
                   <p style="font-size: 1rem; font-weight: 700; color: #1C2B1C">I'm a Student</p>
                   <p style="font-size: 0.8rem; color: #7A6B5A; margin-top: 2px">
-                    Find affordable rescued meals near you
+                    Affordable Fresh Boxes near UCI
                   </p>
                 </div>
               </div>
@@ -308,11 +308,6 @@
             <ArrowRight class="w-4 h-4" />
           </button>
 
-          <button
-            onclick={goBack}
-            class="w-full mt-3 py-2 text-center"
-            style="font-size: 0.78rem; color: #8B6F47">Back to College Selection</button
-          >
         {:else if step === "discover"}
           <div class="flex-1 flex flex-col items-center justify-center">
             <div
@@ -328,7 +323,7 @@
               class="text-center mt-3 mb-2"
               style="font-size: 0.9rem; color: #7A6B5A; max-width: 280px"
             >
-              Scan the QR code at any dining hall to see tonight's available Fresh Boxes.
+              Browse tonight's available Fresh Boxes from dining halls and partner restaurants.
             </p>
             <p class="text-center mb-auto" style="font-size: 0.78rem; color: #B0A898">
               No account required to browse
@@ -363,7 +358,7 @@
               Pick a box, tap reserve, done. It takes less than 30 seconds.
             </p>
             <p class="text-center mb-auto" style="font-size: 0.78rem; color: #B0A898">
-              Fresh Boxes from $3-5 each
+              Fresh Boxes — $7 each
             </p>
           </div>
 

@@ -9,7 +9,6 @@
     DollarSign,
     CheckCircle2,
     AlertTriangle,
-    ArrowUpRight,
     TrendingUp,
     AlertCircle,
     Camera,
@@ -25,13 +24,9 @@
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
 
   // ─── Constants ────────────────────────────────────────────────────────────────
-  const LOCATIONS: { value: "Brandywine" | "Anteatery"; detail: string }[] = [
-    { value: "Brandywine", detail: "Side entrance, Window B" },
-    { value: "Anteatery", detail: "Main lobby, counter 3" },
-  ];
-
   // ─── Form state ───────────────────────────────────────────────────────────────
-  let location = $state<"Brandywine" | "Anteatery">("Anteatery");
+  let location = $state("");
+  let locationDetail = $state("");
   let boxes = $state("30");
   let windowStart = $state("18:00");
   let windowEnd = $state("23:00");
@@ -41,6 +36,7 @@
   let submitted = $state(false);
 
   let errors = $state<{
+    location?: string;
     description?: string;
     boxes?: string;
     time?: string;
@@ -67,11 +63,8 @@
   // ─── Derived values from store ────────────────────────────────────────────────
   let stats = $derived(adminStore.stats);
 
-  let currentCap = $derived(stats.locationCaps.find((c) => c.location === location) ?? null);
-  let capLimit = $derived(currentCap?.currentCap ?? 30);
-  let weeksAbove85 = $derived(currentCap?.consecutiveWeeksAbove85 ?? 0);
-  let canIncrease = $derived(weeksAbove85 >= 2);
-  let locationDetail = $derived(LOCATIONS.find((l) => l.value === location)?.detail ?? "");
+  let capLimit = $derived(30);
+  let canIncrease = $derived(false);
 
   // ─── Camera helpers ───────────────────────────────────────────────────────────
   function stopCamera() {
@@ -224,6 +217,10 @@
   function validate(): boolean {
     const newErrors: typeof errors = {};
 
+    if (!location.trim()) {
+      newErrors.location = "Restaurant name is required";
+    }
+
     if (!description.trim()) {
       newErrors.description = "Description is required";
     }
@@ -283,7 +280,7 @@
         description,
         imageUrl,
         dailyCap: capLimit,
-        consecutiveWeeksAbove85: weeksAbove85,
+        consecutiveWeeksAbove85: 0,
       },
       { redirectDelayMs: 1500 }
     );
@@ -317,48 +314,6 @@
   </div>
 
   <div class="flex-1 px-5 space-y-4 overflow-y-auto pb-4">
-    <!-- Cap status banner -->
-    {#if currentCap}
-      <Motion
-        let:motion
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-      >
-        <div
-          use:motion
-          class="rounded-xl p-3 flex items-start gap-2"
-          style="
-            background-color: {canIncrease ? '#E8F5EE' : '#FEF3C7'};
-            border: 1px solid {canIncrease ? 'rgba(0,104,56,0.3)' : '#FCD34D'};
-          "
-        >
-          {#if canIncrease}
-            <ArrowUpRight class="w-4 h-4 mt-0.5 shrink-0" style="color: #006838;" />
-          {:else}
-            <AlertTriangle class="w-4 h-4 mt-0.5 shrink-0" style="color: #D97706;" />
-          {/if}
-          <div>
-            <p
-              style="
-                font-size: 0.8rem;
-                font-weight: 600;
-                color: {canIncrease ? '#004D28' : '#92400E'};
-              "
-            >
-              {canIncrease
-                ? `Cap eligible for increase! Currently ${capLimit} boxes/day.`
-                : `Daily cap: ${capLimit} boxes/day for ${location}`}
-            </p>
-            <p style="font-size: 0.7rem; color: {canIncrease ? '#006838' : '#B45309'};">
-              {canIncrease
-                ? "Pickup rate above 85% for 2+ weeks. You can increase the cap by 10."
-                : `${weeksAbove85}/2 weeks above 85% needed to increase cap.`}
-            </p>
-          </div>
-        </div>
-      </Motion>
-    {/if}
 
     <!-- ─── Photo Capture + AI Auto-Fill ─────────────────────────────────────── -->
     <Motion
@@ -543,30 +498,35 @@
       <div use:motion class="space-y-3">
         <!-- Location -->
         <div
-          class="rounded-xl p-4 shadow-sm"
-          style="background-color: white; border: 1px solid rgba(0,104,56,0.1);"
+          class="rounded-xl p-4 shadow-sm space-y-3"
+          style="background-color: white; border: 1px solid {errors.location ? '#FECACA' : 'rgba(0,104,56,0.1)'};"
         >
-          <div class="flex items-center gap-2 mb-2" style="font-size: 0.8rem; color: #7A6B5A;">
+          <div class="flex items-center gap-2" style="font-size: 0.8rem; color: {errors.location ? '#C0392B' : '#7A6B5A'};">
             <MapPin class="w-3.5 h-3.5" />
             Location
           </div>
-          <div class="grid grid-cols-2 gap-2">
-            {#each LOCATIONS as loc}
-              <button
-                onclick={() => (location = loc.value)}
-                class="py-3 px-4 rounded-xl transition-all active:scale-[0.97]"
-                style="
-                  background-color: {location === loc.value ? '#006838' : '#F5F1EB'};
-                  color: {location === loc.value ? 'white' : '#4A3728'};
-                  font-size: 0.875rem;
-                  font-weight: 600;
-                "
-              >
-                {loc.value}
-              </button>
-            {/each}
-          </div>
-          <p class="mt-2" style="font-size: 0.72rem; color: #7A6B5A;">{locationDetail}</p>
+          <input
+            type="text"
+            value={location}
+            oninput={(e) => {
+              location = (e.currentTarget as HTMLInputElement).value;
+              errors = { ...errors, location: undefined };
+            }}
+            placeholder="Restaurant or venue name (e.g. Sgt. Pepperoni's)"
+            class="w-full px-3 py-2.5 rounded-xl outline-none"
+            style="background-color: #F5F1EB; font-size: 0.875rem; color: #1C2B1C; border: 1.5px solid {errors.location ? '#FECACA' : 'transparent'}"
+          />
+          <input
+            type="text"
+            value={locationDetail}
+            oninput={(e) => (locationDetail = (e.currentTarget as HTMLInputElement).value)}
+            placeholder="Pickup spot details (e.g. Front counter, ask for EcoPlate)"
+            class="w-full px-3 py-2.5 rounded-xl outline-none"
+            style="background-color: #F5F1EB; font-size: 0.875rem; color: #1C2B1C; border: 1.5px solid transparent"
+          />
+          {#if errors.location}
+            <p style="font-size: 0.72rem; color: #C0392B">{errors.location}</p>
+          {/if}
         </div>
 
         <!-- Number of boxes -->

@@ -229,14 +229,14 @@
 
   <div class="px-6 pb-10 pt-4">
     <p class="text-center" style="font-size: 0.72rem; color: #B0A898">
-      UCI Campus Food Rescue Program
+      Affordable Fresh Boxes near UCI
     </p>
     <button
       onclick={() => goto("/admin/login")}
       class="w-full py-2 mt-2 text-center"
       style="font-size: 0.62rem; color: rgba(176,168,152,0.35); font-weight: 500; letter-spacing: 0.02em; background: none; border: none"
     >
-      Dining Hall Staff Portal
+      Partner Staff Portal
     </button>
   </div>
 </div>

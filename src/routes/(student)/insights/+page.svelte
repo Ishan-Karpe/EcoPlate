@@ -35,7 +35,7 @@
   }
 
   function handleShare() {
-    const text = `I rescued ${appStore.user.totalPickups} meals with EcoPlate at UCI! Join me in fighting food waste.`;
+    const text = `I rescued ${appStore.user.totalPickups} meals with EcoPlate! Join me in fighting food waste.`;
     if (navigator.share) {
       navigator.share({ title: "EcoPlate Impact", text }).catch(() => {});
     } else {
@@ -133,7 +133,7 @@
         {#if appStore.user.totalPickups > 0}
           {appStore.user.totalPickups} meal{appStore.user.totalPickups !== 1 ? "s" : ""} rescued so far
         {:else}
-          Your contribution to reducing food waste at UCI
+          Your contribution to reducing food waste
         {/if}
       </p>
     </div>

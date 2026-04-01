@@ -41,7 +41,7 @@ export async function getDrops(): Promise<Drop[]> {
 }
 
 export async function createDrop(drop: {
-  location: "Brandywine" | "Anteatery";
+  location: string;
   locationDetail: string;
   boxes: number;
   windowStart: string;

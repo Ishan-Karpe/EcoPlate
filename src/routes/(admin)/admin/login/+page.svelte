@@ -237,7 +237,7 @@
 
   <div class="px-6 pb-10 pt-4">
     <p class="text-center" style="font-size: 0.72rem; color: #B0A898">
-      UCI Campus Food Rescue Program
+      Affordable Fresh Boxes near UCI
     </p>
   </div>
 </div>

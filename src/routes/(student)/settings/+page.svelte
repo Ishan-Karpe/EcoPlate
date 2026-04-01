@@ -39,7 +39,7 @@
       annualPrice: "Free",
       credits: 0,
       earlyAccess: false,
-      features: ["Browse available drops", "Pay per box at listed price ($3–5)"],
+      features: ["Browse available drops", "Pay per box at listed price ($7)"],
     },
     {
       id: "basic",
@@ -76,7 +76,7 @@
   }[] = [
     { feature: "Browse & reserve", free: true, basic: true, premium: true },
     { feature: "Monthly credits", free: "-", basic: "7", premium: "15" },
-    { feature: "Pay per box ($3–5)", free: true, basic: true, premium: true },
+    { feature: "Pay per box ($7)", free: true, basic: true, premium: true },
     { feature: "Early access (30 min)", free: false, basic: false, premium: true },
     { feature: "Priority waitlist", free: false, basic: false, premium: true },
     { feature: "Impact tracking", free: false, basic: true, premium: true },
@@ -216,7 +216,7 @@
           </div>
           <div class="flex-1 min-w-0">
             <p style="font-size: 0.9rem; font-weight: 700; color: #1C2B1C">
-              {authStore.authUser?.name || "UCI Student"}
+              {authStore.authUser?.name || "Student"}
             </p>
             {#if authStore.authUser?.email}
               <p style="font-size: 0.68rem; color: #B0A898; margin-top: 0">
@@ -488,21 +488,6 @@
       </div>
     </Motion>
 
-    <!-- Social proof -->
-    <Motion
-      let:motion
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.15, duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-    >
-      <div use:motion class="flex items-center justify-center gap-2 py-2">
-        <Users class="w-3.5 h-3.5" style="color: #006838" />
-        <p style="font-size: 0.75rem; color: #006838; font-weight: 600">
-          94 students are on Rescue Member
-        </p>
-      </div>
-    </Motion>
-
     <!-- Mini comparison table -->
     <Motion
       let:motion
@@ -678,7 +663,7 @@
             <p style="font-size: 0.875rem; font-weight: 600; color: #1C2B1C">Privacy & Data</p>
           </div>
           <p style="font-size: 0.72rem; color: #7A6B5A; line-height: 1.5; padding-left: 44px">
-            EcoPlate collects only the data necessary to operate the UCI food rescue program: your
+            EcoPlate collects only the data necessary to operate the food rescue program near UCI: your
             name, email, reservation history, and payment information. We do not sell or share your
             data with third parties. You may request deletion of your account and associated data at
             any time by contacting the EcoPlate team.
@@ -690,7 +675,7 @@
     <!-- Privacy note -->
     <p class="text-center pb-2" style="font-size: 0.7rem; color: #7A6B5A">
       EcoPlate is not intended for collecting sensitive personal information. Data is used solely
-      for the UCI food rescue program.
+      for the food rescue program near UCI.
     </p>
 
     <!-- Sign out (authenticated users) -->

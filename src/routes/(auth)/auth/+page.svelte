@@ -90,7 +90,7 @@
         class="mt-2.5"
         style="font-size: 0.8rem; font-weight: 500; color: #8B6F47; letter-spacing: 0.12em; text-transform: uppercase"
       >
-        freshly rescued meals
+        Affordable Fresh Boxes near UCI
       </p>
     </div>
   </Motion>
@@ -266,7 +266,7 @@
         transition={{ delay: 0.15 }}
       >
         <div use:motion class="mt-4 space-y-2">
-          {#each ["Reserve Fresh Boxes from $3", "Track your food rescue impact", "Optional plan upgrades for credits"] as perk}
+          {#each ["Reserve Fresh Boxes from $7", "Track your food rescue impact", "Optional plan upgrades for credits"] as perk}
             <div class="flex items-center gap-2 px-1">
               <div
                 class="w-1.5 h-1.5 rounded-full shrink-0"
@@ -282,14 +282,14 @@
 
   <div class="px-6 pb-10 pt-4">
     <p class="text-center" style="font-size: 0.72rem; color: #B0A898">
-      UCI Campus Food Rescue Program
+      Affordable Fresh Boxes near UCI
     </p>
     <button
       onclick={() => goto("/admin/login")}
       class="w-full py-2 mt-2 text-center"
       style="font-size: 0.62rem; color: rgba(176,168,152,0.35); font-weight: 500; letter-spacing: 0.02em; background: none; border: none"
     >
-      Dining Hall Staff Portal
+      Partner Staff Portal
     </button>
   </div>
 </div>
