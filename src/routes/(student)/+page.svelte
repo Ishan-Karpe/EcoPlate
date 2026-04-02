@@ -32,8 +32,8 @@
     "Dairy-Free",
   ] as const;
 
-  function extractTags(description: string): string[] {
-    const lower = description.toLowerCase();
+  function extractTags(description: string | null | undefined): string[] {
+    const lower = (description ?? "").toLowerCase();
     const tags: string[] = [];
     if (lower.includes("vegetarian") || lower.includes("veggie")) tags.push("Vegetarian");
     if (lower.includes("vegan")) tags.push("Vegan");
@@ -72,9 +72,9 @@
       const q = searchQuery.toLowerCase();
       result = result.filter(
         (d) =>
-          d.description.toLowerCase().includes(q) ||
-          d.location.toLowerCase().includes(q) ||
-          d.locationDetail.toLowerCase().includes(q)
+          (d.description ?? "").toLowerCase().includes(q) ||
+          (d.location ?? "").toLowerCase().includes(q) ||
+          (d.locationDetail ?? "").toLowerCase().includes(q)
       );
     }
     if (activeFilter !== "All") {

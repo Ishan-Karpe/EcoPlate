@@ -3,13 +3,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import { Motion } from "svelte-motion";
-  import {
-    ArrowLeft,
-    Clock,
-    MapPin,
-    ShieldCheck,
-    Zap,
-  } from "lucide-svelte";
+  import { ArrowLeft, ChevronRight, Clock, MapPin, ShieldCheck, Zap } from "lucide-svelte";
   import { appStore } from "$lib/stores/app.svelte";
   import { authStore } from "$lib/stores/auth.svelte";
   import { calculateCurrentPrice, formatTime } from "$lib/utils";
@@ -45,18 +39,6 @@
     } finally {
       isConfirming = false;
     }
-  }
-
-  async function submitCard() {
-    if (!drop || isConfirming) return;
-    isConfirming = true;
-    await appStore.handleConfirmReservation({
-      dropId: drop.id,
-      userId: authStore.userId,
-      paymentMethod: "card",
-      cardLast4: digits.slice(-4),
-    });
-    isConfirming = false;
   }
 
   async function backToDetail() {
@@ -164,7 +146,9 @@
               <MapPin class="w-4 h-4" style="color: #006838" />
             </div>
             <div>
-              <p style="font-size: 0.875rem; font-weight: 600; color: #1C2B1C">Pay at the counter</p>
+              <p style="font-size: 0.875rem; font-weight: 600; color: #1C2B1C">
+                Pay at the counter
+              </p>
               <p style="font-size: 0.75rem; color: #7A6B5A">
                 ${calculateCurrentPrice(drop)} — cash or card tap when you pick up
               </p>
@@ -227,8 +211,7 @@
         <!-- Trust signal -->
         <div class="flex items-center gap-2 justify-center py-1">
           <ShieldCheck class="w-4 h-4" style="color: #006838" />
-          <span style="font-size: 0.75rem; color: #7A6B5A">Food handled by dining staff</span
-          >
+          <span style="font-size: 0.75rem; color: #7A6B5A">Food handled by dining staff</span>
         </div>
       </div>
 
@@ -250,24 +233,13 @@
           >
             {#if isConfirming}
               Reserving...
-            {:else if paymentMethod === "credit"}
-              Use 1 Credit and Reserve
-              <ChevronRight class="w-5 h-5" />
-            {:else if paymentMethod === "card" && hasSavedCard}
-              Pay ${calculateCurrentPrice(drop)} and Reserve
-              <ChevronRight class="w-5 h-5" />
-            {:else if paymentMethod === "card"}
-              Continue to Payment
-              <ChevronRight class="w-5 h-5" />
             {:else}
               Reserve and Pay at Pickup
               <ChevronRight class="w-5 h-5" />
             {/if}
           </button>
           <p class="text-center mt-2" style="font-size: 0.7rem; color: #7A6B5A">
-            {paymentMethod === "card" && !hasSavedCard
-              ? "You'll enter card details on the next screen."
-              : "Cancel before window opens for a full refund."}
+            Cancel before window opens for a full refund.
           </p>
         </div>
       </Motion>

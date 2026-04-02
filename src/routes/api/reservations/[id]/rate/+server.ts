@@ -32,13 +32,15 @@ export async function POST(event: RequestEvent) {
     // not here, to avoid double-counting.
 
     const stats = (await getStats()) as { avgRating: number; totalBoxesPickedUp: number };
-    await updateStats({
-      newRating: {
-        value: numRating,
-        previousAvg: stats.avgRating,
-        previousCount: stats.totalBoxesPickedUp,
-      },
-    });
+    if (typeof stats.avgRating === "number" && typeof stats.totalBoxesPickedUp === "number") {
+      await updateStats({
+        newRating: {
+          value: numRating,
+          previousAvg: stats.avgRating,
+          previousCount: stats.totalBoxesPickedUp,
+        },
+      });
+    }
 
     return json({ reservation: updated });
   } catch (e) {

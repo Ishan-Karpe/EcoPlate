@@ -78,13 +78,7 @@ function calculateCurrentPrice(drop: {
   priceMin: number;
   priceMax: number;
 }): number {
-  if (drop.totalBoxes === 0) return drop.priceMin;
-  const supplyRatio = drop.remainingBoxes / drop.totalBoxes;
-  const demandRatio = drop.reservedBoxes / drop.totalBoxes;
-  if (supplyRatio > 0.5) return drop.priceMin;
-  if (supplyRatio < 0.2 && demandRatio > 0.7) return drop.priceMax;
-  const raw = drop.priceMin + (drop.priceMax - drop.priceMin) * (1 - supplyRatio) * demandRatio;
-  return Math.min(drop.priceMax, Math.max(drop.priceMin, Math.round(raw)));
+  return 7;
 }
 
 async function getStats() {
@@ -220,7 +214,7 @@ app.post(`${BASE}/drops`, async (c) => {
     const body = await c.req.json();
     const {
       location, locationDetail, boxes, windowStart, windowEnd,
-      priceMin, priceMax, description, imageUrl, dailyCap, consecutiveWeeksAbove85,
+      description, imageUrl, dailyCap, consecutiveWeeksAbove85,
     } = body;
 
     if (!location || !["Brandywine", "Anteatery"].includes(location)) {
@@ -236,17 +230,6 @@ app.post(`${BASE}/drops`, async (c) => {
     if (windowStart >= windowEnd) {
       return c.json({ error: "Window end must be after start" }, 400);
     }
-    const pMin = parseFloat(priceMin);
-    const pMax = parseFloat(priceMax);
-    if (isNaN(pMin) || pMin < 1 || pMin > 10) {
-      return c.json({ error: "Price min must be between $1 and $10" }, 400);
-    }
-    if (isNaN(pMax) || pMax < 1 || pMax > 10) {
-      return c.json({ error: "Price max must be between $1 and $10" }, 400);
-    }
-    if (pMax < pMin) {
-      return c.json({ error: "Price max must be >= price min" }, 400);
-    }
     const safeDescription = typeof description === "string" ? description.slice(0, 500) : "";
 
     const id = `drop-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
@@ -260,8 +243,8 @@ app.post(`${BASE}/drops`, async (c) => {
       totalBoxes: boxCount,
       remainingBoxes: boxCount,
       reservedBoxes: 0,
-      priceMin: pMin,
-      priceMax: pMax,
+      priceMin: 7,
+      priceMax: 7,
       status: "active",
       description: safeDescription || "Tonight's Rescue Box, freshly prepared by dining staff.",
       imageUrl: imageUrl ?? "",
@@ -297,7 +280,7 @@ app.patch(`${BASE}/drops/:id`, async (c) => {
     const body = await c.req.json();
     const drop = await kv.get(`drop:${id}`);
     if (!drop) return c.json({ error: "Drop not found" }, 404);
-    const updated = { ...drop, ...body };
+    const updated = { ...drop, ...body, priceMin: 7, priceMax: 7 };
     await kv.set(`drop:${id}`, updated);
     return c.json({ drop: updated });
   } catch (e) {
@@ -925,8 +908,8 @@ app.post(`${BASE}/analyze-food-photo`, async (c) => {
 Analyze this photo of dining hall food and return a JSON object with:
 1. "description": A concise, appetizing 1-2 sentence description of what's in the photo suitable for a Rescue Box listing. Include the station type (e.g., "Pasta bar:", "Stir-fry station:", "Grill station:") followed by specific items.
 2. "suggestedBoxes": Estimated number of Rescue Boxes that could be made from what you see (integer between 5-30).
-3. "suggestedPriceMin": Suggested minimum price in dollars (integer, typically 3-4).
-4. "suggestedPriceMax": Suggested maximum price in dollars (integer, typically 4-5).
+3. "suggestedPriceMin": Suggested minimum price in dollars (integer, always 7).
+4. "suggestedPriceMax": Suggested maximum price in dollars (integer, always 7).
 5. "tags": Array of relevant dietary tags from: ["Vegetarian", "Vegan", "Gluten-Free", "High Protein", "Dairy-Free"].
 
 Return ONLY valid JSON, no markdown fences, no explanation.`,
@@ -972,8 +955,8 @@ Return ONLY valid JSON, no markdown fences, no explanation.`,
     return c.json({
       description: parsed.description ?? "",
       suggestedBoxes: Math.min(30, Math.max(1, parseInt(parsed.suggestedBoxes) || 15)),
-      suggestedPriceMin: Math.max(1, parseInt(parsed.suggestedPriceMin) || 3),
-      suggestedPriceMax: Math.max(1, parseInt(parsed.suggestedPriceMax) || 5),
+      suggestedPriceMin: 7,
+      suggestedPriceMax: 7,
       tags: Array.isArray(parsed.tags) ? parsed.tags : [],
     });
   } catch (e) {

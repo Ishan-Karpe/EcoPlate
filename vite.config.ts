@@ -4,6 +4,11 @@ import { SvelteKitPWA } from "@vite-pwa/sveltekit";
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      external: ["@react-email/render"],
+    },
+  },
   plugins: [
     tailwindcss(),
     sveltekit(),
@@ -44,6 +49,7 @@ export default defineConfig({
       },
       injectManifest: {
         globPatterns: ["client/**/*.{js,css,ico,png,svg,webp,webmanifest}"],
+        globIgnores: ["server/**", "client/service-worker.js", "prerendered/**"],
       },
     }),
   ],

@@ -30,8 +30,8 @@
   let boxes = $state("30");
   let windowStart = $state("18:00");
   let windowEnd = $state("23:00");
-  let priceMin = $state("3");
-  let priceMax = $state("5");
+  let priceMin = $state("7");
+  let priceMax = $state("7");
   let description = $state("");
   let submitted = $state(false);
 
@@ -51,6 +51,9 @@
   let aiApplied = $state(false);
   let aiError = $state<string | null>(null);
   let aiTags = $state<string[]>([]);
+  let aiAllergens = $state<string[]>([]);
+  let aiCalories = $state<{ min: number; max: number } | null>(null);
+  let aiMacros = $state<{ protein: number; carbs: number; fat: number } | null>(null);
   let fileInput = $state<HTMLInputElement | null>(null);
 
   // ─── Live camera state ────────────────────────────────────────────────────────
@@ -142,6 +145,9 @@
     aiApplied = false;
     aiError = null;
     aiTags = [];
+    aiAllergens = [];
+    aiCalories = null;
+    aiMacros = null;
     cameraOpen = false;
   }
 
@@ -174,6 +180,9 @@
         aiApplied = false;
         aiError = null;
         aiTags = [];
+        aiAllergens = [];
+        aiCalories = null;
+        aiMacros = null;
       };
       img.src = e.target?.result as string;
     };
@@ -192,9 +201,12 @@
         const capped = Math.min(result.suggestedBoxes, capLimit);
         boxes = capped.toString();
       }
-      if (result.suggestedPriceMin) priceMin = result.suggestedPriceMin.toString();
-      if (result.suggestedPriceMax) priceMax = result.suggestedPriceMax.toString();
+      priceMin = "7";
+      priceMax = "7";
       if (result.tags && result.tags.length > 0) aiTags = result.tags;
+      aiAllergens = result.allergens ?? [];
+      aiCalories = result.calories ?? null;
+      aiMacros = result.macros ?? null;
       aiApplied = true;
       errors = {};
     } catch (err) {
@@ -211,6 +223,9 @@
     aiApplied = false;
     aiError = null;
     aiTags = [];
+    aiAllergens = [];
+    aiCalories = null;
+    aiMacros = null;
   }
 
   // ─── Validation ───────────────────────────────────────────────────────────────
@@ -244,17 +259,11 @@
 
     const min = parseFloat(priceMin);
     const max = parseFloat(priceMax);
-    if (!priceMin.trim() || isNaN(min) || min < 1) {
-      newErrors.priceMin = "Minimum price must be at least $1";
-    } else if (min > 10) {
-      newErrors.priceMin = "Maximum allowed price is $10";
+    if (!priceMin.trim() || isNaN(min) || min !== 7) {
+      newErrors.priceMin = "Fresh Boxes are fixed at $7";
     }
-    if (!priceMax.trim() || isNaN(max) || max < 1) {
-      newErrors.priceMax = "Maximum price must be at least $1";
-    } else if (max > 10) {
-      newErrors.priceMax = "Maximum allowed price is $10";
-    } else if (!isNaN(min) && max < min) {
-      newErrors.priceMax = "Max must be ≥ min price";
+    if (!priceMax.trim() || isNaN(max) || max !== 7) {
+      newErrors.priceMax = "Fresh Boxes are fixed at $7";
     }
 
     errors = newErrors;
@@ -270,13 +279,13 @@
     const imageUrl = photoBase64 ?? pickDropImage(description, location);
     const success = await adminStore.handleDropSubmit(
       {
-        location,
+        location: location as "Anteatery" | "Brandywine",
         locationDetail,
         boxes: boxCount,
         windowStart,
         windowEnd,
-        priceMin: parseFloat(priceMin) || 3,
-        priceMax: parseFloat(priceMax) || 5,
+        priceMin: 7,
+        priceMax: 7,
         description,
         imageUrl,
         dailyCap: capLimit,
@@ -308,13 +317,10 @@
       Dashboard
     </a>
     <h1 style="font-size: 1.5rem; font-weight: 700; color: #1C2B1C;">Create Tonight's Drop</h1>
-    <p class="mt-1" style="font-size: 0.875rem; color: #7A6B5A;">
-      Set up Fresh Boxes for students
-    </p>
+    <p class="mt-1" style="font-size: 0.875rem; color: #7A6B5A;">Set up Fresh Boxes for students</p>
   </div>
 
   <div class="flex-1 px-5 space-y-4 overflow-y-auto pb-4">
-
     <!-- ─── Photo Capture + AI Auto-Fill ─────────────────────────────────────── -->
     <Motion
       let:motion
@@ -431,6 +437,62 @@
               </div>
             {/if}
 
+            <!-- AI allergens -->
+            {#if aiAllergens.length > 0}
+              <div class="space-y-1">
+                <p style="font-size: 0.68rem; font-weight: 600; color: #92400E;">Allergens</p>
+                <div class="flex flex-wrap gap-1.5">
+                  {#each aiAllergens as allergen}
+                    <span
+                      class="px-2.5 py-1 rounded-full"
+                      style="font-size: 0.68rem; font-weight: 600; background-color: #FEF3C7; color: #92400E;"
+                    >
+                      ⚠ {allergen}
+                    </span>
+                  {/each}
+                </div>
+              </div>
+            {/if}
+
+            <!-- AI calories & macros -->
+            {#if aiCalories !== null || aiMacros !== null}
+              <div
+                class="grid gap-2 rounded-xl p-3"
+                style="background-color: #F5F1EB; grid-template-columns: {aiMacros
+                  ? '1fr 1fr 1fr 1fr'
+                  : '1fr'};"
+              >
+                {#if aiCalories !== null}
+                  <div class="text-center">
+                    <p style="font-size: 0.65rem; color: #7A6B5A; font-weight: 600;">Calories</p>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: #3D2B1F;">
+                      {aiCalories.min}–{aiCalories.max}
+                    </p>
+                  </div>
+                {/if}
+                {#if aiMacros}
+                  <div class="text-center">
+                    <p style="font-size: 0.65rem; color: #7A6B5A; font-weight: 600;">Protein</p>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: #3D2B1F;">
+                      {aiMacros.protein}g
+                    </p>
+                  </div>
+                  <div class="text-center">
+                    <p style="font-size: 0.65rem; color: #7A6B5A; font-weight: 600;">Carbs</p>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: #3D2B1F;">
+                      {aiMacros.carbs}g
+                    </p>
+                  </div>
+                  <div class="text-center">
+                    <p style="font-size: 0.65rem; color: #7A6B5A; font-weight: 600;">Fat</p>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: #3D2B1F;">
+                      {aiMacros.fat}g
+                    </p>
+                  </div>
+                {/if}
+              </div>
+            {/if}
+
             <!-- Analyze / Re-analyze button -->
             {#if !aiApplied}
               <button
@@ -499,9 +561,14 @@
         <!-- Location -->
         <div
           class="rounded-xl p-4 shadow-sm space-y-3"
-          style="background-color: white; border: 1px solid {errors.location ? '#FECACA' : 'rgba(0,104,56,0.1)'};"
+          style="background-color: white; border: 1px solid {errors.location
+            ? '#FECACA'
+            : 'rgba(0,104,56,0.1)'};"
         >
-          <div class="flex items-center gap-2" style="font-size: 0.8rem; color: {errors.location ? '#C0392B' : '#7A6B5A'};">
+          <div
+            class="flex items-center gap-2"
+            style="font-size: 0.8rem; color: {errors.location ? '#C0392B' : '#7A6B5A'};"
+          >
             <MapPin class="w-3.5 h-3.5" />
             Location
           </div>
@@ -514,7 +581,9 @@
             }}
             placeholder="Restaurant or venue name (e.g. Sgt. Pepperoni's)"
             class="w-full px-3 py-2.5 rounded-xl outline-none"
-            style="background-color: #F5F1EB; font-size: 0.875rem; color: #1C2B1C; border: 1.5px solid {errors.location ? '#FECACA' : 'transparent'}"
+            style="background-color: #F5F1EB; font-size: 0.875rem; color: #1C2B1C; border: 1.5px solid {errors.location
+              ? '#FECACA'
+              : 'transparent'}"
           />
           <input
             type="text"
@@ -676,19 +745,20 @@
               : '#7A6B5A'};"
           >
             <DollarSign class="w-3.5 h-3.5" />
-            Price Range
+            Price
             {#if aiApplied}
               <Sparkles class="w-3 h-3 ml-1" style="color: #006838;" />
             {/if}
           </div>
           <div class="flex items-center gap-3">
             <div class="flex-1">
-              <p style="font-size: 0.7rem; color: #7A6B5A; margin-bottom: 4px;">Min ($)</p>
+              <p style="font-size: 0.7rem; color: #7A6B5A; margin-bottom: 4px;">Fresh Box ($)</p>
               <input
                 type="number"
-                min="1"
-                max="10"
+                min="7"
+                max="7"
                 value={priceMin}
+                readonly
                 oninput={(e) => {
                   priceMin = (e.target as HTMLInputElement).value;
                   errors = { ...errors, priceMin: undefined, priceMax: undefined };
@@ -703,14 +773,14 @@
                 "
               />
             </div>
-            <span style="color: #7A6B5A; padding-top: 20px;">–</span>
             <div class="flex-1">
-              <p style="font-size: 0.7rem; color: #7A6B5A; margin-bottom: 4px;">Max ($)</p>
+              <p style="font-size: 0.7rem; color: #7A6B5A; margin-bottom: 4px;">Fresh Box ($)</p>
               <input
                 type="number"
-                min="1"
-                max="10"
+                min="7"
+                max="7"
                 value={priceMax}
+                readonly
                 oninput={(e) => {
                   priceMax = (e.target as HTMLInputElement).value;
                   errors = { ...errors, priceMax: undefined };
@@ -735,7 +805,7 @@
             </div>
           {/if}
           <p class="mt-2" style="font-size: 0.7rem; color: #7A6B5A;">
-            Dynamic pricing: low supply + high demand skews toward max.
+            Fixed price: $7 per Fresh Box.
           </p>
         </div>
 

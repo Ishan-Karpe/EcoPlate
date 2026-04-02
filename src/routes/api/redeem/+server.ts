@@ -1,6 +1,6 @@
 import { json } from "@sveltejs/kit";
 import { get, set } from "$lib/kv";
-import { updateStats } from "$lib/server/helpers";
+import { defaultUserState, updateStats } from "$lib/server/helpers";
 
 export async function POST({ request }: { request: Request }) {
   try {
@@ -9,7 +9,7 @@ export async function POST({ request }: { request: Request }) {
     if (!code || typeof code !== "string" || code.trim().length === 0) {
       return json({ valid: false, reason: "Pickup code is required" });
     }
-    if (code.trim().length > 20) {
+    if (code.trim().length === 0 || code.trim().length > 20) {
       return json({ valid: false, reason: "Invalid code format" });
     }
 
@@ -46,14 +46,13 @@ export async function POST({ request }: { request: Request }) {
     const userState = (await get(`user:${res.userId as string}`)) as
       | Record<string, unknown>
       | undefined;
-    if (userState) {
-      await set(`user:${res.userId as string}`, {
-        ...userState,
-        totalPickups: ((userState.totalPickups as number | undefined) ?? 0) + 1,
-      });
-    }
+    const baseState = userState ?? (defaultUserState() as Record<string, unknown>);
+    await set(`user:${res.userId as string}`, {
+      ...baseState,
+      totalPickups: ((baseState.totalPickups as number | undefined) ?? 0) + 1,
+    });
 
-    const drop = await get(`drop:${res.dropId as string}`);
+    const drop = (await get(`drop:${res.dropId as string}`)) ?? null;
     return json({
       valid: true,
       reservation: updatedRes,

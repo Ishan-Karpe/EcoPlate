@@ -377,8 +377,8 @@
                       <div class="flex items-center gap-1">
                         <Clock class="w-3 h-3 shrink-0" style="color: #B0A898" />
                         <span style="font-size: 0.68rem; color: #7A6B5A">
-                          {formatTime(order.dropWindowStart)} &ndash; {formatTime(
-                            order.dropWindowEnd
+                          {formatTime(order.dropWindowStart ?? "")} &ndash; {formatTime(
+                            order.dropWindowEnd ?? ""
                           )}
                         </span>
                       </div>

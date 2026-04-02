@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import { calculateCurrentPrice, formatTime, generatePickupCode, getWindowState } from ".";
-import { FOOD_IMAGE_POOL, LOCATION_FALLBACK_IMAGES, pickDropImage } from "../constants";
+import { DEFAULT_FALLBACK_IMAGE, FOOD_IMAGE_POOL, pickDropImage } from "../constants";
 import type { Drop } from "../types";
 
 function makeDrop(overrides: Partial<Drop> = {}): Drop {
@@ -14,8 +14,8 @@ function makeDrop(overrides: Partial<Drop> = {}): Drop {
     totalBoxes: 10,
     remainingBoxes: 5,
     reservedBoxes: 5,
-    priceMin: 3,
-    priceMax: 5,
+    priceMin: 7,
+    priceMax: 7,
     status: "active",
     description: "Test drop",
     imageUrl: "",
@@ -26,37 +26,37 @@ function makeDrop(overrides: Partial<Drop> = {}): Drop {
 }
 
 describe("calculateCurrentPrice", () => {
-  it("returns min price when supply is high", () => {
+  it("returns fixed price at $7 regardless of supply", () => {
     const drop = makeDrop({
       totalBoxes: 10,
       remainingBoxes: 7,
       reservedBoxes: 3,
-      priceMin: 3,
-      priceMax: 5,
+      priceMin: 7,
+      priceMax: 7,
     });
-    expect(calculateCurrentPrice(drop)).toBe(3);
+    expect(calculateCurrentPrice(drop)).toBe(7);
   });
 
-  it("returns max price when supply is low and demand is high", () => {
+  it("returns fixed price at $7 when supply is low", () => {
     const drop = makeDrop({
       totalBoxes: 10,
       remainingBoxes: 1,
       reservedBoxes: 9,
-      priceMin: 3,
-      priceMax: 5,
+      priceMin: 7,
+      priceMax: 7,
     });
-    expect(calculateCurrentPrice(drop)).toBe(5);
+    expect(calculateCurrentPrice(drop)).toBe(7);
   });
 
-  it("interpolates and rounds in the middle branch", () => {
+  it("returns fixed price at $7 in mid-range conditions", () => {
     const drop = makeDrop({
       totalBoxes: 10,
       remainingBoxes: 3,
       reservedBoxes: 7,
-      priceMin: 3,
-      priceMax: 5,
+      priceMin: 7,
+      priceMax: 7,
     });
-    expect(calculateCurrentPrice(drop)).toBe(4);
+    expect(calculateCurrentPrice(drop)).toBe(7);
   });
 });
 
@@ -107,13 +107,13 @@ describe("pickDropImage", () => {
     expect(image).toBe(FOOD_IMAGE_POOL[0]?.url);
   });
 
-  it("falls back to location image when no keyword matches", () => {
+  it("falls back to default image when no keyword matches", () => {
     const image = pickDropImage("mystery dish", "Brandywine");
-    expect(image).toBe(LOCATION_FALLBACK_IMAGES.Brandywine);
+    expect(image).toBe(DEFAULT_FALLBACK_IMAGE);
   });
 
-  it("falls back to Anteatery image for unknown locations", () => {
+  it("falls back to default image for unknown locations", () => {
     const image = pickDropImage("unknown item", "Unknown");
-    expect(image).toBe(LOCATION_FALLBACK_IMAGES.Anteatery);
+    expect(image).toBe(DEFAULT_FALLBACK_IMAGE);
   });
 });

@@ -19,11 +19,15 @@ export async function GET(event: RequestEvent) {
         | Record<string, unknown>
         | undefined;
       if (!drop) continue;
-      if (drop.date !== todayStr) continue;
+      const dropDate = String(drop.date ?? "");
+      if (!dropDate || isNaN(new Date(dropDate).getTime())) continue;
+      if (dropDate !== todayStr) continue;
 
-      const [endH, endM] = String(drop.windowEnd ?? "23:59")
+      let [endH, endM] = String(drop.windowEnd ?? "23:59")
         .split(":")
         .map(Number);
+      if (isNaN(endH)) endH = 23;
+      if (isNaN(endM)) endM = 59;
       const windowEndMs = new Date();
       windowEndMs.setHours(endH, endM, 0, 0);
 

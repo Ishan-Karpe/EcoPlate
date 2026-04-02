@@ -1,6 +1,6 @@
 import { json } from "@sveltejs/kit";
 import type { RequestEvent } from "@sveltejs/kit";
-import { get, getByPrefix, set } from "$lib/kv";
+import { getByPrefix, set } from "$lib/kv";
 import { getStats, updateStats } from "$lib/server/helpers";
 import { requireAdmin } from "$lib/server/auth";
 import { sendDropAlert } from "$lib/server/email";
@@ -116,12 +116,10 @@ export async function POST(event: RequestEvent) {
               sendDropAlert({
                 to: u.email!,
                 name: (u.user_metadata?.name as string | undefined) ?? "there",
-                location: drop.location as string,
-                locationDetail: drop.locationDetail as string,
-                windowStart: drop.windowStart as string,
-                windowEnd: drop.windowEnd as string,
-                priceMin: drop.priceMin as number,
-                priceMax: drop.priceMax as number,
+                location: (drop.location as string) ?? "",
+                locationDetail: (drop.locationDetail as string) ?? "",
+                windowStart: (drop.windowStart as string) ?? "",
+                windowEnd: (drop.windowEnd as string) ?? "",
                 dropId: id,
               })
             )

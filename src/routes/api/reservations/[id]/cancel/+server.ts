@@ -34,15 +34,17 @@ export async function POST(event: RequestEvent) {
       });
     }
 
-    if (res.paymentMethod === "credit") {
-      const userState = (await get(`user:${res.userId as string}`)) as
-        | Record<string, unknown>
-        | undefined;
-      if (userState) {
-        await set(`user:${res.userId as string}`, {
-          ...userState,
-          creditsRemaining: ((userState.creditsRemaining as number | undefined) ?? 0) + 1,
-        });
+    const userState = (await get(`user:${res.userId as string}`)) as
+      | Record<string, unknown>
+      | undefined;
+    if (userState) {
+      const userUpdates: Record<string, unknown> = {};
+      if (res.paymentMethod === "credit") {
+        userUpdates.creditsRemaining =
+          ((userState.creditsRemaining as number | undefined) ?? 0) + 1;
+      }
+      if (Object.keys(userUpdates).length > 0) {
+        await set(`user:${res.userId as string}`, { ...userState, ...userUpdates });
       }
     }
 

@@ -49,8 +49,8 @@
     boxes = String(drop.totalBoxes);
     windowStart = drop.windowStart;
     windowEnd = drop.windowEnd;
-    priceMin = String(drop.priceMin);
-    priceMax = String(drop.priceMax);
+    priceMin = "7";
+    priceMax = "7";
     status = drop.status;
   });
 
@@ -83,18 +83,12 @@
     const min = parseFloat(priceMin);
     const max = parseFloat(priceMax);
 
-    if (!priceMin.trim() || isNaN(min) || min < 1) {
-      nextErrors.priceMin = "Minimum price must be at least $1";
-    } else if (min > 10) {
-      nextErrors.priceMin = "Maximum allowed price is $10";
+    if (!priceMin.trim() || isNaN(min) || min !== 7) {
+      nextErrors.priceMin = "Fresh Boxes are fixed at $7";
     }
 
-    if (!priceMax.trim() || isNaN(max) || max < 1) {
-      nextErrors.priceMax = "Maximum price must be at least $1";
-    } else if (max > 10) {
-      nextErrors.priceMax = "Maximum allowed price is $10";
-    } else if (!isNaN(min) && max < min) {
-      nextErrors.priceMax = "Max must be greater than or equal to min price";
+    if (!priceMax.trim() || isNaN(max) || max !== 7) {
+      nextErrors.priceMax = "Fresh Boxes are fixed at $7";
     }
 
     errors = nextErrors;
@@ -115,8 +109,8 @@
       remainingBoxes: Math.max(0, drop.remainingBoxes + boxDiff),
       windowStart,
       windowEnd,
-      priceMin: parseFloat(priceMin) || drop.priceMin,
-      priceMax: parseFloat(priceMax) || drop.priceMax,
+      priceMin: 7,
+      priceMax: 7,
       status,
     };
 
@@ -394,7 +388,7 @@
             class="flex items-center gap-2 mb-2"
             style="font-size: 0.8rem; color: {errors.priceMin || errors.priceMax
               ? '#C0392B'
-              : '#7A6B5A'};"><DollarSign class="w-3.5 h-3.5" />Price Range</label
+              : '#7A6B5A'};"><DollarSign class="w-3.5 h-3.5" />Price</label
           >
           <div class="flex items-center gap-2">
             <div class="flex-1">
@@ -406,6 +400,7 @@
                 <input
                   type="number"
                   value={priceMin}
+                  readonly
                   oninput={(e) => {
                     priceMin = (e.currentTarget as HTMLInputElement).value;
                     errors = { ...errors, priceMin: undefined };
@@ -413,13 +408,14 @@
                   class="flex-1 px-1 py-2.5 outline-none"
                   style="background-color: transparent; font-size: 1rem; font-weight: 700; color: #1C2B1C;"
                   step="1"
-                  min="1"
-                  max="10"
+                  min="7"
+                  max="7"
                 />
               </div>
-              <p class="mt-1 text-center" style="font-size: 0.65rem; color: #7A6B5A;">Min</p>
+              <p class="mt-1 text-center" style="font-size: 0.65rem; color: #7A6B5A;">
+                Fresh Box ($)
+              </p>
             </div>
-            <span style="color: #7A6B5A; margin-bottom: 16px;">to</span>
             <div class="flex-1">
               <div
                 class="flex items-center rounded-lg overflow-hidden"
@@ -429,6 +425,7 @@
                 <input
                   type="number"
                   value={priceMax}
+                  readonly
                   oninput={(e) => {
                     priceMax = (e.currentTarget as HTMLInputElement).value;
                     errors = { ...errors, priceMax: undefined };
@@ -436,11 +433,13 @@
                   class="flex-1 px-1 py-2.5 outline-none"
                   style="background-color: transparent; font-size: 1rem; font-weight: 700; color: #1C2B1C;"
                   step="1"
-                  min="1"
-                  max="10"
+                  min="7"
+                  max="7"
                 />
               </div>
-              <p class="mt-1 text-center" style="font-size: 0.65rem; color: #7A6B5A;">Max</p>
+              <p class="mt-1 text-center" style="font-size: 0.65rem; color: #7A6B5A;">
+                Fresh Box ($)
+              </p>
             </div>
           </div>
           {#if errors.priceMin || errors.priceMax}

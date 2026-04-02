@@ -188,6 +188,9 @@ export interface FoodAnalysisResult {
   suggestedPriceMin: number;
   suggestedPriceMax: number;
   tags: string[];
+  allergens: string[];
+  calories: { min: number; max: number } | null;
+  macros: { protein: number; carbs: number; fat: number } | null;
 }
 
 export async function analyzeFoodPhoto(imageBase64: string): Promise<FoodAnalysisResult> {

@@ -25,6 +25,7 @@ export async function GET(event: RequestEvent) {
     for (const drop of allDrops) {
       if (!drop.date) continue;
       const d = new Date(`${String(drop.date)}T12:00:00`);
+      if (isNaN(d.getTime())) continue;
       const label = days[d.getDay()];
       if (!dayMap[label]) dayMap[label] = { posted: 0, pickedUp: 0, noShows: 0 };
       dayMap[label].posted += (drop.totalBoxes as number | undefined) ?? 0;
@@ -53,7 +54,7 @@ export async function GET(event: RequestEvent) {
         0
       );
       const pickupRate = totalPosted > 0 ? (locationRes.length / totalPosted) * 100 : 0;
-      const weeksAbove85 = pickupRate >= 85 ? cap.consecutiveWeeksAbove85 : 0;
+      const weeksAbove85 = pickupRate >= 85 ? cap.consecutiveWeeksAbove85 + 1 : 0;
       return { ...cap, consecutiveWeeksAbove85: weeksAbove85 };
     });
 

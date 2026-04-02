@@ -15,7 +15,12 @@ export function defaultUserState() {
 
 export async function getStats() {
   const stats = await get("stats:global");
-  if (stats) return stats as Record<string, unknown>;
+  if (stats) {
+    const s = stats as Record<string, unknown>;
+    if (!Array.isArray(s.locationCaps)) s.locationCaps = [];
+    if (!Array.isArray(s.recentDrops)) s.recentDrops = [];
+    return s;
+  }
   return {
     totalDrops: 0,
     totalBoxesPosted: 0,

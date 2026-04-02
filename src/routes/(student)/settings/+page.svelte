@@ -336,7 +336,11 @@
                 box-shadow: {isSelected && !isLockedForGuest
                 ? '0 2px 12px rgba(0,104,56,0.1)'
                 : '0 1px 4px rgba(0,0,0,0.04)'};
-                opacity: {isLockedForGuest || isComingSoon ? 0.6 : isFreeTier && !isSelected ? 0.85 : 1};
+                opacity: {isLockedForGuest || isComingSoon
+                ? 0.6
+                : isFreeTier && !isSelected
+                  ? 0.85
+                  : 1};
                 cursor: {isLockedForGuest || isComingSoon ? 'default' : 'pointer'};
               "
             >
@@ -663,10 +667,10 @@
             <p style="font-size: 0.875rem; font-weight: 600; color: #1C2B1C">Privacy & Data</p>
           </div>
           <p style="font-size: 0.72rem; color: #7A6B5A; line-height: 1.5; padding-left: 44px">
-            EcoPlate collects only the data necessary to operate the food rescue program near UCI: your
-            name, email, reservation history, and payment information. We do not sell or share your
-            data with third parties. You may request deletion of your account and associated data at
-            any time by contacting the EcoPlate team.
+            EcoPlate collects only the data necessary to operate the food rescue program near UCI:
+            your name, email, reservation history, and payment information. We do not sell or share
+            your data with third parties. You may request deletion of your account and associated
+            data at any time by contacting the EcoPlate team.
           </p>
         </div>
       </div>

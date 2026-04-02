@@ -341,7 +341,10 @@
                   Allow camera permission in your browser settings, then try again.
                 </p>
                 <button
-                  onclick={() => { mode = "code"; result = null; }}
+                  onclick={() => {
+                    mode = "code";
+                    result = null;
+                  }}
                   class="mt-3 px-4 py-1.5 rounded-full"
                   style="background-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;"
                 >
@@ -360,7 +363,10 @@
                   No camera found or it's in use by another app.
                 </p>
                 <button
-                  onclick={() => { mode = "code"; result = null; }}
+                  onclick={() => {
+                    mode = "code";
+                    result = null;
+                  }}
                   class="mt-3 px-4 py-1.5 rounded-full"
                   style="background-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600;"
                 >

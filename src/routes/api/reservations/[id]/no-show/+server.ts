@@ -10,7 +10,7 @@ export async function POST(event: RequestEvent) {
   const params = event.params;
   const request = event.request;
   try {
-    const id = params.id;
+    const id = params.id!;
     const body = await request.json().catch(() => ({}));
     const boxStatus = body.boxStatus ?? "released";
 

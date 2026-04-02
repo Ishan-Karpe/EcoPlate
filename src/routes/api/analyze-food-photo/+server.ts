@@ -29,7 +29,7 @@ export async function POST(event: RequestEvent) {
     }
 
     const payload = {
-      model: "google/gemini-2.0-flash-001",
+      model: "google/gemini-3-flash-preview",
       messages: [
         {
           role: "user",
@@ -42,22 +42,25 @@ export async function POST(event: RequestEvent) {
             },
             {
               type: "text",
-              text: `You are an AI assistant for EcoPlate, a food rescue program serving restaurants and dining spots near UC Irvine.
+              text: `You are an AI assistant for EcoPlate, a food rescue program serving dining spots near UC Irvine.
 
-Analyze this photo of dining hall food and return a JSON object with:
-1. "description": A concise, appetizing 1-2 sentence description of what's in the photo suitable for a Fresh Box listing. Include the station type (e.g., "Pasta bar:", "Stir-fry station:", "Grill station:") followed by specific items.
-2. "suggestedBoxes": Estimated number of Fresh Boxes that could be made from what you see (integer between 5-30).
-3. "suggestedPriceMin": Suggested minimum price in dollars (integer, typically 3-4).
-4. "suggestedPriceMax": Suggested maximum price in dollars (integer, typically 4-5).
+Analyze this photo of dining hall food and return a JSON object with ALL of the following fields:
+1. "description": A concise, appetizing 1-2 sentence description suitable for a Fresh Box listing. Include the station type (e.g., "Pasta bar:", "Stir-fry station:", "Grill station:") followed by specific items visible.
+2. "suggestedBoxes": Estimated number of Fresh Boxes that could be made from the quantity visible. Use these as a guide: full hotel/steam tray ≈ 15–20 boxes, half tray ≈ 8–10 boxes, smaller dish or partial tray ≈ 5–7 boxes. Return an integer between 5–30.
+3. "suggestedPriceMin": Always 7.
+4. "suggestedPriceMax": Always 7.
 5. "tags": Array of relevant dietary tags from: ["Vegetarian", "Vegan", "Gluten-Free", "High Protein", "Dairy-Free"].
+6. "allergens": Array of allergens you can visually confirm or reasonably infer from the dish type and visible ingredients. Do NOT guess — only include what is evident from what you see or standard recipe knowledge for this dish. If a dish is ambiguous and you cannot confidently confirm an allergen, omit it. Choose from: ["Dairy", "Eggs", "Tree Nuts", "Peanuts", "Soy", "Gluten", "Shellfish", "Fish", "Sesame"].
+7. "calories": Estimated calorie range per serving, where one serving ≈ 500g or a standard takeout container. Return as object: { "min": integer, "max": integer }.
+8. "macros": Estimated grams per serving (same ≈ 500g serving as calories): { "protein": integer, "carbs": integer, "fat": integer }.
 
 Return ONLY valid JSON, no markdown fences, no explanation.`,
             },
           ],
         },
       ],
-      max_tokens: 300,
-      temperature: 0.3,
+      max_tokens: 500,
+      temperature: 0.1,
     };
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -103,9 +106,22 @@ Return ONLY valid JSON, no markdown fences, no explanation.`,
     return json({
       description: parsed.description ?? "",
       suggestedBoxes: Math.min(30, Math.max(1, parseInt(parsed.suggestedBoxes) || 15)),
-      suggestedPriceMin: Math.max(1, parseInt(parsed.suggestedPriceMin) || 3),
-      suggestedPriceMax: Math.max(1, parseInt(parsed.suggestedPriceMax) || 5),
+      suggestedPriceMin: 7,
+      suggestedPriceMax: 7,
       tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+      allergens: Array.isArray(parsed.allergens) ? parsed.allergens : [],
+      calories:
+        parsed.calories && typeof parsed.calories === "object"
+          ? { min: parseInt(parsed.calories.min) || 0, max: parseInt(parsed.calories.max) || 0 }
+          : null,
+      macros:
+        parsed.macros && typeof parsed.macros === "object"
+          ? {
+              protein: parseInt(parsed.macros.protein) || 0,
+              carbs: parseInt(parsed.macros.carbs) || 0,
+              fat: parseInt(parsed.macros.fat) || 0,
+            }
+          : null,
     });
   } catch (e) {
     console.log("Error in analyze-food-photo:", e);

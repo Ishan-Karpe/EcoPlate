@@ -307,7 +307,6 @@
             Continue
             <ArrowRight class="w-4 h-4" />
           </button>
-
         {:else if step === "discover"}
           <div class="flex-1 flex flex-col items-center justify-center">
             <div

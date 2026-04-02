@@ -12,7 +12,12 @@ export async function PATCH(event: RequestEvent) {
     const body = await request.json();
     const drop = await get(`drop:${id}`);
     if (!drop) return json({ error: "Drop not found" }, { status: 404 });
-    const updated = { ...(drop as Record<string, unknown>), ...(body as Record<string, unknown>) };
+    const updated = {
+      ...(drop as Record<string, unknown>),
+      ...(body as Record<string, unknown>),
+      priceMin: 7,
+      priceMax: 7,
+    };
     await set(`drop:${id}`, updated);
     return json({ drop: updated });
   } catch (e) {

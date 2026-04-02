@@ -24,7 +24,7 @@ export function isValidBoxCount(count: unknown): boolean {
 
 export function isValidPrice(price: unknown): boolean {
   const n = typeof price === "number" ? price : parseFloat(String(price));
-  return !isNaN(n) && n >= 1 && n <= 10;
+  return !isNaN(n) && n === 7;
 }
 
 export function isValidRating(rating: unknown): boolean {
