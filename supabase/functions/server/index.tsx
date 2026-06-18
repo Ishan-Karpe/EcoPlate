@@ -94,8 +94,14 @@ async function getStats() {
     noShowRate: 0,
     avgRating: 0,
     locationCaps: [
-      { location: "Anteatery", currentCap: 30, consecutiveWeeksAbove85: 0 },
-      { location: "Brandywine", currentCap: 25, consecutiveWeeksAbove85: 0 },
+      { location: "Bursley", currentCap: 30, consecutiveWeeksAbove85: 0 },
+      { location: "East Quad", currentCap: 30, consecutiveWeeksAbove85: 0 },
+      { location: "Markley", currentCap: 30, consecutiveWeeksAbove85: 0 },
+      { location: "Mosher-Jordan", currentCap: 30, consecutiveWeeksAbove85: 0 },
+      { location: "North Quad", currentCap: 30, consecutiveWeeksAbove85: 0 },
+      { location: "South Quad", currentCap: 30, consecutiveWeeksAbove85: 0 },
+      { location: "Twigs at Oxford", currentCap: 30, consecutiveWeeksAbove85: 0 },
+      { location: "Wolverine Village", currentCap: 30, consecutiveWeeksAbove85: 0 },
     ],
     recentDrops: [],
   };
@@ -217,8 +223,18 @@ app.post(`${BASE}/drops`, async (c) => {
       description, imageUrl, dailyCap, consecutiveWeeksAbove85,
     } = body;
 
-    if (!location || !["Brandywine", "Anteatery"].includes(location)) {
-      return c.json({ error: "Location must be 'Brandywine' or 'Anteatery'" }, 400);
+    const VALID_LOCATIONS = [
+      "Bursley",
+      "East Quad",
+      "Markley",
+      "Mosher-Jordan",
+      "North Quad",
+      "South Quad",
+      "Twigs at Oxford",
+      "Wolverine Village",
+    ];
+    if (!location || !VALID_LOCATIONS.includes(location)) {
+      return c.json({ error: `Location must be one of: ${VALID_LOCATIONS.join(", ")}` }, 400);
     }
     const boxCount = parseInt(boxes);
     if (isNaN(boxCount) || boxCount < 1 || boxCount > 100) {
@@ -903,7 +919,7 @@ app.post(`${BASE}/analyze-food-photo`, async (c) => {
             },
             {
               type: "text",
-              text: `You are an AI assistant for EcoPlate, a campus food rescue program at UC Irvine.
+              text: `You are an AI assistant for EcoPlate, a campus food rescue program at the University of Michigan.
 
 Analyze this photo of dining hall food and return a JSON object with:
 1. "description": A concise, appetizing 1-2 sentence description of what's in the photo suitable for a Rescue Box listing. Include the station type (e.g., "Pasta bar:", "Stir-fry station:", "Grill station:") followed by specific items.

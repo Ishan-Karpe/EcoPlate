@@ -6,7 +6,7 @@ import type { Drop } from "../types";
 function makeDrop(overrides: Partial<Drop> = {}): Drop {
   return {
     id: "drop-test",
-    location: "Anteatery",
+    location: "South Quad",
     locationDetail: "Main hall",
     date: "2026-03-01",
     windowStart: "11:00",
@@ -103,12 +103,12 @@ describe("formatTime", () => {
 
 describe("pickDropImage", () => {
   it("matches a keyword-specific image", () => {
-    const image = pickDropImage("Tonight pasta and vegetables", "Anteatery");
+    const image = pickDropImage("Tonight pasta and vegetables", "South Quad");
     expect(image).toBe(FOOD_IMAGE_POOL[0]?.url);
   });
 
   it("falls back to default image when no keyword matches", () => {
-    const image = pickDropImage("mystery dish", "Brandywine");
+    const image = pickDropImage("mystery dish", "Mosher-Jordan");
     expect(image).toBe(DEFAULT_FALLBACK_IMAGE);
   });
 

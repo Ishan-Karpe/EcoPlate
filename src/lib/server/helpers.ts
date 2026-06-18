@@ -1,4 +1,5 @@
 import { get, set } from "$lib/kv";
+import { DEFAULT_LOCATION_CAPS } from "$lib/constants";
 
 export function defaultUserState() {
   return {
@@ -30,7 +31,7 @@ export async function getStats() {
     pickupRate: 0,
     noShowRate: 0,
     avgRating: 0,
-    locationCaps: [],
+    locationCaps: DEFAULT_LOCATION_CAPS.map((cap) => ({ ...cap })),
     recentDrops: [],
   };
 }

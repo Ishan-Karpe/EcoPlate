@@ -667,7 +667,7 @@
             <p style="font-size: 0.875rem; font-weight: 600; color: #1C2B1C">Privacy & Data</p>
           </div>
           <p style="font-size: 0.72rem; color: #7A6B5A; line-height: 1.5; padding-left: 44px">
-            EcoPlate collects only the data necessary to operate the food rescue program near UCI:
+            EcoPlate collects only the data necessary to operate the food rescue program near U-M:
             your name, email, reservation history, and payment information. We do not sell or share
             your data with third parties. You may request deletion of your account and associated
             data at any time by contacting the EcoPlate team.
@@ -679,7 +679,7 @@
     <!-- Privacy note -->
     <p class="text-center pb-2" style="font-size: 0.7rem; color: #7A6B5A">
       EcoPlate is not intended for collecting sensitive personal information. Data is used solely
-      for the food rescue program near UCI.
+      for the food rescue program near U-M.
     </p>
 
     <!-- Sign out (authenticated users) -->

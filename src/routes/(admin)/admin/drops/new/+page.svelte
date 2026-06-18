@@ -20,7 +20,7 @@
   } from "lucide-svelte";
   import { adminStore } from "$lib/stores/admin.svelte";
   import * as api from "$lib/api";
-  import { pickDropImage } from "$lib/constants";
+  import { pickDropImage, DINING_LOCATIONS, type DiningLocation } from "$lib/constants";
   import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
 
   // ─── Constants ────────────────────────────────────────────────────────────────
@@ -279,7 +279,7 @@
     const imageUrl = photoBase64 ?? pickDropImage(description, location);
     const success = await adminStore.handleDropSubmit(
       {
-        location: location as "Anteatery" | "Brandywine",
+        location: location as DiningLocation,
         locationDetail,
         boxes: boxCount,
         windowStart,
@@ -572,19 +572,22 @@
             <MapPin class="w-3.5 h-3.5" />
             Location
           </div>
-          <input
-            type="text"
+          <select
             value={location}
-            oninput={(e) => {
-              location = (e.currentTarget as HTMLInputElement).value;
+            onchange={(e) => {
+              location = (e.currentTarget as HTMLSelectElement).value;
               errors = { ...errors, location: undefined };
             }}
-            placeholder="Restaurant or venue name (e.g. Sgt. Pepperoni's)"
             class="w-full px-3 py-2.5 rounded-xl outline-none"
             style="background-color: #F5F1EB; font-size: 0.875rem; color: #1C2B1C; border: 1.5px solid {errors.location
               ? '#FECACA'
               : 'transparent'}"
-          />
+          >
+            <option value="" disabled>Select a dining hall</option>
+            {#each DINING_LOCATIONS as hall}
+              <option value={hall}>{hall}</option>
+            {/each}
+          </select>
           <input
             type="text"
             value={locationDetail}

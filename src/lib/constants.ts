@@ -39,6 +39,25 @@ export const FOOD_IMAGE_POOL = [
   },
 ];
 
+export const DINING_LOCATIONS = [
+  "Bursley",
+  "East Quad",
+  "Markley",
+  "Mosher-Jordan",
+  "North Quad",
+  "South Quad",
+  "Twigs at Oxford",
+  "Wolverine Village",
+] as const;
+
+export type DiningLocation = (typeof DINING_LOCATIONS)[number];
+
+export const DEFAULT_LOCATION_CAPS = DINING_LOCATIONS.map((location) => ({
+  location,
+  currentCap: 30,
+  consecutiveWeeksAbove85: 0,
+}));
+
 export const LOCATION_FALLBACK_IMAGES: Record<string, string> = {};
 
 export const DEFAULT_FALLBACK_IMAGE =

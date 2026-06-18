@@ -18,21 +18,21 @@
   type UserRole = "student" | "partner";
 
   const COLLEGES = [
-    { name: "Near UC Irvine", available: true },
-    { name: "UCLA", available: false },
-    { name: "UC Berkeley", available: false },
-    { name: "UC San Diego", available: false },
-    { name: "UC Davis", available: false },
-    { name: "UC Santa Barbara", available: false },
-    { name: "UC Santa Cruz", available: false },
-    { name: "UC Riverside", available: false },
-    { name: "UC Merced", available: false },
+    { name: "University of Michigan", available: true },
+    { name: "Michigan State", available: false },
+    { name: "Ohio State", available: false },
+    { name: "Wisconsin", available: false },
+    { name: "Minnesota", available: false },
+    { name: "Illinois", available: false },
+    { name: "Purdue", available: false },
+    { name: "Indiana", available: false },
+    { name: "Northwestern", available: false },
   ] as const;
 
   const steps: OnboardingStep[] = ["role", "discover", "reserve", "pickup"];
 
   let step = $state<OnboardingStep>("role");
-  let selectedCollege = $state("Near UC Irvine");
+  let selectedCollege = $state("University of Michigan");
   let collegeSearch = $state("");
   let showCollegeDropdown = $state(false);
   let selectedRole = $state<UserRole | null>(null);
@@ -266,7 +266,7 @@
                 <div>
                   <p style="font-size: 1rem; font-weight: 700; color: #1C2B1C">I'm a Student</p>
                   <p style="font-size: 0.8rem; color: #7A6B5A; margin-top: 2px">
-                    Affordable Fresh Boxes near UCI
+                    Affordable Fresh Boxes near U-M
                   </p>
                 </div>
               </div>

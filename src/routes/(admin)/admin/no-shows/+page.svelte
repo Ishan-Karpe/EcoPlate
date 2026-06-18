@@ -202,7 +202,7 @@
                       {#if noShow.boxStatus === "released"}
                         <RotateCcw class="w-3 h-3" /> Released to app
                       {:else if noShow.boxStatus === "donated"}
-                        <Gift class="w-3 h-3" /> Sent to donation
+                        <Gift class="w-3 h-3" /> Sent to Maize & Blue Cupboard
                       {:else}
                         <UserX class="w-3 h-3" /> Disposed
                       {/if}
@@ -280,8 +280,8 @@
         </p>
         <p style="font-size: 0.75rem; color: #006838;">
           Unclaimed boxes can be released back to the app while the window is active. After the
-          window closes, route remaining boxes to approved donation channels or responsible
-          disposal.
+          window closes, route remaining boxes to the Maize & Blue Cupboard food pantry (via the
+          Food Recovery Network) or responsible disposal.
         </p>
       </div>
     </Motion>

@@ -42,7 +42,7 @@ export async function POST(event: RequestEvent) {
             },
             {
               type: "text",
-              text: `You are an AI assistant for EcoPlate, a food rescue program serving dining spots near UC Irvine.
+              text: `You are an AI assistant for EcoPlate, a food rescue program serving dining halls at the University of Michigan.
 
 Analyze this photo of dining hall food and return a JSON object with ALL of the following fields:
 1. "description": A concise, appetizing 1-2 sentence description suitable for a Fresh Box listing. Include the station type (e.g., "Pasta bar:", "Stir-fry station:", "Grill station:") followed by specific items visible.

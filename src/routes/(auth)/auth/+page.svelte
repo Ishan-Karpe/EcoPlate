@@ -90,7 +90,7 @@
         class="mt-2.5"
         style="font-size: 0.8rem; font-weight: 500; color: #8B6F47; letter-spacing: 0.12em; text-transform: uppercase"
       >
-        Affordable Fresh Boxes near UCI
+        Affordable Fresh Boxes near U-M
       </p>
     </div>
   </Motion>
@@ -172,7 +172,7 @@
               type="email"
               value={email}
               oninput={(e) => (email = (e.currentTarget as HTMLInputElement).value)}
-              placeholder="you@uci.edu"
+              placeholder="you@umich.edu"
               maxlength={254}
               class="w-full px-4 py-3 rounded-xl outline-none transition-colors"
               style="background-color: #F5F1EB; font-size: 1rem; color: #1C2B1C"
@@ -282,7 +282,7 @@
 
   <div class="px-6 pb-10 pt-4">
     <p class="text-center" style="font-size: 0.72rem; color: #B0A898">
-      Affordable Fresh Boxes near UCI
+      Affordable Fresh Boxes near U-M
     </p>
     <button
       onclick={() => goto("/admin/login")}
